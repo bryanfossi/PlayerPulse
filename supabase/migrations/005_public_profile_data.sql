@@ -1,0 +1,21 @@
+-- Public profile extended data columns
+alter table public.players
+  add column if not exists jersey_number        text,
+  add column if not exists hero_image_url       text,
+  add column if not exists contact_phone        text,
+  add column if not exists contact_twitter      text,
+  add column if not exists contact_instagram    text,
+  add column if not exists contact_hudl         text,
+  add column if not exists contact_tiktok       text,
+  add column if not exists contact_youtube      text,
+  add column if not exists coach_name           text,
+  add column if not exists coach_email          text,
+  add column if not exists coach_phone          text,
+  add column if not exists class_rank           text,
+  add column if not exists intended_major       text,
+  add column if not exists academic_honors      text[],
+  add column if not exists stats_json           jsonb,
+  add column if not exists awards_json          jsonb,
+  add column if not exists upcoming_events_json jsonb,
+  add column if not exists match_schedule_json  jsonb,
+  add column if not exists highlight_clips_json jsonb;
