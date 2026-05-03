@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { Plus, Search } from 'lucide-react'
+import { Plus, Search, SlidersHorizontal, X, Mail } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { DraftEmailModal } from './DraftEmailModal'
 import {
   Select,
   SelectContent,
@@ -37,6 +38,7 @@ interface Props {
 export function CommunicationsClient({ initialContacts, schools, preselectedPsId }: Props) {
   const [contacts, setContacts] = useState<ContactEntry[]>(initialContacts)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [draftModalOpen, setDraftModalOpen] = useState(false)
   const [editContact, setEditContact] = useState<ContactEntry | null>(null)
   const [defaultSchoolId, setDefaultSchoolId] = useState(preselectedPsId)
 
@@ -45,6 +47,7 @@ export function CommunicationsClient({ initialContacts, schools, preselectedPsId
   const [filterSchool, setFilterSchool] = useState<string>('all')
   const [filterType, setFilterType] = useState<string>('all')
   const [filterDirection, setFilterDirection] = useState<string>('all')
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
   const handleSaved = useCallback((contact: ContactEntry) => {
     setContacts((prev) => {
@@ -121,62 +124,101 @@ export function CommunicationsClient({ initialContacts, schools, preselectedPsId
         <FollowUpReminders contacts={contacts} />
 
         {/* Toolbar */}
-        <div className="flex items-center justify-between gap-3 flex-wrap">
-          <div className="flex items-center gap-2 flex-1 min-w-0 flex-wrap">
-            {/* Search */}
-            <div className="relative flex-1 min-w-[180px] max-w-xs">
+        <div className="space-y-2">
+          {/* Top row: search + toggle + log button + draft email */}
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1 min-w-0">
               <Search className="absolute left-2.5 top-2.5 w-4 h-4 text-muted-foreground pointer-events-none" />
               <Input
                 placeholder="Search contacts..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-8 h-8 text-sm"
+                className="pl-8 h-9 text-sm"
               />
             </div>
-
-            {/* School filter */}
-            <Select value={filterSchool} onValueChange={setFilterSchool}>
-              <SelectTrigger className="h-8 text-xs w-40">
-                <SelectValue placeholder="All schools" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Schools</SelectItem>
-                {uniqueSchools.map((s) => (
-                  <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {/* Type filter */}
-            <Select value={filterType} onValueChange={setFilterType}>
-              <SelectTrigger className="h-8 text-xs w-36">
-                <SelectValue placeholder="All types" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                {(Object.keys(CONTACT_TYPE_LABELS) as ContactType[]).map((t) => (
-                  <SelectItem key={t} value={t}>{CONTACT_TYPE_LABELS[t]}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {/* Direction filter */}
-            <Select value={filterDirection} onValueChange={setFilterDirection}>
-              <SelectTrigger className="h-8 text-xs w-32">
-                <SelectValue placeholder="All" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="outbound">Outbound</SelectItem>
-                <SelectItem value="inbound">Inbound</SelectItem>
-              </SelectContent>
-            </Select>
+            {/* Filter toggle (visible on all sizes) */}
+            <button
+              onClick={() => setFiltersOpen((v) => !v)}
+              className={`flex items-center gap-1.5 h-9 px-3 rounded-md border text-xs font-medium transition-colors flex-shrink-0 ${
+                filtersOpen || filterSchool !== 'all' || filterType !== 'all' || filterDirection !== 'all'
+                  ? 'border-green-500/40 bg-green-500/10 text-green-400'
+                  : 'border-border text-muted-foreground hover:text-foreground hover:bg-muted'
+              }`}
+            >
+              {filtersOpen ? <X className="w-3.5 h-3.5" /> : <SlidersHorizontal className="w-3.5 h-3.5" />}
+              <span className="hidden sm:inline">Filters</span>
+              {(filterSchool !== 'all' || filterType !== 'all' || filterDirection !== 'all') && (
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400 flex-shrink-0" />
+              )}
+            </button>
+            <Button size="sm" onClick={() => openNewDialog()} className="gap-1.5 flex-shrink-0 h-9">
+              <Plus className="w-4 h-4" />
+              <span className="hidden sm:inline">Log Contact</span>
+              <span className="sm:hidden">Log</span>
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => setDraftModalOpen(true)}
+              className="gap-1.5 flex-shrink-0 h-9 bg-[#C9A227] hover:bg-[#d4ac2e] text-[#1A3A5C] font-bold"
+            >
+              <Mail className="w-4 h-4" />
+              <span className="hidden sm:inline">Draft Email</span>
+              <span className="sm:hidden">Draft</span>
+            </Button>
           </div>
 
-          <Button size="sm" onClick={() => openNewDialog()} className="gap-1.5 flex-shrink-0">
-            <Plus className="w-4 h-4" />
-            Log Contact
-          </Button>
+          {/* Expandable filter row */}
+          {filtersOpen && (
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              {/* School filter */}
+              <Select value={filterSchool} onValueChange={setFilterSchool}>
+                <SelectTrigger className="h-8 text-xs w-40">
+                  <SelectValue placeholder="All schools" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Schools</SelectItem>
+                  {uniqueSchools.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Type filter */}
+              <Select value={filterType} onValueChange={setFilterType}>
+                <SelectTrigger className="h-8 text-xs w-36">
+                  <SelectValue placeholder="All types" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  {(Object.keys(CONTACT_TYPE_LABELS) as ContactType[]).map((t) => (
+                    <SelectItem key={t} value={t}>{CONTACT_TYPE_LABELS[t]}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Direction filter */}
+              <Select value={filterDirection} onValueChange={setFilterDirection}>
+                <SelectTrigger className="h-8 text-xs w-32">
+                  <SelectValue placeholder="All" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="outbound">Outbound</SelectItem>
+                  <SelectItem value="inbound">Inbound</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Clear filters */}
+              {(filterSchool !== 'all' || filterType !== 'all' || filterDirection !== 'all') && (
+                <button
+                  onClick={() => { setFilterSchool('all'); setFilterType('all'); setFilterDirection('all') }}
+                  className="text-xs text-muted-foreground hover:text-foreground underline"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Count */}
@@ -227,6 +269,13 @@ export function CommunicationsClient({ initialContacts, schools, preselectedPsId
         schools={schools}
         editContact={editContact}
         defaultSchoolId={defaultSchoolId}
+      />
+
+      <DraftEmailModal
+        open={draftModalOpen}
+        onClose={() => setDraftModalOpen(false)}
+        schools={schools}
+        defaultPsId={defaultSchoolId}
       />
     </>
   )

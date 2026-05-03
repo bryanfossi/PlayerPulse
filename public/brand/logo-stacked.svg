@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 280">
+  <!-- Dark background -->
+  <rect width="300" height="280" fill="#0F1120"/>
+
+  <!--
+    Icon mark: 120x120, horizontally centered (x=90), top offset y=24.
+    Scale from 48-unit space: 120/48 = 2.5, offset (90, 24).
+  -->
+  <g transform="translate(90,24) scale(2.5)" style="overflow:visible">
+    <circle
+      cx="24" cy="24" r="16"
+      stroke="#22C55E" stroke-width="2" fill="none"
+      vector-effect="non-scaling-stroke"/>
+    <path
+      d="M 3 24 H 10 L 13.5 19 L 17 30 L 21 5 L 25 24 H 45"
+      stroke="#22C55E" stroke-width="2" fill="none"
+      stroke-linecap="round" stroke-linejoin="round"
+      vector-effect="non-scaling-stroke"/>
+  </g>
+
+  <!-- Wordmark centered below icon -->
+  <text
+    x="150" y="202"
+    text-anchor="middle"
+    font-family="'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+    font-size="38" letter-spacing="-0.5">
+    <tspan fill="#FFFFFF" font-weight="400">Player</tspan><tspan fill="#22C55E" font-weight="700">Pulse</tspan>
+  </text>
+
+  <!-- Tagline -->
+  <text
+    x="150" y="234"
+    text-anchor="middle"
+    font-family="'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+    font-size="13" fill="#22C55E" fill-opacity="0.55" letter-spacing="0.5">
+    Your recruiting process, organized.
+  </text>
+</svg>

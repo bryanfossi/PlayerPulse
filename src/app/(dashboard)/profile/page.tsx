@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import {
   GraduationCap, Dumbbell, BookOpen, MapPin, Target,
-  ExternalLink, Pencil,
+  ExternalLink, Pencil, AlertCircle,
 } from 'lucide-react'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -50,12 +50,40 @@ export default async function ProfilePage() {
     ? `${player.primary_position} / ${player.secondary_position}`
     : player.primary_position
 
+  // Detect which key fields are missing so we can nudge the user
+  const missingFields: string[] = []
+  if (!player.highlight_url) missingFields.push('Highlight video')
+  if (!player.unweighted_gpa) missingFields.push('GPA')
+  if (!player.club_team) missingFields.push('Club team')
+  if (!player.home_city || !player.home_state) missingFields.push('Location')
+  const profileIncomplete = missingFields.length >= 2
+
   return (
     <div className="p-6 md:p-8 max-w-3xl mx-auto space-y-6">
+
+      {/* Profile completion banner */}
+      {profileIncomplete && (
+        <div className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/8 px-4 py-3">
+          <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-amber-400">Complete your profile</p>
+            <p className="text-xs text-amber-400/80 mt-0.5">
+              Missing: {missingFields.join(', ')}. A complete profile helps coaches find you and improves your match scores.
+            </p>
+          </div>
+          <Link
+            href="/profile/edit"
+            className="flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-[#1a0f00] transition-colors"
+          >
+            Fill in
+          </Link>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-green-500/15 border border-green-500/20 flex items-center justify-center text-green-400 font-black text-xl flex-shrink-0">
+          <div className="w-14 h-14 rounded-2xl bg-[#C9A227]/15 border border-[#C9A227]/25 flex items-center justify-center text-[#C9A227] font-black text-xl flex-shrink-0">
             {player.first_name[0]}{player.last_name[0]}
           </div>
           <div>

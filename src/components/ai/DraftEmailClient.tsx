@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Sparkles, RefreshCw, Send, Copy, CheckCheck } from 'lucide-react'
+import { Sparkles, RefreshCw, Send, Copy, CheckCheck, Zap } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -40,6 +40,33 @@ const DRAFT_TYPE_LABELS: Record<EmailDraftType, string> = {
   thank_you: 'Thank You',
   campus_visit_request: 'Campus Visit Request',
   offer_response: 'Offer Response',
+}
+
+function BuyTokensButton() {
+  const [loading, setLoading] = useState(false)
+  async function handleClick() {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'tokens' }),
+      })
+      const json = await res.json()
+      if (json.url) window.location.href = json.url
+    } finally {
+      setLoading(false)
+    }
+  }
+  return (
+    <button
+      onClick={handleClick}
+      disabled={loading}
+      className="flex-shrink-0 flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-md bg-amber-500 hover:bg-amber-400 text-[#1a0f00] transition-colors disabled:opacity-60"
+    >
+      {loading ? 'Opening…' : 'Buy Tokens'}
+    </button>
+  )
 }
 
 const TIER_COLORS: Record<string, string> = {
@@ -138,7 +165,10 @@ export function DraftEmailClient({ schools, preselectedPsId, preselectedType }: 
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      // Clipboard access denied or unavailable — silently ignore
+      // Clipboard API unavailable — select the textarea text so user can copy manually
+      const el = document.getElementById('email-body') as HTMLTextAreaElement | null
+      el?.select()
+      setError('Auto-copy failed. The text is selected — press Ctrl+C (or ⌘C) to copy.')
     }
   }
 
@@ -333,7 +363,22 @@ export function DraftEmailClient({ schools, preselectedPsId, preselectedType }: 
   // ── Step: Form ───────────────────────────────────────────
   return (
     <div className="space-y-6">
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && (
+        error === 'NO_TOKENS'
+          ? (
+            <div className="flex items-start gap-3 rounded-lg bg-amber-500/10 border border-amber-500/30 px-4 py-3">
+              <Zap className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-amber-400">Monthly limit reached</p>
+                <p className="text-xs text-amber-400/80 mt-0.5">
+                  You&apos;ve used all 10 free email drafts this month. Purchase tokens to keep drafting.
+                </p>
+              </div>
+              <BuyTokensButton />
+            </div>
+          )
+          : <p className="text-sm text-destructive">{error}</p>
+      )}
 
       <Card>
         <CardHeader>

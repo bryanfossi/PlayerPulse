@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+html {
+  scroll-behavior: smooth;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -23,7 +27,7 @@
   --border: 240 5.9% 90%;
   --input: 240 5.9% 90%;
   --ring: 142 76% 36%;
-  --radius: 0.5rem;
+  --radius: 0.625rem;
   --chart-1: 142 76% 36%;
   --chart-2: 217 91% 60%;
   --chart-3: 38 92% 50%;
@@ -32,26 +36,27 @@
 }
 
 .dark {
-  --background: 222 22% 7%;
-  --foreground: 210 18% 90%;
-  --card: 222 20% 10%;
-  --card-foreground: 210 18% 90%;
-  --popover: 222 20% 10%;
-  --popover-foreground: 210 18% 90%;
-  --primary: 142 70% 45%;
-  --primary-foreground: 144 61% 12%;
-  --secondary: 222 16% 15%;
-  --secondary-foreground: 210 18% 90%;
-  --muted: 222 16% 13%;
-  --muted-foreground: 215 14% 50%;
-  --accent: 222 16% 15%;
-  --accent-foreground: 210 18% 90%;
+  /* Background shifted to brand-navy hue family (214) with richer saturation */
+  --background: 214 35% 7%;
+  --foreground: 210 22% 93%;
+  --card: 214 28% 11%;
+  --card-foreground: 210 22% 93%;
+  --popover: 214 28% 11%;
+  --popover-foreground: 210 22% 93%;
+  --primary: 142 66% 45%;
+  --primary-foreground: 144 61% 10%;
+  --secondary: 214 22% 16%;
+  --secondary-foreground: 210 22% 90%;
+  --muted: 214 22% 13%;
+  --muted-foreground: 214 18% 52%;
+  --accent: 214 22% 16%;
+  --accent-foreground: 210 22% 90%;
   --destructive: 0 70% 45%;
   --destructive-foreground: 0 0% 98%;
-  --border: 222 14% 18%;
-  --input: 222 16% 13%;
-  --ring: 142 70% 45%;
-  --chart-1: 142 70% 45%;
+  --border: 214 20% 20%;
+  --input: 214 22% 14%;
+  --ring: 142 66% 45%;
+  --chart-1: 142 66% 45%;
   --chart-2: 217 91% 60%;
   --chart-3: 38 92% 50%;
   --chart-4: 280 65% 60%;
@@ -96,4 +101,14 @@
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
+}
+
+/* ── Brand theme semantic vars (set by ThemeProvider at runtime) ── */
+:root {
+  --color-bg: #0f1a2e;
+  --color-surface: #1A3A5C;
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #8aabcc;
+  --color-accent-brand: #C9A227;
+  --color-border-brand: #2a4a6a;
 }

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { anthropic } from '@/lib/anthropic'
 import { checkRateLimit } from '@/lib/rate-limit'
+import { getSportOrDefault } from '@/lib/sports'
 import type { Database } from '@/types/database'
 
 type PlayerRow = Database['public']['Tables']['players']['Row']
@@ -26,13 +27,15 @@ export async function POST(request: Request) {
 
     const { data: playerRaw } = await service
       .from('players')
-      .select('id, first_name, last_name, grad_year, primary_position, secondary_position, club_team, highest_club_level, home_state, unweighted_gpa, target_levels, highlight_url')
+      .select('id, first_name, last_name, grad_year, primary_position, secondary_position, club_team, highest_club_level, home_state, unweighted_gpa, target_levels, highlight_url, sport_id')
       .eq('user_id', user.id)
       .maybeSingle()
     const player = playerRaw as Pick<PlayerRow,
       'id' | 'first_name' | 'last_name' | 'grad_year' | 'primary_position' | 'secondary_position' | 'club_team' | 'highest_club_level' | 'home_state' | 'unweighted_gpa' | 'target_levels' | 'highlight_url'
-    > | null
+    > & { sport_id?: string } | null
     if (!player) return NextResponse.json({ error: 'Player not found' }, { status: 404 })
+
+    const sport = getSportOrDefault(player.sport_id)
 
     // Aggregate school stats
     const { data: schoolStats } = await service
@@ -64,7 +67,7 @@ export async function POST(request: Request) {
       .lt('follow_up_date', new Date().toISOString().slice(0, 10))
       .not('follow_up_date', 'is', null)
 
-    const prompt = `You are an expert college soccer recruiting advisor. Analyze this player's recruiting status and give 4 specific, actionable tips.
+    const prompt = `You are an expert college ${sport.name.toLowerCase()} recruiting advisor. Analyze this player's recruiting status and give 4 specific, actionable tips.
 
 PLAYER
 Name: ${player.first_name} ${player.last_name}
@@ -101,7 +104,7 @@ GUIDELINES
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 512,
-      system: 'You are an expert college soccer recruiting advisor. Output only valid JSON.',
+      system: `You are an expert college ${sport.name.toLowerCase()} recruiting advisor. Output only valid JSON.`,
       messages: [{ role: 'user', content: prompt }],
     })
 

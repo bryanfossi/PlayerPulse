@@ -9,6 +9,9 @@ export type Database = {
           email: string
           role: 'player' | 'parent'
           player_id: string | null
+          subscription_active: boolean | null
+          subscription_id: string | null
+          subscription_status: string | null
           created_at: string
           updated_at: string
         }
@@ -17,6 +20,9 @@ export type Database = {
           email: string
           role?: 'player' | 'parent'
           player_id?: string | null
+          subscription_active?: boolean | null
+          subscription_id?: string | null
+          subscription_status?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -25,6 +31,9 @@ export type Database = {
           email?: string
           role?: 'player' | 'parent'
           player_id?: string | null
+          subscription_active?: boolean | null
+          subscription_id?: string | null
+          subscription_status?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -33,6 +42,7 @@ export type Database = {
         Row: {
           id: string
           user_id: string
+          sport_id: string
           first_name: string
           last_name: string
           grad_year: number
@@ -67,6 +77,8 @@ export type Database = {
           rerun_tokens_reset_at: string | null
           email_drafts_this_month: number
           email_drafts_reset_at: string | null
+          allowance_tokens: number
+          pack_tokens: number
           public_profile_slug: string | null
           public_profile_enabled: boolean
           jersey_number: string | null
@@ -94,6 +106,7 @@ export type Database = {
         Insert: {
           id?: string
           user_id: string
+          sport_id?: string
           first_name: string
           last_name: string
           grad_year: number
@@ -128,6 +141,8 @@ export type Database = {
           rerun_tokens_reset_at?: string | null
           email_drafts_this_month?: number
           email_drafts_reset_at?: string | null
+          allowance_tokens?: number
+          pack_tokens?: number
           public_profile_slug?: string | null
           public_profile_enabled?: boolean
           jersey_number?: string | null
@@ -187,6 +202,8 @@ export type Database = {
           rerun_tokens_reset_at?: string | null
           email_drafts_this_month?: number
           email_drafts_reset_at?: string | null
+          allowance_tokens?: number
+          pack_tokens?: number
           public_profile_slug?: string | null
           public_profile_enabled?: boolean
           jersey_number?: string | null
@@ -228,6 +245,7 @@ export type Database = {
           out_state_tuition: number | null
           has_scholarship: boolean
           soccer_url: string | null
+          sport_urls: Record<string, string | null>
           logo_url: string | null
           usc_top25_seasons: number
           prestige: 'Low' | 'Mid' | 'High' | null
@@ -249,6 +267,7 @@ export type Database = {
           out_state_tuition?: number | null
           has_scholarship?: boolean
           soccer_url?: string | null
+          sport_urls?: Record<string, string | null>
           logo_url?: string | null
           usc_top25_seasons?: number
           prestige?: 'Low' | 'Mid' | 'High' | null
@@ -269,6 +288,7 @@ export type Database = {
           out_state_tuition?: number | null
           has_scholarship?: boolean
           soccer_url?: string | null
+          sport_urls?: Record<string, string | null>
           logo_url?: string | null
           prestige?: 'Low' | 'Mid' | 'High' | null
           updated_at?: string
@@ -347,7 +367,22 @@ export type Database = {
           notes?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: 'player_schools_school_id_fkey'
+            columns: ['school_id']
+            isOneToOne: false
+            referencedRelation: 'schools'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'player_schools_player_id_fkey'
+            columns: ['player_id']
+            isOneToOne: false
+            referencedRelation: 'players'
+            referencedColumns: ['id']
+          },
+        ]
       }
       contacts: {
         Row: {
@@ -524,7 +559,50 @@ export type Database = {
       }
     }
     Views: Record<string, never>
-    Functions: Record<string, never>
+    Functions: {
+      grant_rerun_tokens: {
+        Args: {
+          p_user_id: string
+          p_amount: number
+        }
+        Returns: undefined
+      }
+      activate_subscription: {
+        Args: {
+          p_user_id: string
+          p_subscription_id: string
+          p_initial_tokens: number
+        }
+        Returns: undefined
+      }
+      consume_tokens: {
+        Args: {
+          p_user_id: string
+          p_amount: number
+        }
+        Returns: boolean
+      }
+      refund_tokens: {
+        Args: {
+          p_user_id: string
+          p_amount: number
+        }
+        Returns: undefined
+      }
+      refresh_subscription_allowance: {
+        Args: {
+          p_user_id: string
+          p_amount: number
+        }
+        Returns: undefined
+      }
+      cancel_subscription_allowance: {
+        Args: {
+          p_subscription_id: string
+        }
+        Returns: undefined
+      }
+    }
     Enums: Record<string, never>
     CompositeTypes: Record<string, never>
   }

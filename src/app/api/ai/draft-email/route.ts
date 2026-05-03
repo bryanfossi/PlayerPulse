@@ -3,6 +3,8 @@ import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { anthropic } from '@/lib/anthropic'
 import { buildDraftEmailPrompt } from '@/lib/prompts/draft-email'
 import { checkRateLimit } from '@/lib/rate-limit'
+import { getSportOrDefault } from '@/lib/sports'
+import { TOKEN_COSTS } from '@/lib/tokens/costs'
 import type { EmailDraftType } from '@/types/app'
 import type { Database } from '@/types/database'
 
@@ -39,44 +41,32 @@ export async function POST(request: Request) {
 
     const service = createServiceClient()
 
-    // Fetch player (including billing fields for monthly gate)
+    // Fetch player record
     const { data: playerRaw } = await service
       .from('players')
-      .select('id, first_name, last_name, grad_year, gender, primary_position, secondary_position, club_team, highest_club_level, high_school, home_city, home_state, unweighted_gpa, sat_score, act_score, highlight_url, email_drafts_this_month, rerun_tokens, subscription_active')
+      .select('id, first_name, last_name, grad_year, gender, primary_position, secondary_position, club_team, highest_club_level, high_school, home_city, home_state, unweighted_gpa, sat_score, act_score, highlight_url, sport_id')
       .eq('user_id', user.id)
       .maybeSingle()
     const player = playerRaw as (Pick<PlayerRow,
       'id' | 'first_name' | 'last_name' | 'grad_year' | 'gender' | 'primary_position' | 'secondary_position' | 'club_team' | 'highest_club_level' | 'high_school' | 'home_city' | 'home_state' | 'unweighted_gpa' | 'sat_score' | 'act_score' | 'highlight_url'
-    > & { email_drafts_this_month: number; rerun_tokens: number; subscription_active: boolean }) | null
+    > & { sport_id?: string }) | null
     if (!player) return NextResponse.json({ error: 'Player not found' }, { status: 404 })
 
-    // Monthly draft gate
-    const draftsUsed = player.email_drafts_this_month ?? 0
-    if (draftsUsed >= 10) {
-      if (player.rerun_tokens <= 0) {
-        return NextResponse.json(
-          { error: 'NO_TOKENS', message: 'Monthly email drafts used. Purchase tokens to continue.' },
-          { status: 402 },
-        )
-      }
-      // Deduct 1 token, unlock 5 more drafts (set back by 4 so next trigger is at +5)
-      await service
-        .from('players')
-        .update({
-          rerun_tokens: player.rerun_tokens - 1,
-          email_drafts_this_month: draftsUsed - 4,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('user_id', user.id)
-    } else {
-      // Free draft — increment counter
-      await service
-        .from('players')
-        .update({
-          email_drafts_this_month: draftsUsed + 1,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('user_id', user.id)
+    // Token gate: every email draft costs EMAIL_DRAFT tokens.
+    // Atomic deduction (allowance first, then pack) BEFORE calling Claude.
+    const { data: ok, error: tokenErr } = await service.rpc('consume_tokens', {
+      p_user_id: user.id,
+      p_amount: TOKEN_COSTS.EMAIL_DRAFT,
+    })
+
+    if (tokenErr || !ok) {
+      return NextResponse.json(
+        {
+          error: 'NO_TOKENS',
+          message: `Each email draft costs ${TOKEN_COSTS.EMAIL_DRAFT} token. You're out — purchase a token pack to continue.`,
+        },
+        { status: 402 },
+      )
     }
 
     // Fetch player_school + school (verify ownership)
@@ -97,10 +87,12 @@ export async function POST(request: Request) {
     if (!school) return NextResponse.json({ error: 'School record not found' }, { status: 404 })
 
     // Build prompt and call Sonnet
+    const sport = getSportOrDefault(player.sport_id)
     const prompt = buildDraftEmailPrompt({
       player,
       school,
       draftType: body.draft_type,
+      sport,
       coachName: body.coach_name,
       coachEmail: body.coach_email,
       personalNote: body.personal_note,
@@ -109,7 +101,7 @@ export async function POST(request: Request) {
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 1024,
-      system: 'You are an expert college soccer recruiting email writer. Output only valid JSON — no markdown, no prose outside the JSON.',
+      system: `You are an expert college ${sport.name} recruiting email writer. Output only valid JSON — no markdown, no prose outside the JSON.`,
       messages: [{ role: 'user', content: prompt }],
     })
 
@@ -135,7 +127,15 @@ export async function POST(request: Request) {
     }
 
     if (!emailBody) {
-      return NextResponse.json({ error: 'Failed to generate email. Please try again.' }, { status: 500 })
+      // Refund the token — Claude failed, not the user
+      await service.rpc('refund_tokens', {
+        p_user_id: user.id,
+        p_amount: TOKEN_COSTS.EMAIL_DRAFT,
+      })
+      return NextResponse.json(
+        { error: 'Failed to generate email. Your token has been refunded — please try again.' },
+        { status: 500 },
+      )
     }
 
     // Save draft to ai_drafts

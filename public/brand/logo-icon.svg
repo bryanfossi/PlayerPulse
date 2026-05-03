@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <!-- Background with rounded corners -->
+  <rect width="48" height="48" rx="10" fill="#0F1120"/>
+  <!-- Soccer ball outline -->
+  <circle cx="24" cy="24" r="16" stroke="#22C55E" stroke-width="2.5" fill="none"/>
+  <!-- ECG pulse line, spike breaks above the ball -->
+  <path
+    d="M 3 24 H 10 L 13.5 19 L 17 30 L 21 5 L 25 24 H 45"
+    stroke="#22C55E" stroke-width="2.5" fill="none"
+    stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

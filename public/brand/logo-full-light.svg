@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 96">
+  <!-- White background -->
+  <rect width="400" height="96" fill="#FFFFFF"/>
+
+  <!--
+    Icon mark on white: add a dark pill/badge behind the icon so it reads clearly.
+    80x80 icon area at (8,8).
+  -->
+  <rect x="8" y="8" width="80" height="80" rx="14" fill="#0F1120"/>
+  <g transform="translate(8,8) scale(1.6667)" style="overflow:visible">
+    <circle
+      cx="24" cy="24" r="16"
+      stroke="#22C55E" stroke-width="2" fill="none"
+      vector-effect="non-scaling-stroke"/>
+    <path
+      d="M 3 24 H 10 L 13.5 19 L 17 30 L 21 5 L 25 24 H 45"
+      stroke="#22C55E" stroke-width="2" fill="none"
+      stroke-linecap="round" stroke-linejoin="round"
+      vector-effect="non-scaling-stroke"/>
+  </g>
+
+  <!-- Subtle separator -->
+  <line x1="100" y1="22" x2="100" y2="74"
+    stroke="#0F1120" stroke-width="1" stroke-opacity="0.15"/>
+
+  <!-- Wordmark: "Player" dark, "Pulse" green -->
+  <text
+    x="114" y="61"
+    font-family="'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+    font-size="34" letter-spacing="-0.5">
+    <tspan fill="#0F1120" font-weight="400">Player</tspan><tspan fill="#22C55E" font-weight="700">Pulse</tspan>
+  </text>
+</svg>

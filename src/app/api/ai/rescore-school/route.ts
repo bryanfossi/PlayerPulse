@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { anthropic } from '@/lib/anthropic'
+import { getSportOrDefault } from '@/lib/sports'
+import { TOKEN_COSTS } from '@/lib/tokens/costs'
 import type { Database } from '@/types/database'
 
 type PlayerRow = Database['public']['Tables']['players']['Row']
@@ -45,6 +47,8 @@ export async function POST(request: Request) {
     const player = playerResult.data as PlayerRow | null
     if (!player) return NextResponse.json({ error: 'Player not found' }, { status: 404 })
 
+    const sport = getSportOrDefault((player as PlayerRow & { sport_id?: string }).sport_id)
+
     const school = schoolResult.data as SchoolRow | null
     if (!school) return NextResponse.json({ error: 'School not found' }, { status: 404 })
 
@@ -56,6 +60,23 @@ export async function POST(request: Request) {
       .maybeSingle()
     const ps = psRaw as PSRow | null
     if (!ps) return NextResponse.json({ error: 'School not on your list' }, { status: 404 })
+
+    // Token gate: fit assessment costs SCHOOL_FIT_ASSESSMENT tokens.
+    // Atomic deduction (allowance first, then pack) BEFORE calling Claude.
+    const { data: ok, error: tokenErr } = await service.rpc('consume_tokens', {
+      p_user_id: user.id,
+      p_amount: TOKEN_COSTS.SCHOOL_FIT_ASSESSMENT,
+    })
+
+    if (tokenErr || !ok) {
+      return NextResponse.json(
+        {
+          error: 'NO_TOKENS',
+          message: `Generating a fit assessment costs ${TOKEN_COSTS.SCHOOL_FIT_ASSESSMENT} tokens. You don't have enough — purchase a token pack to continue.`,
+        },
+        { status: 402 },
+      )
+    }
 
     const prompt = `Re-evaluate this specific school for this player using the same scoring methodology as the Match Engine. Return a JSON object only.
 
@@ -107,7 +128,7 @@ Return ONLY valid JSON with exactly these fields:
       model: 'claude-sonnet-4-6',
       max_tokens: 512,
       temperature: 0,
-      system: 'You are an expert college soccer recruiting coordinator. Return only valid JSON matching the exact schema requested. No prose.',
+      system: `You are an expert college ${sport.name.toLowerCase()} recruiting coordinator. Return only valid JSON matching the exact schema requested. No prose.`,
       messages: [{ role: 'user', content: prompt }],
     })
 
@@ -122,10 +143,61 @@ Return ONLY valid JSON with exactly these fields:
       const match = raw.match(/\{[\s\S]+\}/)
       scores = JSON.parse(match ? match[0] : raw)
     } catch {
+      // Refund — AI failure, not user's fault
+      await service.rpc('refund_tokens', {
+        p_user_id: user.id,
+        p_amount: TOKEN_COSTS.SCHOOL_FIT_ASSESSMENT,
+      })
       return NextResponse.json({ error: 'AI_PARSE_ERROR' }, { status: 500 })
     }
 
-    // Upsert updated scores back to player_schools
+    // Validate and clamp all fields before writing — Claude output is untrusted
+    const VALID_TIERS = new Set(['Lock', 'Realistic', 'Reach'])
+    const VALID_FYO = new Set(['Starter', 'Likely Starter', 'Mid-Roster', 'Development'])
+    const VALID_MERIT = new Set(['High', 'Medium', 'Low', 'None'])
+
+    function clampScore(val: unknown, label: string): number {
+      const n = typeof val === 'number' ? val : parseInt(String(val), 10)
+      if (isNaN(n)) throw new Error(`${label} is not a number: ${val}`)
+      if (n < 0 || n > 120) throw new Error(`${label} out of range: ${n}`)
+      return Math.min(Math.max(Math.round(n), 0), 100)
+    }
+
+    function requireValid(val: unknown, valid: Set<string>, label: string): string {
+      if (typeof val !== 'string' || !valid.has(val)) {
+        throw new Error(`${label} invalid: "${val}"`)
+      }
+      return val
+    }
+
+    try {
+      scores = {
+        overall_score: clampScore(scores.overall_score, 'overall_score'),
+        geo_score: clampScore(scores.geo_score, 'geo_score'),
+        acad_score: clampScore(scores.acad_score, 'acad_score'),
+        level_score: clampScore(scores.level_score, 'level_score'),
+        need_score: clampScore(scores.need_score, 'need_score'),
+        pt_score: clampScore(scores.pt_score, 'pt_score'),
+        tuition_score: clampScore(scores.tuition_score, 'tuition_score'),
+        merit_value_score: clampScore(scores.merit_value_score, 'merit_value_score'),
+        tier: requireValid(scores.tier, VALID_TIERS, 'tier'),
+        first_year_opportunity: requireValid(scores.first_year_opportunity, VALID_FYO, 'first_year_opportunity'),
+        merit_aid_potential: requireValid(scores.merit_aid_potential, VALID_MERIT, 'merit_aid_potential'),
+        acad_note: typeof scores.acad_note === 'string' ? scores.acad_note.slice(0, 500) : '',
+        level_note: typeof scores.level_note === 'string' ? scores.level_note.slice(0, 500) : '',
+        pt_note: typeof scores.pt_note === 'string' ? scores.pt_note.slice(0, 500) : '',
+      }
+    } catch (validationErr) {
+      console.error('[rescore-school] validation failed:', validationErr)
+      // Refund — AI returned malformed scores, not user's fault
+      await service.rpc('refund_tokens', {
+        p_user_id: user.id,
+        p_amount: TOKEN_COSTS.SCHOOL_FIT_ASSESSMENT,
+      })
+      return NextResponse.json({ error: 'AI_PARSE_ERROR' }, { status: 500 })
+    }
+
+    // Write validated scores back to player_schools
     await service
       .from('player_schools')
       .update({

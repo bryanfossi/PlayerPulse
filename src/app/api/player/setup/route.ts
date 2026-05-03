@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import type { WizardData } from '@/types/wizard'
 
+function validationError(msg: string) {
+  return NextResponse.json({ error: msg }, { status: 400 })
+}
+
 export async function POST(request: Request) {
   try {
     const supabase = await createClient()
@@ -12,10 +16,62 @@ export async function POST(request: Request) {
 
     const body: WizardData = await request.json()
 
+    // Required string fields
+    if (!body.first_name?.trim()) return validationError('First name is required')
+    if (!body.last_name?.trim()) return validationError('Last name is required')
+    if (!body.home_city?.trim()) return validationError('Home city is required')
+    if (!body.home_state) return validationError('Home state is required')
+    if (!body.primary_position) return validationError('Primary position is required')
+    if (!body.club_team?.trim()) return validationError('Club team is required')
+    if (!body.highest_club_level) return validationError('Club level is required')
+    if (!body.gender) return validationError('Gender is required')
+
+    // Grad year
+    const currentYear = new Date().getFullYear()
+    const gradYear = parseInt(body.grad_year)
+    if (isNaN(gradYear) || gradYear < currentYear || gradYear > currentYear + 8) {
+      return validationError(`Graduation year must be between ${currentYear} and ${currentYear + 8}`)
+    }
+
+    // GPA
     const gpa = body.unweighted_gpa ? parseFloat(body.unweighted_gpa) : null
+    if (gpa !== null && (isNaN(gpa) || gpa < 0 || gpa > 4.0)) {
+      return validationError('Unweighted GPA must be between 0.0 and 4.0')
+    }
+
+    // SAT
     const sat = body.sat_score ? parseInt(body.sat_score) : null
+    if (sat !== null && (isNaN(sat) || sat < 400 || sat > 1600)) {
+      return validationError('SAT score must be between 400 and 1600')
+    }
+
+    // ACT
     const act = body.act_score ? parseInt(body.act_score) : null
+    if (act !== null && (isNaN(act) || act < 1 || act > 36)) {
+      return validationError('ACT score must be between 1 and 36')
+    }
+
+    // Recruiting radius
     const radius = body.recruiting_radius_mi ? parseInt(body.recruiting_radius_mi) : null
+    if (radius !== null && (isNaN(radius) || radius < 0 || radius > 3000)) {
+      return validationError('Recruiting radius must be between 0 and 3000 miles')
+    }
+
+    // Height — combine feet + inches into total inches
+    const heightFt = body.height_feet ? parseInt(body.height_feet) : null
+    const heightIn = body.height_inches ? parseInt(body.height_inches) : null
+    let totalHeightInches: number | null = null
+    if (heightFt !== null && heightIn !== null) {
+      if (isNaN(heightFt) || heightFt < 3 || heightFt > 8) {
+        return validationError('Height (feet) must be between 3 and 8')
+      }
+      if (isNaN(heightIn) || heightIn < 0 || heightIn > 11) {
+        return validationError('Height (inches) must be between 0 and 11')
+      }
+      totalHeightInches = heightFt * 12 + heightIn
+    } else if (heightFt !== null || heightIn !== null) {
+      return validationError('Both height feet and inches are required')
+    }
 
     const forcedSchools = body.forced_schools
       ? body.forced_schools.split(',').map((s) => s.trim()).filter(Boolean)
@@ -29,6 +85,7 @@ export async function POST(request: Request) {
       .upsert(
         {
           user_id: user.id,
+          sport_id: body.sport_id || 'soccer',
           first_name: body.first_name.trim(),
           last_name: body.last_name.trim(),
           gender: body.gender as 'Male' | 'Female',
@@ -44,6 +101,7 @@ export async function POST(request: Request) {
           club_team: body.club_team.trim(),
           highest_club_level: body.highest_club_level,
           highlight_url: body.highlight_url || null,
+          height_inches: totalHeightInches,
           target_levels: body.target_levels,
           recruiting_radius_mi: radius,
           tuition_importance: body.tuition_importance,

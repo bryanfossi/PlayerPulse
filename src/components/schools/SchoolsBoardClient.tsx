@@ -1,11 +1,15 @@
 'use client'
 
-import { useState, useCallback, useTransition } from 'react'
-import { LayoutGrid, List } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { useState, useCallback } from 'react'
+import { LayoutGrid, List, Trophy } from 'lucide-react'
+import { toast } from 'sonner'
 import { SchoolBoard } from './SchoolBoard'
 import { SchoolListView } from './SchoolListView'
+import { TopTenPanel } from './TopTenPanel'
 import { AddSchoolDialog } from './AddSchoolDialog'
+import { RerunButton } from '@/components/RerunButton'
+import { useTokens } from '@/contexts/TokenContext'
+import { TOKEN_COSTS } from '@/lib/tokens/costs'
 import { cn } from '@/lib/utils'
 import type { PlayerSchoolStatus } from '@/types/app'
 import type { BoardItem } from './SchoolCard'
@@ -16,9 +20,10 @@ interface Props {
 }
 
 export function SchoolsBoardClient({ initialItems, playerId }: Props) {
+  const { spend } = useTokens()
   const [items, setItems] = useState<BoardItem[]>(initialItems)
-  const [view, setView] = useState<'board' | 'list'>('board')
-  const [refreshKey, setRefreshKey] = useState(0)
+  const [view, setView] = useState<'board' | 'list' | 'top10'>('board')
+  const [rerunLoading, setRerunLoading] = useState(false)
 
   const handleStatusChange = useCallback((id: string, status: PlayerSchoolStatus) => {
     setItems((prev) => prev.map((item) => (item.id === id ? { ...item, status } : item)))
@@ -33,8 +38,34 @@ export function SchoolsBoardClient({ initialItems, playerId }: Props) {
   }, [])
 
   async function handleAdded() {
-    // Refetch the list from server by refreshing the page
     window.location.reload()
+  }
+
+  async function handleRerun() {
+    setRerunLoading(true)
+    try {
+      const res = await fetch('/api/ai/match-engine', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ player_id: playerId }),
+      })
+      const json = await res.json()
+      if (!res.ok) {
+        if (json.error === 'NO_TOKENS') {
+          toast.error(json.message ?? `Regenerating costs ${TOKEN_COSTS.FULL_MATCH_RERUN} tokens. Purchase more to continue.`)
+        } else {
+          toast.error(json.message ?? json.error ?? 'Failed to regenerate list. Please try again.')
+        }
+        return
+      }
+      spend(TOKEN_COSTS.FULL_MATCH_RERUN)
+      toast.success(`Match engine complete — ${json.schools_generated} schools updated. Reloading…`)
+      setTimeout(() => window.location.reload(), 1500)
+    } catch {
+      toast.error('Network error — could not run match engine.')
+    } finally {
+      setRerunLoading(false)
+    }
   }
 
   const lockCount = items.filter((i) => i.tier === 'Lock').length
@@ -84,14 +115,25 @@ export function SchoolsBoardClient({ initialItems, playerId }: Props) {
               <List className="w-3.5 h-3.5" />
               List
             </button>
+            <button
+              onClick={() => setView('top10')}
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors border-l border-border',
+                view === 'top10' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'
+              )}
+            >
+              <Trophy className="w-3.5 h-3.5" />
+              Top 10
+            </button>
           </div>
 
+          <RerunButton onRerun={handleRerun} isLoading={rerunLoading} />
           <AddSchoolDialog playerId={playerId} onAdded={handleAdded} />
         </div>
       </div>
 
       {/* Content */}
-      {view === 'board' ? (
+      {view === 'board' && (
         <SchoolBoard
           items={items}
           playerId={playerId}
@@ -99,12 +141,16 @@ export function SchoolsBoardClient({ initialItems, playerId }: Props) {
           onStatusChange={handleStatusChange}
           onRemove={handleRemove}
         />
-      ) : (
+      )}
+      {view === 'list' && (
         <SchoolListView
           items={items}
           onStatusChange={handleStatusChange}
           onRemove={handleRemove}
         />
+      )}
+      {view === 'top10' && (
+        <TopTenPanel items={items} onItemsChange={handleItemsChange} />
       )}
     </div>
   )

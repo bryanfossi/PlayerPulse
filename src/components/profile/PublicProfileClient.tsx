@@ -57,6 +57,7 @@ interface Player {
 interface SchoolPS {
   id: string
   tier: string | null
+  rank_order: number | null
   school: { id: string; name: string; verified_division: string | null }
 }
 
@@ -332,10 +333,13 @@ export function PublicProfileClient({ player, topSchools, slug }: Props) {
               {/* No headshot field yet; show a placeholder or schools list */}
               {topSchools.length > 0 && (
                 <div style={{ position: 'absolute', inset: 0, background: DARK_CARD, border: `1px solid rgba(255,255,255,0.05)`, padding: 20, overflowY: 'auto' }}>
-                  <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.3em', color: `${GOLD}99`, marginBottom: 12 }}>Schools of Interest</p>
-                  {topSchools.slice(0, 8).map((ps) => (
+                  <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.3em', color: `${GOLD}99`, marginBottom: 12 }}>Top Schools</p>
+                  {topSchools.slice(0, 8).map((ps, i) => (
                     <div key={ps.id} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: ps.tier === 'Lock' ? '#4ade80' : '#60a5fa', flexShrink: 0 }} />
+                      <span style={{ fontSize: 9, fontWeight: 900, color: 'rgba(255,255,255,0.25)', width: 14, textAlign: 'center', flexShrink: 0 }}>
+                        {ps.rank_order ?? i + 1}
+                      </span>
+                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: ps.tier === 'Lock' ? GOLD : ps.tier === 'Realistic' ? '#60a5fa' : '#fbbf24', flexShrink: 0 }} />
                       <div>
                         <p style={{ fontSize: 12, fontWeight: 500, margin: 0 }}>{ps.school.name}</p>
                         <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', margin: 0 }}>{ps.school.verified_division ?? '—'}</p>

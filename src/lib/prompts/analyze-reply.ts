@@ -1,3 +1,5 @@
+import type { SportConfig } from '@/lib/sports'
+
 export interface AnalyzeReplyContext {
   first_name: string
   last_name: string
@@ -9,10 +11,14 @@ export interface AnalyzeReplyContext {
   tier: string | null
   overall_score: number | null
   coach_message: string
+  sport: SportConfig
 }
 
 export function buildAnalyzeReplyPrompt(ctx: AnalyzeReplyContext): string {
-  return `Player: ${ctx.first_name} ${ctx.last_name}
+  return `SPORT CONTEXT
+${ctx.sport.aiPromptContext}
+
+Player: ${ctx.first_name} ${ctx.last_name}
 Position: ${ctx.primary_position}
 Grad Year: ${ctx.grad_year}
 Club Level: ${ctx.highest_club_level}

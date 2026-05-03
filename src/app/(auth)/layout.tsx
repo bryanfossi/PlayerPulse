@@ -1,15 +1,18 @@
+import { brand } from '@/lib/brand'
+
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-950 via-green-900 to-emerald-800 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#050e1c] via-[#0c1e38] to-[#1A3A5C] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-green-400 rounded-full flex items-center justify-center">
-              <span className="text-green-950 font-bold text-sm">PP</span>
-            </div>
-            <span className="text-white font-bold text-xl">PlayerPulse</span>
-          </div>
-          <p className="text-green-300 text-sm">Promoted Soccer Consultants</p>
+        <div className="flex justify-center mb-8">
+          {/* Plain img bypasses Next.js image optimizer cache — correct for SVGs */}
+          <img
+            src={brand.logo.stackedTransparent}
+            alt={brand.appName}
+            width={180}
+            height={168}
+            style={{ height: '168px', width: 'auto' }}
+          />
         </div>
         {children}
       </div>

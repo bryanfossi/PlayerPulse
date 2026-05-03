@@ -71,11 +71,11 @@ export default async function InviteAcceptPage({
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-emerald-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#050e1c] via-[#0c1e38] to-[#1A3A5C] flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white dark:bg-[#0d1e35] rounded-2xl shadow-2xl p-8">
         <div className="flex items-center gap-2 mb-8">
-          <div className="w-7 h-7 bg-green-600 rounded-full flex items-center justify-center">
-            <span className="text-white font-bold text-xs">PP</span>
+          <div className="w-7 h-7 bg-[#C9A227] rounded-lg flex items-center justify-center">
+            <span className="text-[#1A3A5C] font-black text-xs">PP</span>
           </div>
           <span className="font-bold text-sm">PlayerPulse</span>
         </div>

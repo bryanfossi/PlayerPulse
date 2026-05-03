@@ -8,12 +8,17 @@ export async function POST(request: Request) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { type }: { type: 'subscription' | 'tokens' } = await request.json()
+    const { type, successPath }: { type: 'subscription' | 'tokens'; successPath?: string } = await request.json()
     if (type !== 'subscription' && type !== 'tokens') {
       return NextResponse.json({ error: 'Invalid type' }, { status: 400 })
     }
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL!
+
+    // Allowlist return paths to prevent open redirect
+    const ALLOWED_SUCCESS_PATHS = ['/dashboard', '/onboarding/subscribe']
+    const resolvedSuccess = ALLOWED_SUCCESS_PATHS.includes(successPath ?? '') ? successPath! : '/dashboard'
+    const resolvedCancel = resolvedSuccess
 
     if (type === 'subscription') {
       const priceId = process.env.STRIPE_PRICE_MONTHLY
@@ -22,8 +27,8 @@ export async function POST(request: Request) {
       const session = await stripe.checkout.sessions.create({
         mode: 'subscription',
         line_items: [{ price: priceId, quantity: 1 }],
-        success_url: `${appUrl}/dashboard?billing=success`,
-        cancel_url: `${appUrl}/dashboard?billing=canceled`,
+        success_url: `${appUrl}${resolvedSuccess}?billing=success`,
+        cancel_url: `${appUrl}${resolvedCancel}?billing=canceled`,
         metadata: { user_id: user.id, type: 'subscription' },
       })
       return NextResponse.json({ url: session.url })
@@ -42,7 +47,8 @@ export async function POST(request: Request) {
     })
     return NextResponse.json({ url: session.url })
   } catch (err) {
-    console.error('[stripe/checkout] error:', err)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[stripe/checkout] error:', msg)
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
 }

@@ -1,4 +1,5 @@
 import type { Player, School, EmailDraftType } from '@/types/app'
+import type { SportConfig } from '@/lib/sports'
 
 export interface DraftEmailContext {
   player: Pick<
@@ -21,6 +22,7 @@ export interface DraftEmailContext {
   >
   school: Pick<School, 'name' | 'verified_division' | 'city' | 'state' | 'conference'>
   draftType: EmailDraftType
+  sport: SportConfig
   coachName?: string
   coachEmail?: string
   personalNote?: string
@@ -40,7 +42,7 @@ const DRAFT_TYPE_CONTEXT: Record<EmailDraftType, string> = {
 }
 
 export function buildDraftEmailPrompt(ctx: DraftEmailContext): string {
-  const { player: p, school: s, draftType, coachName, coachEmail, personalNote } = ctx
+  const { player: p, school: s, draftType, sport, coachName, coachEmail, personalNote } = ctx
 
   const coachLine = coachName
     ? `Coach name: ${coachName}${coachEmail ? ` (${coachEmail})` : ''}`
@@ -57,7 +59,10 @@ export function buildDraftEmailPrompt(ctx: DraftEmailContext): string {
 
   const highSchool = p.high_school ? `High school: ${p.high_school}` : ''
 
-  return `You are an expert college soccer recruiting advisor. Write a professional, personalized recruiting email for this player.
+  return `You are an expert college ${sport.name} recruiting advisor. Write a professional, personalized recruiting email for this player.
+
+SPORT CONTEXT
+${sport.aiPromptContext}
 
 OUTPUT FORMAT
 Return ONLY valid JSON with exactly two fields: {"subject": "...", "body": "..."}
@@ -96,6 +101,6 @@ WRITING GUIDELINES
 - Include 2–3 specific, concrete details about the player (position, club level, GPA if strong)
 - Mention the specific school name and division, not generic placeholders
 - End with a clear call-to-action
-- Do NOT use generic phrases like "I have always dreamed of playing college soccer"
+- Do NOT use generic phrases like "I have always dreamed of playing college ${sport.name.toLowerCase()}"
 - Sign off as "${p.first_name} ${p.last_name}"`.trim()
 }

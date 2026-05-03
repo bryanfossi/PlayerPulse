@@ -164,7 +164,7 @@ export function ProfileEditForm({ player }: Props) {
 
   // Generic array helpers
   function addAward() {
-    setAwards((a) => [...a, { year: '', title: '', body: '', type: 'soccer' }])
+    setAwards((a) => [...a, { year: '', title: '', body: '', type: 'athletic' }])
     setSaved(false)
   }
   function updateAward(i: number, key: keyof PlayerAward, val: string) {
@@ -655,7 +655,7 @@ export function ProfileEditForm({ player }: Props) {
                     onChange={(e) => updateAward(i, 'type', e.target.value)}
                     className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
                   >
-                    <option value="soccer">Soccer</option>
+                    <option value="athletic">Athletic</option>
                     <option value="academic">Academic</option>
                   </select>
                 </Field>

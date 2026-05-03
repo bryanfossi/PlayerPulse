@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { anthropic } from '@/lib/anthropic'
+import { getSportOrDefault } from '@/lib/sports'
 import type { Database } from '@/types/database'
 
 type PlayerRow = Database['public']['Tables']['players']['Row']
@@ -24,18 +25,20 @@ export async function POST() {
 
     const { data: playerRaw } = await service
       .from('players')
-      .select('grad_year, target_levels, onboarding_complete, match_engine_run_at, first_name')
+      .select('grad_year, target_levels, onboarding_complete, match_engine_run_at, first_name, sport_id')
       .eq('user_id', user.id)
       .maybeSingle()
     const player = playerRaw as Pick<PlayerRow,
       'grad_year' | 'target_levels' | 'onboarding_complete' | 'match_engine_run_at' | 'first_name'
-    > | null
+    > & { sport_id?: string } | null
     if (!player) return NextResponse.json({ error: 'Player not found' }, { status: 404 })
+
+    const sport = getSportOrDefault(player.sport_id)
 
     const today = new Date()
     const currentMonth = today.toLocaleString('en-US', { month: 'long', year: 'numeric' })
 
-    const prompt = `Generate a personalized month-by-month college soccer recruiting action plan for this player.
+    const prompt = `Generate a personalized month-by-month college ${sport.name.toLowerCase()} recruiting action plan for this player.
 
 PLAYER
 Grad year: ${player.grad_year}
@@ -60,7 +63,7 @@ Return ONLY a valid JSON array:
       model: 'claude-sonnet-4-6',
       max_tokens: 2048,
       temperature: 0.3,
-      system: 'You are a college soccer recruiting expert. Return only a valid JSON array. No prose, no markdown.',
+      system: `You are a college ${sport.name.toLowerCase()} recruiting expert. Return only a valid JSON array. No prose, no markdown.`,
       messages: [{ role: 'user', content: prompt }],
     })
 

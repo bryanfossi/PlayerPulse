@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { anthropic } from '@/lib/anthropic'
+import { getSportOrDefault } from '@/lib/sports'
 import type { Database } from '@/types/database'
 
 type PlayerRow = Database['public']['Tables']['players']['Row']
@@ -42,13 +43,15 @@ export async function POST(request: Request) {
 
     const { data: playerRaw } = await service
       .from('players')
-      .select('id, first_name, grad_year, primary_position, unweighted_gpa, target_levels, tuition_importance, annual_tuition_budget, home_state')
+      .select('id, first_name, grad_year, primary_position, unweighted_gpa, target_levels, tuition_importance, annual_tuition_budget, home_state, sport_id')
       .eq('user_id', user.id)
       .maybeSingle()
     const player = playerRaw as Pick<PlayerRow,
       'id' | 'first_name' | 'grad_year' | 'primary_position' | 'unweighted_gpa' | 'target_levels' | 'tuition_importance' | 'annual_tuition_budget' | 'home_state'
-    > | null
+    > & { sport_id?: string } | null
     if (!player) return NextResponse.json({ error: 'Player not found' }, { status: 404 })
+
+    const sport = getSportOrDefault(player.sport_id)
 
     // Fetch player_schools + schools for each requested school_id
     const { data: psData } = await service
@@ -112,7 +115,7 @@ Return ONLY valid JSON:
       model: 'claude-sonnet-4-6',
       max_tokens: 1024,
       temperature: 0.3,
-      system: 'You are a college soccer recruiting expert. Return only valid JSON. No prose outside the JSON.',
+      system: `You are a college ${sport.name.toLowerCase()} recruiting expert. Return only valid JSON. No prose outside the JSON.`,
       messages: [{ role: 'user', content: prompt }],
     })
 

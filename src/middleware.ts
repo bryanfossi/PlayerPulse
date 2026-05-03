@@ -4,10 +4,13 @@ import { updateSession } from '@/lib/supabase/middleware'
 const PUBLIC_PATHS = [
   '/login',
   '/register',
+  '/forgot-password',
+  '/reset-password',
   '/api/invites/accept',
   '/api/stripe/webhook',
   '/api/contacts/inbound',
   '/player/',
+  '/brand/',
 ]
 const AUTH_PATHS = ['/login', '/register']
 
@@ -23,11 +26,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  const { supabaseResponse, user } = await updateSession(request)
+  // Inject pathname into request headers so server components can read it via headers()
+  const { supabaseResponse, user } = await updateSession(request, { 'x-pathname': pathname })
 
   // Not authenticated → redirect to login (unless already on a public path)
   if (!user) {
-    const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p))
+    const isPublic = pathname === '/' || PUBLIC_PATHS.some((p) => pathname.startsWith(p))
     if (!isPublic) {
       const url = request.nextUrl.clone()
       url.pathname = '/login'

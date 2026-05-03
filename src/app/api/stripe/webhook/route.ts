@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { supabaseAdmin } from '@/lib/supabase/admin'
+import { TOKEN_GRANTS } from '@/lib/tokens/costs'
 import type Stripe from 'stripe'
 
 export const runtime = 'nodejs'
@@ -35,33 +36,49 @@ export async function POST(request: Request) {
       }
 
       if (type === 'subscription') {
-        await supabaseAdmin
-          .from('players')
-          .update({
-            subscription_active: true,
-            subscription_id: session.subscription as string,
-            subscription_status: 'active',
-            rerun_tokens: 3,
-            rerun_tokens_reset_at: new Date().toISOString(),
-            email_drafts_this_month: 0,
-            email_drafts_reset_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          })
-          .eq('user_id', userId)
+        const { error: rpcErr } = await supabaseAdmin.rpc('activate_subscription', {
+          p_user_id: userId,
+          p_subscription_id: session.subscription as string,
+          p_initial_tokens: TOKEN_GRANTS.SUBSCRIPTION_MONTHLY_ALLOWANCE,
+        })
+        if (rpcErr) {
+          console.error('[webhook] activate_subscription RPC failed:', rpcErr)
+        }
       } else if (type === 'tokens') {
-        const { data: player } = await supabaseAdmin
-          .from('players')
-          .select('rerun_tokens')
-          .eq('user_id', userId)
+        const { error: rpcErr } = await supabaseAdmin.rpc('grant_rerun_tokens', {
+          p_user_id: userId,
+          p_amount: TOKEN_GRANTS.PACK_PURCHASE,
+        })
+        if (rpcErr) {
+          console.error('[webhook] grant_rerun_tokens RPC failed:', rpcErr)
+        }
+      }
+    } else if (event.type === 'invoice.payment_succeeded') {
+      // Subscription renewal — refresh the monthly allowance.
+      // Stripe fires this on every successful billing-cycle charge,
+      // including the very first one. We only refresh on subsequent
+      // cycles (billing_reason = 'subscription_cycle') to avoid
+      // double-granting allowance on activation.
+      const invoice = event.data.object as Stripe.Invoice & { subscription?: string | null }
+      if (invoice.billing_reason === 'subscription_cycle' && invoice.subscription) {
+        // Look up the user_id by subscription_id
+        const { data: profileRow } = await supabaseAdmin
+          .from('profiles')
+          .select('id')
+          .eq('subscription_id', invoice.subscription)
           .maybeSingle()
 
-        await supabaseAdmin
-          .from('players')
-          .update({
-            rerun_tokens: (player?.rerun_tokens ?? 0) + 3,
-            updated_at: new Date().toISOString(),
+        if (profileRow) {
+          const { error: rpcErr } = await supabaseAdmin.rpc('refresh_subscription_allowance', {
+            p_user_id: (profileRow as { id: string }).id,
+            p_amount: TOKEN_GRANTS.SUBSCRIPTION_MONTHLY_ALLOWANCE,
           })
-          .eq('user_id', userId)
+          if (rpcErr) {
+            console.error('[webhook] refresh_subscription_allowance RPC failed:', rpcErr)
+          }
+        } else {
+          console.warn('[webhook] no profile found for subscription_id:', invoice.subscription)
+        }
       }
     } else if (event.type === 'customer.subscription.updated') {
       const sub = event.data.object as Stripe.Subscription
@@ -74,14 +91,13 @@ export async function POST(request: Request) {
         .eq('subscription_id', sub.id)
     } else if (event.type === 'customer.subscription.deleted') {
       const sub = event.data.object as Stripe.Subscription
-      await supabaseAdmin
-        .from('players')
-        .update({
-          subscription_active: false,
-          subscription_status: 'canceled',
-          updated_at: new Date().toISOString(),
-        })
-        .eq('subscription_id', sub.id)
+      // Use the cancel RPC to zero out allowance_tokens and update both profiles + players atomically
+      const { error: rpcErr } = await supabaseAdmin.rpc('cancel_subscription_allowance', {
+        p_subscription_id: sub.id,
+      })
+      if (rpcErr) {
+        console.error('[webhook] cancel_subscription_allowance RPC failed:', rpcErr)
+      }
     }
   } catch (err) {
     console.error('[webhook] handler error for', event.type, ':', err instanceof Error ? err.message : err)

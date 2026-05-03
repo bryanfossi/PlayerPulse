@@ -4,10 +4,12 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, School, MessageSquare, Sparkles, User,
-  LogOut, Zap, Trophy, Settings,
+  LogOut, Trophy, Settings,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
+import { brand } from '@/lib/brand'
+import { TokenBalance } from '@/components/TokenBalance'
 
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -34,14 +36,17 @@ export function Sidebar() {
     <aside className="w-60 flex-shrink-0 flex flex-col h-screen sticky top-0 bg-background border-r border-border">
 
       {/* Brand */}
-      <div className="px-5 h-16 flex items-center gap-3 border-b border-border">
-        <div className="w-7 h-7 rounded-lg bg-green-500 flex items-center justify-center flex-shrink-0">
-          <Zap className="w-3.5 h-3.5 text-[#080f08]" strokeWidth={2.5} />
-        </div>
-        <div className="min-w-0">
-          <p className="font-bold text-sm leading-none tracking-tight">PlayerPulse</p>
-          <p className="text-[10px] text-muted-foreground mt-0.5 truncate">Promoted Soccer</p>
-        </div>
+      <div className="px-4 h-16 flex items-center border-b border-border">
+        <Link href="/dashboard">
+          {/* Plain img bypasses Next.js image optimizer cache — correct for SVGs */}
+          <img
+            src={brand.logo.full}
+            alt={brand.appName}
+            width={200}
+            height={48}
+            style={{ height: '48px', width: 'auto' }}
+          />
+        </Link>
       </div>
 
       {/* Nav */}
@@ -72,29 +77,35 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Footer */}
-      <div className="px-3 py-4 border-t border-border">
-        <div className="flex items-center gap-1">
-          <Link
-            href="/settings"
-            className={cn(
-              'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all flex-1',
-              pathname === '/settings'
-                ? 'bg-green-500/10 text-green-400'
-                : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
-            )}
-          >
-            <Settings className="w-4 h-4 flex-shrink-0" />
-            Settings
-          </Link>
-          <button
-            onClick={handleSignOut}
-            title="Sign Out"
-            className="flex items-center justify-center w-9 h-9 rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all flex-shrink-0"
-          >
-            <LogOut className="w-4 h-4" />
-          </button>
+      {/* Token balance */}
+      <div className="px-4 py-3 border-t border-border">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">Tokens</span>
+          <TokenBalance />
         </div>
+      </div>
+
+      {/* Footer */}
+      <div className="px-3 py-4 border-t border-border space-y-0.5">
+        <Link
+          href="/settings"
+          className={cn(
+            'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all',
+            pathname === '/settings'
+              ? 'bg-green-500/10 text-green-400'
+              : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
+          )}
+        >
+          <Settings className="w-4 h-4 flex-shrink-0" />
+          Settings
+        </Link>
+        <button
+          onClick={handleSignOut}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all"
+        >
+          <LogOut className="w-4 h-4 flex-shrink-0" />
+          Sign Out
+        </button>
       </div>
     </aside>
   )

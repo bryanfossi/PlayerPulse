@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { Trophy } from 'lucide-react'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
-import { OffersClient, type OfferWithSchool } from '@/components/offers/OffersClient'
+import { OffersClient, type OfferWithSchool, type OfferSchoolRecord } from '@/components/offers/OffersClient'
 import type { SchoolOption } from '@/components/offers/OfferFormDialog'
 import type { Database } from '@/types/database'
 
@@ -24,8 +24,8 @@ export default async function OffersPage() {
   const player = playerRaw as Pick<PlayerRow, 'id'> | null
   if (!player) redirect('/onboarding')
 
-  // Fetch offers and available schools in parallel
-  const [offersResult, schoolsResult] = await Promise.all([
+  // Fetch offers, available schools, and player_schools with offer_received status in parallel
+  const [offersResult, schoolsResult, offerSchoolsResult] = await Promise.all([
     service
       .from('offers')
       .select('*, school:schools(id, name, verified_division, city, state, in_state_tuition, out_state_tuition)')
@@ -37,6 +37,12 @@ export default async function OffersPage() {
       .eq('player_id', player.id)
       .neq('status', 'declined')
       .order('rank_order', { ascending: true }),
+    service
+      .from('player_schools')
+      .select('id, updated_at, notes, school:schools(id, name, verified_division, city, state)')
+      .eq('player_id', player.id)
+      .eq('status', 'offer_received')
+      .order('updated_at', { ascending: false }),
   ])
 
   const offers = (offersResult.data ?? []) as unknown as OfferWithSchool[]
@@ -51,6 +57,16 @@ export default async function OffersPage() {
     verified_division: ps.school.verified_division,
     in_state_tuition: ps.school.in_state_tuition,
     out_state_tuition: ps.school.out_state_tuition,
+  }))
+
+  type PSOfferRow = Pick<PSRow, 'id' | 'updated_at' | 'notes'> & {
+    school: Pick<SchoolRow, 'id' | 'name' | 'verified_division' | 'city' | 'state'>
+  }
+  const offerSchools: OfferSchoolRecord[] = ((offerSchoolsResult.data ?? []) as unknown as PSOfferRow[]).map((ps) => ({
+    id: ps.id,
+    updated_at: ps.updated_at,
+    notes: ps.notes,
+    school: ps.school,
   }))
 
   return (
@@ -70,7 +86,7 @@ export default async function OffersPage() {
         </div>
       </div>
 
-      <OffersClient initialOffers={offers} schools={schools} />
+      <OffersClient initialOffers={offers} schools={schools} offerSchools={offerSchools} />
     </div>
   )
 }

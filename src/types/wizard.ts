@@ -1,28 +1,3 @@
-export const POSITIONS = [
-  'Goalkeeper',
-  'Center Back',
-  'Outside Back / Fullback',
-  'Defensive Midfielder',
-  'Central Midfielder',
-  'Attacking Midfielder',
-  'Winger / Wide Midfielder',
-  'Striker',
-  'Second Striker / Forward',
-] as const
-
-export const CLUB_LEVELS = [
-  'MLS Next',
-  'ECNL National',
-  'ECNL-RL',
-  'EDP Premier',
-  'EDP',
-  'NPL',
-  'USYS Regional',
-  'USYS State',
-  'High School Only',
-  'Other',
-] as const
-
 export const TUITION_OPTIONS = [
   'Not a factor',
   'Somewhat important',
@@ -56,6 +31,7 @@ export const BUDGET_OPTIONS = [
 
 export interface WizardData {
   // Step 1 – Personal
+  sport_id: string
   first_name: string
   last_name: string
   gender: string
@@ -73,6 +49,8 @@ export interface WizardData {
   club_team: string
   highest_club_level: string
   highlight_url: string
+  height_feet: string
+  height_inches: string
   // Step 4 – Preferences
   target_levels: string[]
   recruiting_radius_mi: string
@@ -85,6 +63,7 @@ export interface WizardData {
 }
 
 export const DEFAULT_WIZARD_DATA: WizardData = {
+  sport_id: 'soccer',
   first_name: '',
   last_name: '',
   gender: '',
@@ -100,6 +79,8 @@ export const DEFAULT_WIZARD_DATA: WizardData = {
   club_team: '',
   highest_club_level: '',
   highlight_url: '',
+  height_feet: '',
+  height_inches: '',
   target_levels: ['D1', 'D2', 'D3'],
   recruiting_radius_mi: '',
   tuition_importance: 'Not a factor',

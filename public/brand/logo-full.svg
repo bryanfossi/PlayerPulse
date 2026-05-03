@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 96">
+  <!-- Dark background -->
+  <rect width="400" height="96" fill="#0F1120"/>
+
+  <!--
+    Icon mark: 80x80, vertically centered (top offset = 8).
+    Inner geometry from 48-unit space scaled 5/3 and offset by (8,8).
+    Using vector-effect="non-scaling-stroke" so stroke-width stays in screen pixels.
+  -->
+  <g transform="translate(8,8) scale(1.6667)" style="overflow:visible">
+    <circle
+      cx="24" cy="24" r="16"
+      stroke="#22C55E" stroke-width="2" fill="none"
+      vector-effect="non-scaling-stroke"/>
+    <path
+      d="M 3 24 H 10 L 13.5 19 L 17 30 L 21 5 L 25 24 H 45"
+      stroke="#22C55E" stroke-width="2" fill="none"
+      stroke-linecap="round" stroke-linejoin="round"
+      vector-effect="non-scaling-stroke"/>
+  </g>
+
+  <!-- Subtle separator -->
+  <line x1="100" y1="22" x2="100" y2="74"
+    stroke="#22C55E" stroke-width="1" stroke-opacity="0.25"/>
+
+  <!-- Wordmark -->
+  <text
+    x="114" y="61"
+    font-family="'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+    font-size="34" letter-spacing="-0.5">
+    <tspan fill="#FFFFFF" font-weight="400">Player</tspan><tspan fill="#22C55E" font-weight="700">Pulse</tspan>
+  </text>
+</svg>

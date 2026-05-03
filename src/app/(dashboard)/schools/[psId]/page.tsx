@@ -30,13 +30,13 @@ export default async function SchoolDetailPage({
 
   const service = createServiceClient()
 
-  // Get player_id for this user
+  // Get player_id + sport for this user
   const { data: playerRaw } = await service
     .from('players')
-    .select('id')
+    .select('id, sport_id')
     .eq('user_id', user.id)
     .maybeSingle()
-  const player = playerRaw as Pick<PlayerRow, 'id'> | null
+  const player = playerRaw as Pick<PlayerRow, 'id'> & { sport_id?: string } | null
   if (!player) redirect('/onboarding')
 
   // Fetch the player_school + school
@@ -53,7 +53,7 @@ export default async function SchoolDetailPage({
       school:schools (
         id, name, verified_division, conference, city, state, campus_type,
         enrollment, avg_gpa, acceptance_rate, in_state_tuition, out_state_tuition,
-        has_scholarship, soccer_url, logo_url, usc_top25_seasons, prestige,
+        has_scholarship, soccer_url, sport_urls, logo_url, usc_top25_seasons, prestige,
         created_at, updated_at
       )
     `)
@@ -67,9 +67,9 @@ export default async function SchoolDetailPage({
   const s = ps.school
 
   const TIER_STYLES = {
-    Lock: 'bg-green-100 text-green-800 border-green-200',
-    Realistic: 'bg-blue-100 text-blue-800 border-blue-200',
-    Reach: 'bg-amber-100 text-amber-800 border-amber-200',
+    Lock: 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-[#C9A227]/15 dark:text-[#C9A227] dark:border-[#C9A227]/30',
+    Realistic: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800',
+    Reach: 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800',
   }
 
   return (
@@ -108,8 +108,8 @@ export default async function SchoolDetailPage({
 
         {/* Overall score */}
         {ps.overall_score != null && (
-          <div className="flex flex-col items-center justify-center w-20 h-20 rounded-2xl bg-green-500/10 border border-green-500/20 flex-shrink-0">
-            <span className="text-3xl font-black text-green-400 leading-none">{ps.overall_score}</span>
+          <div className="flex flex-col items-center justify-center w-20 h-20 rounded-2xl bg-[#C9A227]/10 border border-[#C9A227]/25 flex-shrink-0">
+            <span className="text-3xl font-black text-[#C9A227] leading-none">{ps.overall_score}</span>
             <span className="text-[10px] text-muted-foreground mt-0.5">/ 100</span>
           </div>
         )}
@@ -184,16 +184,23 @@ export default async function SchoolDetailPage({
             )}
           </div>
 
-          {s.soccer_url && (
-            <a
-              href={s.soccer_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 mt-4 text-sm text-primary hover:underline"
-            >
-              Soccer Program Page <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          )}
+          {(() => {
+            const sportId = player.sport_id ?? 'soccer'
+            const programUrl =
+              (s.sport_urls as Record<string, string | null> | null)?.[sportId] ??
+              s.soccer_url ??
+              null
+            return programUrl ? (
+              <a
+                href={programUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 mt-4 text-sm text-primary hover:underline"
+              >
+                Program Page <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            ) : null
+          })()}
         </CardContent>
       </Card>
 

@@ -39,35 +39,43 @@ export async function POST() {
       return NextResponse.json({ slug: player.public_profile_slug, url })
     }
 
-    // Generate base slug
+    // Generate base slug, then attempt to write it atomically.
+    // Retry with a numeric suffix on unique constraint violation (23505) so concurrent
+    // requests for players with the same name/year can't produce duplicate slugs.
     const base = toSlug(`${player.first_name}-${player.last_name}-${player.grad_year}`)
 
-    // Check uniqueness and append suffix if needed
     let slug = base
     let suffix = 2
-    while (true) {
-      const { data: existing } = await service
-        .from('players')
-        .select('id')
-        .eq('public_profile_slug', slug)
-        .maybeSingle()
+    let finalSlug: string | null = null
 
-      if (!existing) break
-      slug = `${base}-${suffix}`
-      suffix++
+    while (!finalSlug && suffix <= 30) {
+      const { error } = await service
+        .from('players')
+        .update({
+          public_profile_slug: slug,
+          public_profile_enabled: true,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', player.id)
+
+      if (!error) {
+        finalSlug = slug
+      } else if (error.code === '23505') {
+        // Unique constraint violation — another player owns this slug
+        slug = `${base}-${suffix}`
+        suffix++
+      } else {
+        console.error('[generate-slug] update error:', error)
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+      }
     }
 
-    await service
-      .from('players')
-      .update({
-        public_profile_slug: slug,
-        public_profile_enabled: true,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', player.id)
+    if (!finalSlug) {
+      return NextResponse.json({ error: 'Could not generate a unique profile URL' }, { status: 500 })
+    }
 
-    const url = `${process.env.NEXT_PUBLIC_APP_URL}/player/${slug}`
-    return NextResponse.json({ slug, url })
+    const url = `${process.env.NEXT_PUBLIC_APP_URL}/player/${finalSlug}`
+    return NextResponse.json({ slug: finalSlug, url })
   } catch (err) {
     console.error('[generate-slug] error:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

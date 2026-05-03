@@ -75,12 +75,13 @@ export async function GET(request: Request) {
     const player = playerRaw as Pick<PlayerRow, 'id'> | null
     if (!player) return NextResponse.json({ invites: [] })
 
-    const { data } = await service
+    const { data, error: invitesErr } = await service
       .from('parent_invites')
       .select('id, email, token, accepted, expires_at, created_at')
       .eq('player_id', player.id)
       .order('created_at', { ascending: false })
 
+    if (invitesErr) console.error('[invites GET] query error:', invitesErr.message)
     return NextResponse.json({ invites: data ?? [] })
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

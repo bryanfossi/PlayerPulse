@@ -4,6 +4,8 @@ import { anthropic } from '@/lib/anthropic'
 import { buildMatchEnginePrompt } from '@/lib/prompts/match-engine'
 import { parseMatchEngineTSV } from '@/lib/parsers/match-engine-tsv'
 import { checkRateLimit } from '@/lib/rate-limit'
+import { getSportOrDefault } from '@/lib/sports'
+import { TOKEN_COSTS } from '@/lib/tokens/costs'
 import type { Player } from '@/types/app'
 import type { Database } from '@/types/database'
 
@@ -48,37 +50,36 @@ export async function POST(request: Request) {
     }
     const player = playerRaw as Player & {
       match_engine_run_at: string | null
-      rerun_tokens: number
-      rerun_tokens_used: number
     }
 
-    // Token gate: first run is always free; reruns require a token
+    // Token gate: first run is always free; reruns consume FULL_MATCH_RERUN tokens.
+    // The consume_tokens RPC is atomic and consumes from allowance first, then pack.
     const isFirstRun = !player.match_engine_run_at
     if (!isFirstRun) {
-      if (player.rerun_tokens <= 0) {
+      const { data: ok, error: tokenErr } = await service.rpc('consume_tokens', {
+        p_user_id: user.id,
+        p_amount: TOKEN_COSTS.FULL_MATCH_RERUN,
+      })
+
+      if (tokenErr || !ok) {
         return NextResponse.json(
-          { error: 'NO_TOKENS', message: 'No rerun tokens remaining. Purchase more to regenerate your list.' },
+          {
+            error: 'NO_TOKENS',
+            message: `This rerun costs ${TOKEN_COSTS.FULL_MATCH_RERUN} tokens. You don't have enough — purchase a token pack to continue.`,
+          },
           { status: 402 },
         )
       }
-      // Deduct token BEFORE calling Opus
-      await service
-        .from('players')
-        .update({
-          rerun_tokens: player.rerun_tokens - 1,
-          rerun_tokens_used: player.rerun_tokens_used + 1,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', player_id)
     }
 
     // Build prompt and call Claude Opus
-    const prompt = buildMatchEnginePrompt(player)
+    const sport = getSportOrDefault(player.sport_id)
+    const prompt = buildMatchEnginePrompt(player, sport)
 
     const message = await anthropic.messages.create({
       model: 'claude-opus-4-7',
       max_tokens: 8192,
-      system: 'You are an expert U.S. college soccer recruiting coordinator. Output TSV only. No prose. No markdown. No commentary.',
+      system: `You are an expert U.S. college ${sport.name} recruiting coordinator. Output TSV only. No prose. No markdown. No commentary.`,
       messages: [{ role: 'user', content: prompt }],
     })
 
@@ -95,9 +96,30 @@ export async function POST(request: Request) {
     // Parse TSV
     const { rows, errorRows } = parseMatchEngineTSV(rawTSV)
 
-    if (rows.length === 0) {
-      console.error('[match-engine] parse produced 0 rows. Raw:', rawTSV.slice(0, 500))
-      return NextResponse.json({ error: 'Failed to parse AI output. Please try again.' }, { status: 500 })
+    const MIN_ACCEPTABLE_ROWS = 30
+
+    if (rows.length < MIN_ACCEPTABLE_ROWS) {
+      console.error(
+        `[match-engine] parse produced only ${rows.length} rows (need ≥${MIN_ACCEPTABLE_ROWS}). Raw:`,
+        rawTSV.slice(0, 500),
+      )
+
+      // Refund the tokens — Claude failed, not the user
+      if (!isFirstRun) {
+        await service.rpc('refund_tokens', {
+          p_user_id: user.id,
+          p_amount: TOKEN_COSTS.FULL_MATCH_RERUN,
+        })
+      }
+
+      return NextResponse.json(
+        { error: 'Match engine returned too few results. Your tokens have been refunded — please try again.' },
+        { status: 500 },
+      )
+    }
+
+    if (rows.length < 40) {
+      console.warn(`[match-engine] expected 40 rows, got ${rows.length} — proceeding`)
     }
 
     // Save raw run record first
@@ -165,7 +187,8 @@ export async function POST(request: Request) {
             in_state_tuition: row.in_state_tuition,
             out_state_tuition: row.out_state_tuition,
             prestige: row.prestige,
-            soccer_url: row.soccer_url || null,
+            soccer_url: sport.id === 'soccer' ? (row.program_url || null) : undefined,
+            sport_urls: row.program_url ? { [sport.id]: row.program_url } : undefined,
             updated_at: new Date().toISOString(),
           },
           {

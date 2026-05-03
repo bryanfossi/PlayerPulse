@@ -1,7 +1,9 @@
 import { redirect } from 'next/navigation'
-import { Settings } from 'lucide-react'
+import { Settings, Palette } from 'lucide-react'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { ParentInviteWidget } from '@/components/dashboard/ParentInviteWidget'
+import { ThemeSelector } from '@/components/settings/ThemeSelector'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { Database } from '@/types/database'
 
 type InviteRow = Database['public']['Tables']['parent_invites']['Row']
@@ -39,6 +41,22 @@ export default async function SettingsPage() {
           <p className="text-muted-foreground text-sm mt-0.5">Manage access and preferences</p>
         </div>
       </div>
+
+      {/* Visual Theme */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Palette className="w-4 h-4 text-muted-foreground" />
+            Visual Theme
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Choose how PlayerPulse looks for you. Your preference is saved locally.
+          </p>
+        </CardHeader>
+        <CardContent>
+          <ThemeSelector />
+        </CardContent>
+      </Card>
 
       <ParentInviteWidget existingInvites={invites} />
     </div>

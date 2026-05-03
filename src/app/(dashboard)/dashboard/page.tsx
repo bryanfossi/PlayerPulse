@@ -37,7 +37,7 @@ export default async function DashboardPage() {
 
   const { data: playerRaw, error: playerError } = await service
     .from('players')
-    .select('id, first_name, last_name, grad_year, primary_position, club_team, rerun_tokens')
+    .select('id, first_name, last_name, grad_year, primary_position, club_team')
     .eq('user_id', user.id)
     .maybeSingle()
   if (playerError) {
@@ -52,7 +52,7 @@ export default async function DashboardPage() {
     throw new Error(`Database migration required. Run migration 004_stripe_billing.sql in Supabase. Error: ${playerError.message}`)
   }
   const player = playerRaw as Pick<PlayerRow,
-    'id' | 'first_name' | 'last_name' | 'grad_year' | 'primary_position' | 'club_team' | 'rerun_tokens'
+    'id' | 'first_name' | 'last_name' | 'grad_year' | 'primary_position' | 'club_team'
   > | null
   if (!player) redirect('/onboarding')
 
@@ -86,15 +86,13 @@ export default async function DashboardPage() {
     Realistic: playerSchools.filter((s) => s.tier === 'Realistic').length,
     Reach: playerSchools.filter((s) => s.tier === 'Reach').length,
   }
-  const topSchools = playerSchools.filter((s) => s.status !== 'declined').slice(0, 5)
+  const topSchools = playerSchools.filter((s) => s.status !== 'declined').slice(0, 10)
 
   // Pipeline status distribution
   const statusCounts: Record<string, number> = {}
   for (const ps of playerSchools) {
     statusCounts[ps.status] = (statusCounts[ps.status] ?? 0) + 1
   }
-
-  const rerunTokens = player.rerun_tokens ?? 0
 
   type ContactWithSchool = Omit<ContactRow, 'player_id' | 'school_id'> & {
     school: Pick<SchoolRow, 'id' | 'name' | 'verified_division'>
@@ -121,7 +119,7 @@ export default async function DashboardPage() {
               {player.primary_position} · Class of {player.grad_year} · {player.club_team}
             </p>
           </div>
-          <AddTokensButton tokens={rerunTokens} />
+          <AddTokensButton />
         </div>
 
         {/* Quick Actions */}
@@ -154,7 +152,7 @@ export default async function DashboardPage() {
 
       {/* ── Tier breakdown ── */}
       <div className="grid grid-cols-3 gap-4">
-        <TierBar tier="Lock" count={tierCounts.Lock} total={totalSchools} color="green" />
+        <TierBar tier="Lock" count={tierCounts.Lock} total={totalSchools} color="gold" />
         <TierBar tier="Realistic" count={tierCounts.Realistic} total={totalSchools} color="blue" />
         <TierBar tier="Reach" count={tierCounts.Reach} total={totalSchools} color="amber" />
       </div>
@@ -162,29 +160,27 @@ export default async function DashboardPage() {
       {/* ── Pipeline progress ── */}
       <PipelineProgressWidget statusCounts={statusCounts} total={totalSchools} />
 
-      {/* ── Main grid ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        {/* Left (2/3) */}
-        <div className="lg:col-span-2 space-y-6">
-
-          {/* Top Schools */}
-          <Section
-            title="Top Schools"
-            icon={<Target className="w-4 h-4 text-green-400" />}
-            action={{ label: 'View all', href: '/schools' }}
-          >
-            {topSchools.length === 0 ? (
-              <EmptyState label="No schools yet." link={{ href: '/schools', label: 'Add your first school' }} />
-            ) : topSchools.map((ps, i) => (
+      {/* ── Top 10 Schools (full-width) ── */}
+      <Section
+        title="My Top 10 Schools"
+        icon={<Trophy className="w-4 h-4 text-[#C9A227]" />}
+        action={{ label: 'Reorder in My Schools', href: '/schools' }}
+      >
+        {topSchools.length === 0 ? (
+          <EmptyState label="No schools yet." link={{ href: '/schools', label: 'Add your first school' }} />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-2">
+            {topSchools.map((ps) => (
               <Link
                 key={ps.id}
                 href={`/schools/${ps.id}`}
-                className="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors group"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group"
               >
-                <span className="text-xs tabular-nums text-muted-foreground/50 w-4 text-right flex-shrink-0">{i + 1}</span>
+                <span className="text-xs tabular-nums font-black text-muted-foreground/50 w-5 text-center flex-shrink-0">
+                  {ps.rank_order}
+                </span>
                 <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                  ps.tier === 'Lock' ? 'bg-green-400' :
+                  ps.tier === 'Lock' ? 'bg-[#C9A227]' :
                   ps.tier === 'Realistic' ? 'bg-blue-400' : 'bg-amber-400'
                 }`} />
                 <div className="flex-1 min-w-0">
@@ -200,49 +196,74 @@ export default async function DashboardPage() {
                 <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground/30 group-hover:text-green-400/60 transition-colors flex-shrink-0" />
               </Link>
             ))}
-          </Section>
-
-          {/* Recent Activity */}
-          <Section
-            title="Recent Activity"
-            icon={<Activity className="w-4 h-4 text-green-400" />}
-            action={{ label: 'View all', href: '/communications' }}
-          >
-            {contacts.slice(0, 5).length === 0 ? (
-              <EmptyState label="No contacts yet." link={{ href: '/communications', label: 'Log your first contact' }} />
-            ) : contacts.slice(0, 5).map((c) => (
-              <div key={c.id} className="flex items-start gap-4 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors">
-                <div className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Mail className="w-3.5 h-3.5 text-muted-foreground" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium truncate">{c.school.name}</p>
-                    <span className="text-[10px] text-muted-foreground flex-shrink-0 bg-muted px-1.5 py-0.5 rounded">
-                      {CONTACT_TYPE_LABELS[c.contact_type] ?? c.contact_type}
-                    </span>
-                  </div>
-                  {(c.subject || c.notes) && (
-                    <p className="text-xs text-muted-foreground truncate mt-0.5">
-                      {c.subject ?? c.notes?.slice(0, 60)}
-                    </p>
-                  )}
-                </div>
-                <time className="text-[10px] text-muted-foreground/50 flex-shrink-0 mt-1">
-                  {new Date(c.contact_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                </time>
-              </div>
-            ))}
-          </Section>
-
-          {contacts.length > 0 && <FollowUpReminders contacts={contacts} />}
-        </div>
-
-        {/* Right (1/3) */}
-        <div className="space-y-4">
-
           </div>
+        )}
+      </Section>
+
+      {/* ── Main grid ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        {/* Recent Activity */}
+        <Section
+          title="Recent Activity"
+          icon={<Activity className="w-4 h-4 text-green-400" />}
+          action={{ label: 'View all', href: '/communications' }}
+        >
+          {contacts.slice(0, 5).length === 0 ? (
+            <EmptyState label="No contacts yet." link={{ href: '/communications', label: 'Log your first contact' }} />
+          ) : contacts.slice(0, 5).map((c) => (
+            <div key={c.id} className="flex items-start gap-4 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors">
+              <div className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center flex-shrink-0 mt-0.5">
+                <Mail className="w-3.5 h-3.5 text-muted-foreground" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-medium truncate">{c.school.name}</p>
+                  <span className="text-[10px] text-muted-foreground flex-shrink-0 bg-muted px-1.5 py-0.5 rounded">
+                    {CONTACT_TYPE_LABELS[c.contact_type] ?? c.contact_type}
+                  </span>
+                </div>
+                {(c.subject || c.notes) && (
+                  <p className="text-xs text-muted-foreground truncate mt-0.5">
+                    {c.subject ?? c.notes?.slice(0, 60)}
+                  </p>
+                )}
+              </div>
+              <time className="text-[10px] text-muted-foreground/50 flex-shrink-0 mt-1">
+                {new Date(c.contact_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+              </time>
+            </div>
+          ))}
+        </Section>
+
+        {/* Pipeline summary */}
+        <Section
+          title="Pipeline"
+          icon={<Target className="w-4 h-4 text-green-400" />}
+          action={{ label: 'View all', href: '/schools' }}
+        >
+          {totalSchools === 0 ? (
+            <EmptyState label="No schools yet." link={{ href: '/schools', label: 'Add your first school' }} />
+          ) : (
+            <div className="px-4 py-3 space-y-2">
+              {Object.entries(statusCounts).map(([status, count]) => (
+                <div key={status} className="flex items-center gap-3">
+                  <span className="text-xs text-muted-foreground w-28 flex-shrink-0">{STATUS_LABELS[status] ?? status}</span>
+                  <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                    <div
+                      className="h-1.5 rounded-full bg-green-500/60 transition-all"
+                      style={{ width: `${Math.round((count / totalSchools) * 100)}%` }}
+                    />
+                  </div>
+                  <span className="text-xs font-bold tabular-nums text-muted-foreground/70 w-5 text-right">{count}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </Section>
       </div>
+
+      {contacts.length > 0 && <FollowUpReminders contacts={contacts} />}
     </div>
   )
 }
@@ -267,11 +288,11 @@ function StatCard({ label, value, icon: Icon, color }: {
 }
 
 function TierBar({ tier, count, total, color }: {
-  tier: string; count: number; total: number; color: 'green' | 'blue' | 'amber'
+  tier: string; count: number; total: number; color: 'gold' | 'blue' | 'amber'
 }) {
   const pct = total > 0 ? Math.round((count / total) * 100) : 0
   const cfg = {
-    green: { bg: 'bg-green-500/10', border: 'border-green-500/20', text: 'text-green-400', bar: 'bg-green-500' },
+    gold: { bg: 'bg-[#C9A227]/10', border: 'border-[#C9A227]/25', text: 'text-[#C9A227]', bar: 'bg-[#C9A227]' },
     blue: { bg: 'bg-blue-500/10', border: 'border-blue-500/20', text: 'text-blue-400', bar: 'bg-blue-500' },
     amber: { bg: 'bg-amber-500/10', border: 'border-amber-500/20', text: 'text-amber-400', bar: 'bg-amber-500' },
   }[color]

@@ -4,11 +4,12 @@ import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import {
   Trophy, Plus, Pencil, Trash2, CheckCircle2, XCircle,
-  CalendarClock, TrendingDown, ExternalLink,
+  CalendarClock, TrendingDown, Loader2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
 import { OfferFormDialog, type SchoolOption } from './OfferFormDialog'
 import type { Database } from '@/types/database'
 
@@ -19,9 +20,17 @@ export type OfferWithSchool = OfferRow & {
   school: Pick<SchoolRow, 'id' | 'name' | 'verified_division' | 'city' | 'state' | 'in_state_tuition' | 'out_state_tuition'>
 }
 
+export interface OfferSchoolRecord {
+  id: string
+  updated_at: string
+  notes: string | null
+  school: Pick<SchoolRow, 'id' | 'name' | 'verified_division' | 'city' | 'state'>
+}
+
 interface Props {
   initialOffers: OfferWithSchool[]
   schools: SchoolOption[]
+  offerSchools?: OfferSchoolRecord[]
 }
 
 function fmt$(n: number) {
@@ -83,19 +92,37 @@ function OfferCard({
   function handleDelete() {
     if (!confirm('Remove this offer?')) return
     startDelete(async () => {
-      await fetch(`/api/offers/${offer.id}`, { method: 'DELETE' })
-      onDelete()
+      try {
+        const res = await fetch(`/api/offers/${offer.id}`, { method: 'DELETE' })
+        if (!res.ok) { toast.error('Could not remove offer. Please try again.'); return }
+        onDelete()
+      } catch {
+        toast.error('Network error — could not remove offer.')
+      }
     })
   }
 
   function handleStatus(status: 'evaluating' | 'accepted' | 'declined') {
+    const prevStatus = offer.status
+    onStatusChange(status)
     startUpdate(async () => {
-      await fetch(`/api/offers/${offer.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
-      })
-      onStatusChange(status)
+      try {
+        const res = await fetch(`/api/offers/${offer.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status }),
+        })
+        if (!res.ok) {
+          onStatusChange(prevStatus)
+          toast.error('Could not update offer status.')
+          return
+        }
+        if (status === 'accepted') toast.success(`Offer from ${offer.school.name} accepted!`)
+        if (status === 'declined') toast.success(`Offer from ${offer.school.name} declined.`)
+      } catch {
+        onStatusChange(prevStatus)
+        toast.error('Network error — could not update offer.')
+      }
     })
   }
 
@@ -213,8 +240,10 @@ function OfferCard({
             size="sm"
             className="h-7 text-xs gap-1 bg-green-500 hover:bg-green-400 text-[#080f08]"
             onClick={() => handleStatus('accepted')}
+            disabled={updating}
           >
-            <CheckCircle2 className="w-3 h-3" /> Accept
+            {updating ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
+            Accept
           </Button>
         )}
         {offer.status !== 'declined' && offer.status !== 'accepted' && (
@@ -223,8 +252,10 @@ function OfferCard({
             variant="outline"
             className="h-7 text-xs gap-1"
             onClick={() => handleStatus('declined')}
+            disabled={updating}
           >
-            <XCircle className="w-3 h-3" /> Decline
+            {updating ? <Loader2 className="w-3 h-3 animate-spin" /> : <XCircle className="w-3 h-3" />}
+            Decline
           </Button>
         )}
         {offer.status !== 'evaluating' && (
@@ -233,6 +264,7 @@ function OfferCard({
             variant="ghost"
             className="h-7 text-xs text-muted-foreground"
             onClick={() => handleStatus('evaluating')}
+            disabled={updating}
           >
             Re-open
           </Button>
@@ -256,7 +288,49 @@ function OfferCard({
   )
 }
 
-export function OffersClient({ initialOffers, schools }: Props) {
+function OfferSchoolCard({ record }: { record: OfferSchoolRecord }) {
+  return (
+    <div className="bg-card border border-[#C9A227]/20 rounded-2xl p-4 space-y-2">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="font-bold text-sm leading-tight truncate">{record.school.name}</h3>
+            {record.school.verified_division && (
+              <Badge variant="outline" className="text-[10px] flex-shrink-0">
+                {record.school.verified_division}
+              </Badge>
+            )}
+          </div>
+          {(record.school.city || record.school.state) && (
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {[record.school.city, record.school.state].filter(Boolean).join(', ')}
+            </p>
+          )}
+        </div>
+        <Trophy className="w-4 h-4 text-[#C9A227] flex-shrink-0 mt-0.5" />
+      </div>
+      <p className="text-xs text-muted-foreground">
+        Offer received: {formatDate(record.updated_at)}
+      </p>
+      {record.notes && (
+        <p className="text-xs text-muted-foreground line-clamp-2 border-t border-border pt-2">
+          {record.notes}
+        </p>
+      )}
+      <div className="pt-1">
+        <Link
+          href="/offers"
+          className="text-[11px] text-[#C9A227] hover:underline"
+          onClick={(e) => e.stopPropagation()}
+        >
+          Log full offer details →
+        </Link>
+      </div>
+    </div>
+  )
+}
+
+export function OffersClient({ initialOffers, schools, offerSchools = [] }: Props) {
   const [offers, setOffers] = useState(initialOffers)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<OfferWithSchool | null>(null)
@@ -318,6 +392,20 @@ export function OffersClient({ initialOffers, schools }: Props) {
               {sub && <p className="text-[11px] text-muted-foreground">{sub}</p>}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Recruited schools (from player_school status = offer_received) */}
+      {offerSchools.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="text-sm font-semibold flex items-center gap-2 text-[#C9A227]">
+            <Trophy className="w-4 h-4" /> Schools That Have Offered
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {offerSchools.map((r) => (
+              <OfferSchoolCard key={r.id} record={r} />
+            ))}
+          </div>
         </div>
       )}
 

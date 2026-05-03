@@ -6,7 +6,7 @@ export default function OnboardingStep3() {
     <>
       <WizardProgress />
       <h1 className="text-xl font-bold mb-1">Athletic Background</h1>
-      <p className="text-muted-foreground text-sm mb-6">Your soccer credentials for the Match Engine</p>
+      <p className="text-muted-foreground text-sm mb-6">Your athletic credentials for the Match Engine</p>
       <StepAthletic />
     </>
   )

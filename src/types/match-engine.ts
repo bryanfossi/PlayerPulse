@@ -38,7 +38,7 @@ export interface ParsedMatchResult {
   level_note: string
   pt_note: string
   campus_type: CampusType
-  soccer_url: string
+  program_url: string
 }
 
 export interface MatchEngineResponse {

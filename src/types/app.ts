@@ -36,6 +36,7 @@ export type EmailDraftType =
 export interface Player {
   id: string
   user_id: string
+  sport_id: string
   first_name: string
   last_name: string
   grad_year: number
@@ -110,6 +111,7 @@ export interface School {
   out_state_tuition: number | null
   has_scholarship: boolean
   soccer_url: string | null
+  sport_urls: Record<string, string | null> | null
   logo_url: string | null
   usc_top25_seasons: number
   prestige: Prestige | null
@@ -171,7 +173,7 @@ export interface PlayerAward {
   year: string
   title: string
   body: string
-  type: 'soccer' | 'academic'
+  type: 'athletic' | 'academic'
 }
 
 export interface PlayerEvent {

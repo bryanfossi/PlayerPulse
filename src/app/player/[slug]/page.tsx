@@ -42,17 +42,16 @@ export default async function PublicProfilePage({ params }: Props) {
 
   if (!player || !player.public_profile_enabled) notFound()
 
-  // Fetch top 10 non-declined schools (Lock + Realistic first) — no scores or tier labels
+  // Fetch top 10 non-declined schools ordered by rank_order (user-curated)
   const { data: psData } = await supabaseAdmin
     .from('player_schools')
-    .select('id, tier, school:schools(id, name, verified_division)')
+    .select('id, tier, rank_order, school:schools(id, name, verified_division)')
     .eq('player_id', player.id)
     .neq('status', 'declined')
-    .in('tier', ['Lock', 'Realistic'])
     .order('rank_order', { ascending: true })
     .limit(10)
 
-  type PSWithSchool = Pick<PSRow, 'id' | 'tier'> & {
+  type PSWithSchool = Pick<PSRow, 'id' | 'tier' | 'rank_order'> & {
     school: Pick<SchoolRow, 'id' | 'name' | 'verified_division'>
   }
   const topSchools = (psData ?? []) as unknown as PSWithSchool[]

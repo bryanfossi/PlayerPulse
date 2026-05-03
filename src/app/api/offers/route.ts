@@ -19,12 +19,13 @@ export async function GET() {
       .maybeSingle()
     if (!player) return NextResponse.json({ offers: [] })
 
-    const { data } = await service
+    const { data, error: offersErr } = await service
       .from('offers')
       .select('*, school:schools(id, name, verified_division, city, state, in_state_tuition, out_state_tuition)')
       .eq('player_id', player.id)
       .order('created_at', { ascending: false })
 
+    if (offersErr) console.error('[offers GET] query error:', offersErr.message)
     return NextResponse.json({ offers: data ?? [] })
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

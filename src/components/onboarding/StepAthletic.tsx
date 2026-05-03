@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useWizard } from '@/hooks/useWizard'
-import { POSITIONS, CLUB_LEVELS } from '@/types/wizard'
+import { getSportOrDefault } from '@/lib/sports'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -16,12 +16,27 @@ const schema = z.object({
   club_team: z.string().min(1, 'Required'),
   highest_club_level: z.string().min(1, 'Required'),
   highlight_url: z.string().optional(),
+  height_feet: z
+    .string()
+    .min(1, 'Required')
+    .refine((v) => {
+      const n = parseInt(v, 10)
+      return !isNaN(n) && n >= 3 && n <= 8
+    }, 'Enter 3–8'),
+  height_inches: z
+    .string()
+    .min(1, 'Required')
+    .refine((v) => {
+      const n = parseInt(v, 10)
+      return !isNaN(n) && n >= 0 && n <= 11
+    }, 'Enter 0–11'),
 })
 type FormData = z.infer<typeof schema>
 
 export function StepAthletic() {
   const router = useRouter()
   const { data, update } = useWizard()
+  const sport = getSportOrDefault(data.sport_id)
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -31,6 +46,8 @@ export function StepAthletic() {
       club_team: data.club_team,
       highest_club_level: data.highest_club_level,
       highlight_url: data.highlight_url,
+      height_feet: data.height_feet,
+      height_inches: data.height_inches,
     },
   })
 
@@ -41,6 +58,8 @@ export function StepAthletic() {
       club_team: values.club_team,
       highest_club_level: values.highest_club_level,
       highlight_url: values.highlight_url ?? '',
+      height_feet: values.height_feet,
+      height_inches: values.height_inches,
     })
     router.push('/onboarding/preferences')
   }
@@ -58,7 +77,7 @@ export function StepAthletic() {
             {...register('primary_position')}
           >
             <option value="">Select position</option>
-            {POSITIONS.map((p) => <option key={p} value={p}>{p}</option>)}
+            {sport.positions.map((p) => <option key={p} value={p}>{p}</option>)}
           </select>
           {errors.primary_position && (
             <p className="text-destructive text-xs">{errors.primary_position.message}</p>
@@ -74,8 +93,50 @@ export function StepAthletic() {
             {...register('secondary_position')}
           >
             <option value="">None</option>
-            {POSITIONS.map((p) => <option key={p} value={p}>{p}</option>)}
+            {sport.positions.map((p) => <option key={p} value={p}>{p}</option>)}
           </select>
+        </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label>
+          Height <span className="text-destructive">*</span>
+        </Label>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <div className="relative">
+              <Input
+                id="height_feet"
+                type="number"
+                min={3}
+                max={8}
+                placeholder="5"
+                {...register('height_feet')}
+                className="pr-8"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">ft</span>
+            </div>
+            {errors.height_feet && (
+              <p className="text-destructive text-xs mt-1">{errors.height_feet.message}</p>
+            )}
+          </div>
+          <div>
+            <div className="relative">
+              <Input
+                id="height_inches"
+                type="number"
+                min={0}
+                max={11}
+                placeholder="10"
+                {...register('height_inches')}
+                className="pr-8"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">in</span>
+            </div>
+            {errors.height_inches && (
+              <p className="text-destructive text-xs mt-1">{errors.height_inches.message}</p>
+            )}
+          </div>
         </div>
       </div>
 
@@ -85,7 +146,13 @@ export function StepAthletic() {
         </Label>
         <Input
           id="club_team"
-          placeholder="Ohio Premier SC"
+          placeholder={
+            sport.id === 'volleyball'
+              ? 'Midwest Volleyball Club'
+              : sport.id === 'basketball'
+              ? 'Team Loaded EYBL'
+              : 'Ohio Premier SC'
+          }
           {...register('club_team')}
         />
         {errors.club_team && (
@@ -103,7 +170,7 @@ export function StepAthletic() {
           {...register('highest_club_level')}
         >
           <option value="">Select level</option>
-          {CLUB_LEVELS.map((l) => <option key={l} value={l}>{l}</option>)}
+          {sport.clubLevels.map((l) => <option key={l} value={l}>{l}</option>)}
         </select>
         {errors.highest_club_level && (
           <p className="text-destructive text-xs">{errors.highest_club_level.message}</p>
