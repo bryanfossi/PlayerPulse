@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { ScoreBreakdown } from '@/components/schools/ScoreBreakdown'
 import { SchoolDetailActions } from '@/components/schools/SchoolDetailActions'
 import { CoachReplyAnalyzerButton } from '@/components/schools/CoachReplyAnalyzer'
+import { FitAssessmentButton } from '@/components/schools/FitAssessmentButton'
 import type { PlayerSchool, School } from '@/types/app'
 import type { Database } from '@/types/database'
 
@@ -117,6 +118,11 @@ export default async function SchoolDetailPage({
 
       {/* Quick Actions */}
       <div className="flex flex-wrap gap-2">
+        <FitAssessmentButton
+          schoolId={s.id}
+          schoolName={s.name}
+          hasExistingScores={ps.overall_score != null}
+        />
         <CoachReplyAnalyzerButton psId={psId} schoolName={s.name} />
         <a
           href={`/ai/draft?ps=${psId}`}
@@ -209,8 +215,21 @@ export default async function SchoolDetailPage({
         <CardHeader>
           <CardTitle className="text-sm">Match Analysis</CardTitle>
         </CardHeader>
-        <CardContent className="p-0">
-          <ScoreBreakdown ps={ps} defaultOpen />
+        <CardContent className={ps.overall_score == null ? 'py-8' : 'p-0'}>
+          {ps.overall_score == null ? (
+            <div className="flex flex-col items-center text-center gap-3 px-4">
+              <p className="text-sm text-muted-foreground max-w-md">
+                No fit assessment yet for this school. Generate a personalized AI report — overall fit score, tier, playing-time outlook, and merit aid potential — based on your profile.
+              </p>
+              <FitAssessmentButton
+                schoolId={s.id}
+                schoolName={s.name}
+                hasExistingScores={false}
+              />
+            </div>
+          ) : (
+            <ScoreBreakdown ps={ps} defaultOpen />
+          )}
         </CardContent>
       </Card>
 

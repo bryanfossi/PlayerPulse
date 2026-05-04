@@ -38,7 +38,7 @@ const SCORE_BARS: { label: string; key: keyof Props['ps']; max: number; color: s
   { label: 'Level Fit', key: 'level_score', max: 25, color: 'bg-emerald-500' },
   { label: 'Roster Need', key: 'need_score', max: 25, color: 'bg-amber-500' },
   { label: 'PT Opportunity', key: 'pt_score', max: 15, color: 'bg-rose-500' },
-  { label: 'Tuition', key: 'tuition_score', max: 10, color: 'bg-indigo-400' },
+  { label: 'Tuition', key: 'tuition_score', max: 15, color: 'bg-indigo-400' },
   { label: 'Merit Value', key: 'merit_value_score', max: 10, color: 'bg-orange-400' },
 ]
 

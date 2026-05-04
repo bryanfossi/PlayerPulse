@@ -59,18 +59,23 @@ export function MarketingNav() {
           href="/register"
           className="text-sm font-semibold bg-green-500 hover:bg-green-400 text-[#080f08] px-4 py-1.5 rounded-lg transition-colors"
         >
-          Get started free
+          Get started
         </Link>
       </div>
 
-      {/* Mobile hamburger */}
-      <button
-        className="md:hidden text-white/70 hover:text-white p-1"
-        onClick={() => setMenuOpen((v) => !v)}
-        aria-label="Toggle menu"
-      >
-        {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-      </button>
+      {/* Mobile: always-visible Sign in + hamburger */}
+      <div className="md:hidden flex items-center gap-3">
+        <Link href="/login" className="text-sm text-white/70 hover:text-white transition-colors">
+          Sign in
+        </Link>
+        <button
+          className="text-white/70 hover:text-white p-1"
+          onClick={() => setMenuOpen((v) => !v)}
+          aria-label="Toggle menu"
+        >
+          {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
+      </div>
 
       {/* Mobile menu */}
       {menuOpen && (
@@ -85,16 +90,13 @@ export function MarketingNav() {
               {l.label}
             </a>
           ))}
-          <div className="border-t border-white/8 pt-4 flex flex-col gap-3">
-            <Link href="/login" className="text-sm text-white/60 hover:text-white transition-colors">
-              Sign in
-            </Link>
+          <div className="border-t border-white/8 pt-4">
             <Link
               href="/register"
-              className="text-sm font-semibold bg-green-500 hover:bg-green-400 text-[#080f08] px-4 py-2.5 rounded-lg transition-colors text-center"
+              className="block text-sm font-semibold bg-green-500 hover:bg-green-400 text-[#080f08] px-4 py-2.5 rounded-lg transition-colors text-center"
               onClick={() => setMenuOpen(false)}
             >
-              Get started free
+              Get started
             </Link>
           </div>
         </div>
