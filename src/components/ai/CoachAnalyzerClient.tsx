@@ -4,7 +4,8 @@ import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import {
   Sparkles, MessageSquareQuote, ArrowRight, Loader2, Plus,
-  School as SchoolIcon, CheckCircle2, AlertCircle, Zap,
+  School as SchoolIcon, CheckCircle2, AlertCircle, Zap, Mail,
+  ListTodo,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -79,6 +80,10 @@ export function CoachAnalyzerClient({ schools }: Props) {
   const [error, setError] = useState('')
   const [outOfTokens, setOutOfTokens] = useState(false)
   const [analyzing, startAnalyzing] = useTransition()
+  const [contactSaved, setContactSaved] = useState(false)
+  const [savingContact, startSavingContact] = useTransition()
+  const [actionSaved, setActionSaved] = useState(false)
+  const [savingAction, startSavingAction] = useTransition()
   const cost = TOKEN_COSTS.AI_QUERY
   const canAfford = tokens >= cost
 
@@ -86,6 +91,8 @@ export function CoachAnalyzerClient({ schools }: Props) {
     setError('')
     setOutOfTokens(false)
     setResult(null)
+    setContactSaved(false)
+    setActionSaved(false)
 
     if (mode === 'existing' && !psId) {
       setError('Pick a school from your list')
@@ -145,10 +152,85 @@ export function CoachAnalyzerClient({ schools }: Props) {
     setResult(null)
     setError('')
     setCoachMessage('')
+    setContactSaved(false)
+    setActionSaved(false)
     if (mode === 'new') {
       setNewSchoolName('')
       setNewDivision('')
     }
+  }
+
+  // The player_school_id we can attach contacts/actions to.
+  // - existing-school flow → the picked psId
+  // - new-school flow with save_to_list → server returned created_player_school_id
+  // - new-school flow without save_to_list → null (no link possible)
+  const linkedPsId =
+    mode === 'existing'
+      ? psId
+      : (result?.created_player_school_id ?? null)
+
+  function handleSaveAsContact() {
+    if (!result || !linkedPsId) return
+    startSavingContact(async () => {
+      try {
+        const notes = `Coach Analyzer — Interest: ${result.interest_level}. ${result.interest_explanation}`
+        const res = await fetch('/api/contacts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            player_school_id: linkedPsId,
+            contact_type: 'email_received',
+            direction: 'inbound',
+            contact_date: new Date().toISOString().slice(0, 10),
+            notes,
+            email_body: coachMessage,
+          }),
+        })
+        if (!res.ok) {
+          const json = await res.json().catch(() => ({}))
+          toast.error(json.error ?? 'Could not save to Communications.')
+          return
+        }
+        setContactSaved(true)
+        toast.success('Saved to Communications')
+      } catch {
+        toast.error('Network error — could not save.')
+      }
+    })
+  }
+
+  function handleSaveNextStepAsAction() {
+    if (!result) return
+    startSavingAction(async () => {
+      try {
+        const title = result.next_step.slice(0, 200)
+        const description = `From Coach Email Analyzer (${schoolNameForResult ?? 'school'}). Urgency: ${result.next_step_urgency}. Coach interest: ${result.interest_level}.`
+        const res = await fetch('/api/actions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title,
+            description,
+            source: 'system',
+            player_school_id: linkedPsId, // null is fine
+            source_payload: {
+              origin: 'coach_email_analyzer',
+              urgency: result.next_step_urgency,
+              interest_level: result.interest_level,
+            },
+          }),
+        })
+        if (!res.ok) {
+          const json = await res.json().catch(() => ({}))
+          toast.error(json.error ?? 'Could not save to Actions.')
+          return
+        }
+        setActionSaved(true)
+        toast.success('Added to Actions')
+      } catch {
+        toast.error('Network error — could not save.')
+      }
+    })
   }
 
   // Derive school name for the result header
@@ -363,7 +445,7 @@ export function CoachAnalyzerClient({ schools }: Props) {
       {/* ── Result ── */}
       {result && (
         <div className="space-y-4">
-          {/* School + start over */}
+          {/* School + actions */}
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9CA3AF' }}>
@@ -371,7 +453,31 @@ export function CoachAnalyzerClient({ schools }: Props) {
               </p>
               <p className="text-lg font-bold mt-0.5">{schoolNameForResult}</p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              {linkedPsId && (
+                contactSaved ? (
+                  <span
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md border"
+                    style={{ borderColor: 'rgba(74,222,128,0.4)', backgroundColor: 'rgba(74,222,128,0.1)', color: '#4ADE80' }}
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    Saved to Communications
+                  </span>
+                ) : (
+                  <button
+                    onClick={handleSaveAsContact}
+                    disabled={savingContact}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md border transition-colors hover:bg-white/5 disabled:opacity-60"
+                    style={{ borderColor: 'rgba(255,255,255,0.15)' }}
+                  >
+                    {savingContact ? (
+                      <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving…</>
+                    ) : (
+                      <><Mail className="w-3.5 h-3.5" /> Save to Communications</>
+                    )}
+                  </button>
+                )
+              )}
               {result.created_player_school_id && (
                 <Link
                   href={`/schools/${result.created_player_school_id}`}
@@ -480,8 +586,32 @@ export function CoachAnalyzerClient({ schools }: Props) {
                 {result.next_step_urgency} urgency
               </span>
             </div>
-            <div className="px-4 py-3">
+            <div className="px-4 py-3 space-y-3">
               <p className="text-sm leading-relaxed font-medium">{result.next_step}</p>
+              <div>
+                {actionSaved ? (
+                  <span
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-md border"
+                    style={{ borderColor: 'rgba(74,222,128,0.4)', backgroundColor: 'rgba(74,222,128,0.1)', color: '#4ADE80' }}
+                  >
+                    <CheckCircle2 className="w-3 h-3" />
+                    Added to Actions
+                  </span>
+                ) : (
+                  <button
+                    onClick={handleSaveNextStepAsAction}
+                    disabled={savingAction}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-md border transition-colors hover:bg-[#4ADE80]/10 hover:border-[#4ADE80] hover:text-[#4ADE80] disabled:opacity-60"
+                    style={{ borderColor: 'rgba(255,255,255,0.15)' }}
+                  >
+                    {savingAction ? (
+                      <><Loader2 className="w-3 h-3 animate-spin" /> Saving…</>
+                    ) : (
+                      <><ListTodo className="w-3 h-3" /> Save as Action</>
+                    )}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
