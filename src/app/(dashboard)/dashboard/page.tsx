@@ -2,14 +2,14 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import {
   School, Mail, Trophy, CheckCircle2, Target, Activity,
-  ArrowUpRight,
+  ArrowUpRight, Flame, Snowflake, Minus, Phone, MessageSquare,
+  CalendarCheck, Users, ClipboardList,
 } from 'lucide-react'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { FollowUpReminders } from '@/components/communications/FollowUpReminders'
-import { PipelineProgressWidget } from '@/components/dashboard/PipelineProgressWidget'
 import { AddTokensButton } from '@/components/AddTokensButton'
 import type { Database } from '@/types/database'
-import type { ContactType } from '@/types/app'
+import type { ContactType, Momentum } from '@/types/app'
 
 type PlayerRow = Database['public']['Tables']['players']['Row']
 type PSRow = Database['public']['Tables']['player_schools']['Row']
@@ -20,9 +20,17 @@ const STATUS_LABELS: Record<string, string> = {
   researching: 'Researching', contacted: 'Contacted', interested: 'Interested',
   campus_visit: 'Visit', offer_received: 'Offer', committed: 'Committed', declined: 'Declined',
 }
+const PIPELINE_ORDER = [
+  'researching', 'contacted', 'interested', 'campus_visit', 'offer_received', 'committed', 'declined',
+]
 const CONTACTED_STATUSES = new Set(['contacted', 'interested', 'campus_visit', 'offer_received', 'committed'])
+const CONTACT_TYPE_ICONS: Record<ContactType, typeof Mail> = {
+  email_sent: Mail, email_received: Mail, call: Phone,
+  text: MessageSquare, campus_visit: CalendarCheck, official_visit: CalendarCheck,
+  unofficial_visit: CalendarCheck, coach_at_game: Users, questionnaire: ClipboardList,
+}
 const CONTACT_TYPE_LABELS: Record<ContactType, string> = {
-  email_sent: 'Email', email_received: 'Email', call: 'Call',
+  email_sent: 'Email Sent', email_received: 'Email Received', call: 'Call',
   text: 'Text', campus_visit: 'Visit', official_visit: 'Official Visit',
   unofficial_visit: 'Unofficial Visit', coach_at_game: 'Coach at Game',
   questionnaire: 'Questionnaire',
@@ -42,7 +50,6 @@ export default async function DashboardPage() {
     .maybeSingle()
   if (playerError) {
     console.error('[dashboard] player query error:', playerError.message, playerError.details)
-    // Fall back to basic query without billing columns (migration 004 may not have run)
     const { data: fallbackRaw } = await service
       .from('players')
       .select('id, first_name, last_name, grad_year, primary_position, club_team')
@@ -56,11 +63,10 @@ export default async function DashboardPage() {
   > | null
   if (!player) redirect('/onboarding')
 
-  // Parallel fetch — all three queries are independent once we have player.id
   const [psResult, contactsResult] = await Promise.all([
     service
       .from('player_schools')
-      .select('id, tier, status, overall_score, rank_order, school:schools(id, name, verified_division)')
+      .select('id, tier, status, overall_score, rank_order, momentum, school:schools(id, name, verified_division)')
       .eq('player_id', player.id)
       .order('rank_order', { ascending: true }),
     service
@@ -72,7 +78,7 @@ export default async function DashboardPage() {
       .limit(20),
   ])
 
-  type PSWithSchool = Pick<PSRow, 'id' | 'tier' | 'status' | 'overall_score' | 'rank_order'> & {
+  type PSWithSchool = Pick<PSRow, 'id' | 'tier' | 'status' | 'overall_score' | 'rank_order' | 'momentum'> & {
     school: Pick<SchoolRow, 'id' | 'name' | 'verified_division'>
   }
   const playerSchools = ((psResult.data ?? []) as unknown as PSWithSchool[])
@@ -86,13 +92,31 @@ export default async function DashboardPage() {
     Realistic: playerSchools.filter((s) => s.tier === 'Realistic').length,
     Reach: playerSchools.filter((s) => s.tier === 'Reach').length,
   }
-  const topSchools = playerSchools.filter((s) => s.status !== 'declined').slice(0, 10)
+  const momentumCounts = {
+    hot: playerSchools.filter((s) => s.momentum === 'hot' && s.status !== 'declined').length,
+    neutral: playerSchools.filter(
+      (s) => (s.momentum === 'neutral' || s.momentum == null) && s.status !== 'declined'
+    ).length,
+    cold: playerSchools.filter((s) => s.momentum === 'cold' && s.status !== 'declined').length,
+  }
+  // Top 10 — sort by momentum priority first (hot → neutral/null → cold), then rank_order
+  const topSchools = playerSchools
+    .filter((s) => s.status !== 'declined')
+    .sort((a, b) => {
+      const pa = momentumPriority(a.momentum)
+      const pb = momentumPriority(b.momentum)
+      if (pa !== pb) return pa - pb
+      return a.rank_order - b.rank_order
+    })
+    .slice(0, 10)
 
-  // Pipeline status distribution
   const statusCounts: Record<string, number> = {}
   for (const ps of playerSchools) {
     statusCounts[ps.status] = (statusCounts[ps.status] ?? 0) + 1
   }
+  const pipelineStages = PIPELINE_ORDER
+    .filter((s) => s !== 'declined')
+    .map((status) => ({ status, count: statusCounts[status] ?? 0 }))
 
   type ContactWithSchool = Omit<ContactRow, 'player_id' | 'school_id'> & {
     school: Pick<SchoolRow, 'id' | 'name' | 'verified_division'>
@@ -112,8 +136,11 @@ export default async function DashboardPage() {
       <div className="space-y-3">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              Welcome back, <span className="text-green-400">{player.first_name}</span>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#4ADE80' }}>
+              Dashboard
+            </p>
+            <h1 className="text-3xl font-bold tracking-tight mt-1">
+              Welcome back, <span style={{ color: '#4ADE80' }}>{player.first_name}</span>
             </h1>
             <p className="text-muted-foreground text-sm mt-1">
               {player.primary_position} · Class of {player.grad_year} · {player.club_team}
@@ -123,7 +150,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap pt-2">
           {[
             { href: '/schools', label: 'My Schools', icon: School },
             { href: '/communications', label: 'Log Contact', icon: Mail },
@@ -133,228 +160,416 @@ export default async function DashboardPage() {
             <Link
               key={href}
               href={href}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card text-xs font-medium text-muted-foreground hover:text-foreground hover:border-green-500/30 hover:bg-green-500/5 transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border bg-card text-xs font-medium transition-colors hover:bg-white/5"
+              style={{ borderColor: 'rgba(255,255,255,0.1)' }}
             >
-              <Icon className="w-3.5 h-3.5" />
+              <Icon className="w-3.5 h-3.5" style={{ color: '#4ADE80' }} />
               {label}
             </Link>
           ))}
         </div>
       </div>
 
-      {/* ── Stats row ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Total Schools" value={totalSchools} icon={School} />
-        <StatCard label="Contacted" value={contacted} icon={Mail} />
-        <StatCard label="Offers" value={offers} icon={Trophy} color="amber" />
-        <StatCard label="Committed" value={committed} icon={CheckCircle2} color="green" />
+      {/* ── BIG stat cards ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <BigStat label="Total Schools" value={totalSchools} icon={School} />
+        <BigStat label="In Contact" value={contacted} icon={Mail} sub={totalSchools > 0 ? `${Math.round((contacted / totalSchools) * 100)}% of list` : undefined} />
+        <BigStat label="Offers" value={offers} icon={Trophy} accent />
+        <BigStat label="Committed" value={committed} icon={CheckCircle2} accent={committed > 0} />
       </div>
 
-      {/* ── Tier breakdown ── */}
-      <div className="grid grid-cols-3 gap-4">
-        <TierBar tier="Lock" count={tierCounts.Lock} total={totalSchools} color="gold" />
-        <TierBar tier="Realistic" count={tierCounts.Realistic} total={totalSchools} color="blue" />
-        <TierBar tier="Reach" count={tierCounts.Reach} total={totalSchools} color="amber" />
+      {/* ── Momentum + tier rings ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Momentum */}
+        <Card>
+          <CardHeader title="Momentum" subtitle="How your active schools are trending" />
+          <div className="grid grid-cols-3 gap-3 px-4 pb-4">
+            <MomentumStat
+              label="Heating up"
+              count={momentumCounts.hot}
+              icon={Flame}
+              ring="rgba(249,115,22,0.5)"
+              text="#FB923C"
+              fill="rgba(249,115,22,0.1)"
+            />
+            <MomentumStat
+              label="Neutral"
+              count={momentumCounts.neutral}
+              icon={Minus}
+              ring="rgba(255,255,255,0.2)"
+              text="#FFFFFF"
+              fill="rgba(255,255,255,0.04)"
+            />
+            <MomentumStat
+              label="Going cold"
+              count={momentumCounts.cold}
+              icon={Snowflake}
+              ring="rgba(14,165,233,0.5)"
+              text="#38BDF8"
+              fill="rgba(14,165,233,0.1)"
+            />
+          </div>
+        </Card>
+
+        {/* Tier rings */}
+        <Card>
+          <CardHeader title="Tier breakdown" subtitle={`${totalSchools} schools across all tiers`} />
+          <div className="grid grid-cols-3 gap-3 px-4 pb-4">
+            <TierRing label="Lock" count={tierCounts.Lock} total={totalSchools} color="#4ADE80" />
+            <TierRing label="Realistic" count={tierCounts.Realistic} total={totalSchools} color="#60A5FA" />
+            <TierRing label="Reach" count={tierCounts.Reach} total={totalSchools} color="#FBBF24" />
+          </div>
+        </Card>
       </div>
 
-      {/* ── Pipeline progress ── */}
-      <PipelineProgressWidget statusCounts={statusCounts} total={totalSchools} />
+      {/* ── Pipeline funnel ── */}
+      <Card>
+        <CardHeader title="Pipeline" subtitle="Where your schools sit right now" action={{ label: 'View all', href: '/schools' }} />
+        {totalSchools === 0 ? (
+          <EmptyState label="No schools yet." link={{ href: '/schools', label: 'Add your first school' }} />
+        ) : (
+          <div className="px-4 pb-4 space-y-3">
+            {pipelineStages.map(({ status, count }) => {
+              const pct = totalSchools > 0 ? (count / totalSchools) * 100 : 0
+              const intensity = STAGE_INTENSITY[status] ?? 0.4
+              return (
+                <div key={status} className="flex items-center gap-4">
+                  <div className="w-32 flex-shrink-0">
+                    <p className="text-xs font-medium">{STATUS_LABELS[status]}</p>
+                  </div>
+                  <div className="flex-1 h-7 rounded-md overflow-hidden border" style={{ borderColor: 'rgba(255,255,255,0.06)', backgroundColor: 'rgba(255,255,255,0.02)' }}>
+                    <div
+                      className="h-full transition-all flex items-center justify-end pr-2"
+                      style={{
+                        width: `${Math.max(pct, count > 0 ? 4 : 0)}%`,
+                        backgroundColor: `rgba(74, 222, 128, ${intensity})`,
+                      }}
+                    >
+                      {count > 0 && pct > 8 && (
+                        <span className="text-[10px] font-bold tabular-nums" style={{ color: '#0F1120' }}>{count}</span>
+                      )}
+                    </div>
+                  </div>
+                  <span className="text-xs font-bold tabular-nums w-8 text-right" style={{ color: count === 0 ? '#9CA3AF' : '#FFFFFF' }}>
+                    {count}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </Card>
 
-      {/* ── Top 10 Schools (full-width) ── */}
-      <Section
-        title="My Top 10 Schools"
-        icon={<Trophy className="w-4 h-4 text-[#4ADE80]" />}
-        action={{ label: 'Reorder in My Schools', href: '/schools' }}
-      >
+      {/* ── Top 10 Schools — visual grid ── */}
+      <Card>
+        <CardHeader
+          title="My Top 10 Schools"
+          subtitle="Sorted by momentum, then your manual ranking"
+          icon={<Trophy className="w-4 h-4" style={{ color: '#4ADE80' }} />}
+          action={{ label: 'Reorder', href: '/schools' }}
+        />
         {topSchools.length === 0 ? (
           <EmptyState label="No schools yet." link={{ href: '/schools', label: 'Add your first school' }} />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-2">
-            {topSchools.map((ps) => (
-              <Link
-                key={ps.id}
-                href={`/schools/${ps.id}`}
-                className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group"
-              >
-                <span className="text-xs tabular-nums font-black text-muted-foreground/50 w-5 text-center flex-shrink-0">
-                  {ps.rank_order}
-                </span>
-                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                  ps.tier === 'Lock' ? 'bg-[#4ADE80]' :
-                  ps.tier === 'Realistic' ? 'bg-blue-400' : 'bg-amber-400'
-                }`} />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate group-hover:text-green-400 transition-colors">{ps.school.name}</p>
-                  <p className="text-[10px] text-muted-foreground">{ps.school.verified_division ?? '—'}</p>
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  {ps.overall_score != null && (
-                    <span className="text-xs font-bold tabular-nums text-muted-foreground">{ps.overall_score}</span>
-                  )}
-                  <StatusPill status={ps.status} />
-                </div>
-                <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground/30 group-hover:text-green-400/60 transition-colors flex-shrink-0" />
-              </Link>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 px-3 pb-4">
+            {topSchools.map((ps, i) => (
+              <Top10Card key={ps.id} ps={ps} rank={i + 1} />
             ))}
           </div>
         )}
-      </Section>
+      </Card>
 
-      {/* ── Main grid ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-        {/* Recent Activity */}
-        <Section
-          title="Recent Activity"
-          icon={<Activity className="w-4 h-4 text-green-400" />}
-          action={{ label: 'View all', href: '/communications' }}
-        >
-          {contacts.slice(0, 5).length === 0 ? (
-            <EmptyState label="No contacts yet." link={{ href: '/communications', label: 'Log your first contact' }} />
-          ) : contacts.slice(0, 5).map((c) => (
-            <div key={c.id} className="flex items-start gap-4 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors">
-              <div className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center flex-shrink-0 mt-0.5">
-                <Mail className="w-3.5 h-3.5 text-muted-foreground" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-medium truncate">{c.school.name}</p>
-                  <span className="text-[10px] text-muted-foreground flex-shrink-0 bg-muted px-1.5 py-0.5 rounded">
-                    {CONTACT_TYPE_LABELS[c.contact_type] ?? c.contact_type}
-                  </span>
-                </div>
-                {(c.subject || c.notes) && (
-                  <p className="text-xs text-muted-foreground truncate mt-0.5">
-                    {c.subject ?? c.notes?.slice(0, 60)}
-                  </p>
-                )}
-              </div>
-              <time className="text-[10px] text-muted-foreground/50 flex-shrink-0 mt-1">
-                {new Date(c.contact_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-              </time>
-            </div>
-          ))}
-        </Section>
-
-        {/* Pipeline summary */}
-        <Section
-          title="Pipeline"
-          icon={<Target className="w-4 h-4 text-green-400" />}
-          action={{ label: 'View all', href: '/schools' }}
-        >
-          {totalSchools === 0 ? (
-            <EmptyState label="No schools yet." link={{ href: '/schools', label: 'Add your first school' }} />
-          ) : (
-            <div className="px-4 py-3 space-y-2">
-              {Object.entries(statusCounts).map(([status, count]) => (
-                <div key={status} className="flex items-center gap-3">
-                  <span className="text-xs text-muted-foreground w-28 flex-shrink-0">{STATUS_LABELS[status] ?? status}</span>
-                  <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                    <div
-                      className="h-1.5 rounded-full bg-green-500/60 transition-all"
-                      style={{ width: `${Math.round((count / totalSchools) * 100)}%` }}
-                    />
+      {/* ── Activity timeline + Follow-ups ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader
+              title="Recent Activity"
+              icon={<Activity className="w-4 h-4" style={{ color: '#4ADE80' }} />}
+              action={{ label: 'View all', href: '/communications' }}
+            />
+            {contacts.slice(0, 6).length === 0 ? (
+              <EmptyState label="No contacts yet." link={{ href: '/communications', label: 'Log your first contact' }} />
+            ) : (
+              <div className="px-4 pb-4">
+                <div className="relative">
+                  {/* Vertical timeline line */}
+                  <div className="absolute left-3.5 top-2 bottom-2 w-px" style={{ backgroundColor: 'rgba(255,255,255,0.08)' }} />
+                  <div className="space-y-1">
+                    {contacts.slice(0, 6).map((c) => {
+                      const Icon = CONTACT_TYPE_ICONS[c.contact_type] ?? Mail
+                      return (
+                        <div key={c.id} className="relative flex items-start gap-3 py-2 pl-0">
+                          <div className="relative z-10 w-7 h-7 rounded-md border flex items-center justify-center flex-shrink-0" style={{ borderColor: 'rgba(255,255,255,0.12)', backgroundColor: '#0F1120' }}>
+                            <Icon className="w-3.5 h-3.5" style={{ color: '#4ADE80' }} />
+                          </div>
+                          <div className="flex-1 min-w-0 pt-0.5">
+                            <div className="flex items-center justify-between gap-2 flex-wrap">
+                              <p className="text-sm font-medium truncate">{c.school.name}</p>
+                              <time className="text-[10px] flex-shrink-0" style={{ color: '#9CA3AF' }}>
+                                {new Date(c.contact_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              </time>
+                            </div>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: '#9CA3AF' }}>
+                                {CONTACT_TYPE_LABELS[c.contact_type]}
+                              </span>
+                              {(c.subject || c.notes) && (
+                                <p className="text-xs truncate" style={{ color: '#9CA3AF' }}>
+                                  · {c.subject ?? c.notes?.slice(0, 60)}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
-                  <span className="text-xs font-bold tabular-nums text-muted-foreground/70 w-5 text-right">{count}</span>
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
+          </Card>
+        </div>
+
+        <div>
+          {contacts.length > 0 ? (
+            <FollowUpReminders contacts={contacts} />
+          ) : (
+            <Card>
+              <CardHeader title="Follow-ups" icon={<CalendarCheck className="w-4 h-4" style={{ color: '#4ADE80' }} />} />
+              <p className="px-4 pb-4 text-xs" style={{ color: '#9CA3AF' }}>
+                No follow-up reminders yet. Add follow-up dates when logging coach contacts.
+              </p>
+            </Card>
           )}
-        </Section>
-      </div>
-
-      {contacts.length > 0 && <FollowUpReminders contacts={contacts} />}
-    </div>
-  )
-}
-
-// ── Sub-components ────────────────────────────────────────────────────────────
-
-function StatCard({ label, value, icon: Icon, color }: {
-  label: string; value: number; icon: React.ElementType; color?: 'green' | 'amber'
-}) {
-  const valueColor = color === 'green' ? 'text-green-400' : color === 'amber' ? 'text-amber-400' : 'text-foreground'
-  return (
-    <div className="rounded-xl border border-border bg-card px-5 py-4">
-      <div className="flex items-center justify-between gap-2 mb-3">
-        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{label}</p>
-        <div className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center">
-          <Icon className="w-3.5 h-3.5 text-muted-foreground" />
         </div>
       </div>
-      <p className={`text-4xl font-black tracking-tight ${valueColor}`}>{value}</p>
     </div>
   )
 }
 
-function TierBar({ tier, count, total, color }: {
-  tier: string; count: number; total: number; color: 'gold' | 'blue' | 'amber'
-}) {
-  const pct = total > 0 ? Math.round((count / total) * 100) : 0
-  const cfg = {
-    gold: { bg: 'bg-[#4ADE80]/10', border: 'border-[#4ADE80]/25', text: 'text-[#4ADE80]', bar: 'bg-[#4ADE80]' },
-    blue: { bg: 'bg-blue-500/10', border: 'border-blue-500/20', text: 'text-blue-400', bar: 'bg-blue-500' },
-    amber: { bg: 'bg-amber-500/10', border: 'border-amber-500/20', text: 'text-amber-400', bar: 'bg-amber-500' },
-  }[color]
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function momentumPriority(m: Momentum | null): number {
+  if (m === 'hot') return 0
+  if (m === 'cold') return 2
+  return 1
+}
+
+// Pipeline funnel — bar opacity intensifies as schools advance
+const STAGE_INTENSITY: Record<string, number> = {
+  researching: 0.18,
+  contacted: 0.30,
+  interested: 0.45,
+  campus_visit: 0.60,
+  offer_received: 0.78,
+  committed: 1.0,
+}
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+function Card({ children }: { children: React.ReactNode }) {
   return (
-    <div className={`rounded-xl border ${cfg.border} ${cfg.bg} px-4 py-4`}>
+    <div className="rounded-xl border bg-card overflow-hidden" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+      {children}
+    </div>
+  )
+}
+
+function CardHeader({ title, subtitle, icon, action }: {
+  title: string
+  subtitle?: string
+  icon?: React.ReactNode
+  action?: { label: string; href: string }
+}) {
+  return (
+    <div className="flex items-start justify-between gap-3 px-4 py-3 border-b" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+      <div className="flex items-start gap-2">
+        {icon && <div className="mt-0.5">{icon}</div>}
+        <div>
+          <p className="text-sm font-semibold">{title}</p>
+          {subtitle && <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>{subtitle}</p>}
+        </div>
+      </div>
+      {action && (
+        <Link href={action.href} className="flex items-center gap-1 text-xs transition-colors hover:text-white" style={{ color: '#9CA3AF' }}>
+          {action.label}
+          <ArrowUpRight className="w-3 h-3" />
+        </Link>
+      )}
+    </div>
+  )
+}
+
+function BigStat({ label, value, icon: Icon, sub, accent }: {
+  label: string
+  value: number
+  icon: React.ElementType
+  sub?: string
+  accent?: boolean
+}) {
+  return (
+    <div className="rounded-xl border bg-card px-5 py-5" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9CA3AF' }}>{label}</p>
+        <Icon className="w-4 h-4" style={{ color: accent ? '#4ADE80' : '#9CA3AF' }} />
+      </div>
+      <p className="text-5xl font-black tracking-tight tabular-nums" style={{ color: accent && value > 0 ? '#4ADE80' : '#FFFFFF' }}>
+        {value}
+      </p>
+      {sub && <p className="text-xs mt-2" style={{ color: '#9CA3AF' }}>{sub}</p>}
+    </div>
+  )
+}
+
+function MomentumStat({ label, count, icon: Icon, ring, text, fill }: {
+  label: string
+  count: number
+  icon: React.ElementType
+  ring: string
+  text: string
+  fill: string
+}) {
+  return (
+    <div className="rounded-lg border px-3 py-3" style={{ borderColor: ring, backgroundColor: fill }}>
       <div className="flex items-center justify-between mb-2">
-        <p className={`text-xs font-semibold uppercase tracking-widest ${cfg.text}`}>{tier}</p>
-        <p className={`text-2xl font-black ${cfg.text}`}>{count}</p>
+        <Icon className="w-3.5 h-3.5" style={{ color: text }} />
+        <span className="text-3xl font-black tabular-nums" style={{ color: text }}>{count}</span>
       </div>
-      <div className="h-1 bg-white/10 rounded-full overflow-hidden">
-        <div className={`h-1 rounded-full ${cfg.bar} transition-all`} style={{ width: `${pct}%` }} />
-      </div>
-      <p className="text-[10px] text-muted-foreground mt-1.5">{pct}% of list</p>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.08em]" style={{ color: text }}>{label}</p>
     </div>
   )
 }
 
-function Section({ title, icon, action, children }: {
-  title: string; icon: React.ReactNode;
-  action?: { label: string; href: string }; children: React.ReactNode
+function TierRing({ label, count, total, color }: {
+  label: string; count: number; total: number; color: string
 }) {
+  const pct = total > 0 ? (count / total) * 100 : 0
+  const radius = 32
+  const circumference = 2 * Math.PI * radius
+  const offset = circumference - (pct / 100) * circumference
+
   return (
-    <div className="rounded-xl border border-border bg-card overflow-hidden">
-      <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border">
-        <div className="flex items-center gap-2">
-          {icon}
-          <span className="text-sm font-semibold">{title}</span>
+    <div className="flex flex-col items-center gap-2">
+      <div className="relative w-20 h-20">
+        <svg width="80" height="80" viewBox="0 0 80 80" className="-rotate-90">
+          {/* Track */}
+          <circle
+            cx="40"
+            cy="40"
+            r={radius}
+            fill="none"
+            stroke="rgba(255,255,255,0.08)"
+            strokeWidth="6"
+          />
+          {/* Progress */}
+          <circle
+            cx="40"
+            cy="40"
+            r={radius}
+            fill="none"
+            stroke={color}
+            strokeWidth="6"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            style={{ transition: 'stroke-dashoffset 600ms ease' }}
+          />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-2xl font-black tabular-nums" style={{ color }}>{count}</span>
+          <span className="text-[9px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9CA3AF' }}>
+            {Math.round(pct)}%
+          </span>
         </div>
-        {action && (
-          <Link href={action.href} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-green-400 transition-colors">
-            {action.label}
-            <ArrowUpRight className="w-3 h-3" />
-          </Link>
-        )}
       </div>
-      <div className="py-1">{children}</div>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color }}>{label}</p>
     </div>
   )
 }
 
-function StatusPill({ status }: { status: string }) {
-  const styles: Record<string, string> = {
-    researching: 'bg-zinc-500/15 text-zinc-400',
-    contacted: 'bg-blue-500/15 text-blue-400',
-    interested: 'bg-cyan-500/15 text-cyan-400',
-    campus_visit: 'bg-purple-500/15 text-purple-400',
-    offer_received: 'bg-amber-500/15 text-amber-400',
-    committed: 'bg-green-500/15 text-green-400',
-    declined: 'bg-red-500/15 text-red-400',
+function Top10Card({ ps, rank }: {
+  ps: {
+    id: string
+    school: { name: string; verified_division: string | null }
+    tier: 'Lock' | 'Realistic' | 'Reach' | null
+    status: string
+    overall_score: number | null
+    momentum: Momentum | null
   }
+  rank: number
+}) {
+  const tierColor =
+    ps.tier === 'Lock' ? '#4ADE80' :
+    ps.tier === 'Realistic' ? '#60A5FA' :
+    ps.tier === 'Reach' ? '#FBBF24' :
+    '#9CA3AF'
+
+  const momentumStyle =
+    ps.momentum === 'hot'
+      ? { borderColor: 'rgba(249,115,22,0.45)', boxShadow: '0 0 14px rgba(249,115,22,0.18)' }
+      : ps.momentum === 'cold'
+      ? { borderColor: 'rgba(14,165,233,0.45)', boxShadow: '0 0 14px rgba(14,165,233,0.18)' }
+      : { borderColor: 'rgba(255,255,255,0.08)' }
+
   return (
-    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${styles[status] ?? styles.researching}`}>
-      {STATUS_LABELS[status] ?? status}
-    </span>
+    <Link
+      href={`/schools/${ps.id}`}
+      className="flex items-center gap-3 px-3 py-3 rounded-lg border transition-all hover:bg-white/5 group"
+      style={momentumStyle}
+    >
+      {/* Rank */}
+      <div className="flex flex-col items-center justify-center w-8 flex-shrink-0">
+        <span className="text-[9px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9CA3AF' }}>
+          #
+        </span>
+        <span className="text-lg font-black leading-none tabular-nums">{rank}</span>
+      </div>
+
+      {/* Tier color bar */}
+      <div className="w-1 h-10 rounded-full flex-shrink-0" style={{ backgroundColor: tierColor }} />
+
+      {/* School info */}
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold truncate group-hover:text-[#4ADE80] transition-colors">
+          {ps.school.name}
+        </p>
+        <div className="flex items-center gap-2 mt-0.5 text-[10px]" style={{ color: '#9CA3AF' }}>
+          {ps.school.verified_division && <span>{ps.school.verified_division}</span>}
+          {ps.tier && (
+            <>
+              <span>·</span>
+              <span style={{ color: tierColor }}>{ps.tier}</span>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Momentum icon */}
+      {ps.momentum === 'hot' && <Flame className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#FB923C' }} />}
+      {ps.momentum === 'cold' && <Snowflake className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#38BDF8' }} />}
+
+      {/* Score */}
+      {ps.overall_score != null && (
+        <div className="flex flex-col items-center justify-center flex-shrink-0">
+          <span className="text-lg font-black leading-none tabular-nums" style={{ color: '#4ADE80' }}>
+            {ps.overall_score}
+          </span>
+          <span className="text-[8px] mt-0.5" style={{ color: '#9CA3AF' }}>/ 100</span>
+        </div>
+      )}
+
+      <ArrowUpRight className="w-3.5 h-3.5 transition-colors flex-shrink-0" style={{ color: 'rgba(255,255,255,0.3)' }} />
+    </Link>
   )
 }
 
 function EmptyState({ label, link }: { label: string; link: { href: string; label: string } }) {
   return (
-    <div className="px-4 py-6 text-center">
-      <p className="text-xs text-muted-foreground">{label}{' '}
-        <Link href={link.href} className="text-green-400 hover:underline">{link.label}</Link>
+    <div className="px-4 py-8 text-center">
+      <p className="text-xs" style={{ color: '#9CA3AF' }}>
+        {label}{' '}
+        <Link href={link.href} className="hover:underline" style={{ color: '#4ADE80' }}>{link.label}</Link>
       </p>
     </div>
   )
