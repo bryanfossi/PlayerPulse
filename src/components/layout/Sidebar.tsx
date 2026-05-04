@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, School, MessageSquare, Sparkles, User,
-  LogOut, Trophy, Settings, ListTodo,
+  LogOut, Trophy, Settings, ListTodo, MessageSquareQuote,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
@@ -18,6 +18,7 @@ const NAV_ITEMS = [
   { href: '/offers', label: 'Offers', icon: Trophy },
   { href: '/communications', label: 'Communications', icon: MessageSquare },
   { href: '/ai/draft', label: 'AI Email Draft', icon: Sparkles },
+  { href: '/ai/analyze', label: 'Coach Analyzer', icon: MessageSquareQuote },
   { href: '/profile', label: 'Profile', icon: User },
 ]
 
