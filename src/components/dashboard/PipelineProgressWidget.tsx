@@ -18,7 +18,7 @@ export function PipelineProgressWidget({ statusCounts, total }: Props) {
   if (total === 0) return null
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+    <div className="rounded-xl border border-border bg-card p-4 space-y-3">
       <div className="flex items-center gap-2">
         <div className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center">
           <BarChart3 className="w-3.5 h-3.5 text-muted-foreground" />
@@ -38,7 +38,7 @@ export function PipelineProgressWidget({ statusCounts, total }: Props) {
               </div>
               <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
                 <div
-                  className="h-1.5 rounded-full bg-[#C9A227] transition-all"
+                  className="h-1.5 rounded-full bg-[#4ADE80] transition-all"
                   style={{ width: `${pct}%` }}
                 />
               </div>

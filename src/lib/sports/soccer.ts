@@ -1,7 +1,7 @@
 import type { SportConfig } from './types'
 
 /**
- * Soccer — the launch sport for PlayerPulse.
+ * Soccer — the launch sport for FuseID.
  * All previously hard-coded soccer data has been consolidated here.
  */
 export const soccer: SportConfig = {

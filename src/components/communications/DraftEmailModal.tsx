@@ -47,7 +47,7 @@ function BuyMoreButton() {
     <button
       onClick={handleClick}
       disabled={loading}
-      className="text-xs font-semibold underline text-[#C9A227] hover:text-[#d4ac2e] disabled:opacity-60"
+      className="text-xs font-semibold underline text-[#4ADE80] hover:text-[#22C55E] disabled:opacity-60"
     >
       {loading ? 'Opening…' : 'Buy More'}
     </button>
@@ -150,7 +150,7 @@ export function DraftEmailModal({ open, onClose, schools, defaultPsId }: Props) 
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Mail className="w-4 h-4 text-[#C9A227]" />
+            <Mail className="w-4 h-4 text-[#4ADE80]" />
             Draft Email
           </DialogTitle>
         </DialogHeader>
@@ -229,7 +229,7 @@ export function DraftEmailModal({ open, onClose, schools, defaultPsId }: Props) 
               disabled={generating || !psId || !hasTokens}
               variant="outline"
               size="sm"
-              className="w-full gap-2 border-[#C9A227]/30 text-[#C9A227] hover:bg-[#C9A227]/10 disabled:opacity-50"
+              className="w-full gap-2 border-[#4ADE80]/30 text-[#4ADE80] hover:bg-[#4ADE80]/10 disabled:opacity-50"
             >
               {generating ? (
                 <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Generating...</>
@@ -244,7 +244,7 @@ export function DraftEmailModal({ open, onClose, schools, defaultPsId }: Props) 
             <Button
               onClick={handleSaveDraft}
               disabled={saving || !psId || !body.trim()}
-              className="gap-2 bg-[#C9A227] hover:bg-[#d4ac2e] text-[#1A3A5C] font-bold"
+              className="gap-2 bg-[#4ADE80] hover:bg-[#22C55E] text-[#0F1120] font-bold"
             >
               {saving ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</>

@@ -23,18 +23,19 @@ export function MarketingNav() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 h-16 transition-all duration-300 ${
-        scrolled ? 'bg-[#060e1c]/95 backdrop-blur-md border-b border-white/8 shadow-xl shadow-black/20' : 'bg-transparent'
+      className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 h-16 transition-colors duration-200 ${
+        scrolled ? 'border-b' : ''
       }`}
+      style={{
+        backgroundColor: scrolled ? '#0F1120' : 'transparent',
+        borderColor: scrolled ? 'rgba(255,255,255,0.1)' : 'transparent',
+      }}
     >
       {/* Logo + brand */}
       <div className="flex items-center gap-3">
         <Link href="/">
-          <img src={brand.logo.full} alt={brand.appName} style={{ height: '38px', width: 'auto' }} />
+          <img src={brand.logo.full} alt={brand.appName} style={{ height: '32px', width: 'auto' }} />
         </Link>
-        <span className="hidden sm:block text-xs text-white/25 font-medium border-l border-white/10 pl-3 ml-1">
-          by Promoted Soccer Consultants
-        </span>
       </div>
 
       {/* Desktop nav links */}
@@ -43,7 +44,8 @@ export function MarketingNav() {
           <a
             key={l.href}
             href={l.href}
-            className="text-sm text-white/60 hover:text-white transition-colors"
+            className="text-sm transition-colors hover:text-white"
+            style={{ color: '#9CA3AF' }}
           >
             {l.label}
           </a>
@@ -52,12 +54,17 @@ export function MarketingNav() {
 
       {/* Desktop CTAs */}
       <div className="hidden md:flex items-center gap-3">
-        <Link href="/login" className="text-sm text-white/60 hover:text-white transition-colors px-3 py-1.5">
+        <Link
+          href="/login"
+          className="text-sm transition-colors hover:text-white px-3 py-1.5"
+          style={{ color: '#9CA3AF' }}
+        >
           Sign in
         </Link>
         <Link
           href="/register"
-          className="text-sm font-semibold bg-green-500 hover:bg-green-400 text-[#080f08] px-4 py-1.5 rounded-lg transition-colors"
+          className="text-sm font-semibold px-4 py-1.5 rounded-md transition-colors"
+          style={{ backgroundColor: '#4ADE80', color: '#0F1120' }}
         >
           Get started
         </Link>
@@ -65,13 +72,18 @@ export function MarketingNav() {
 
       {/* Mobile: always-visible Sign in + hamburger */}
       <div className="md:hidden flex items-center gap-3">
-        <Link href="/login" className="text-sm text-white/70 hover:text-white transition-colors">
+        <Link
+          href="/login"
+          className="text-sm transition-colors hover:text-white"
+          style={{ color: '#9CA3AF' }}
+        >
           Sign in
         </Link>
         <button
-          className="text-white/70 hover:text-white p-1"
+          className="p-1 transition-colors hover:text-white"
           onClick={() => setMenuOpen((v) => !v)}
           aria-label="Toggle menu"
+          style={{ color: '#9CA3AF' }}
         >
           {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
@@ -79,21 +91,26 @@ export function MarketingNav() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="absolute top-16 left-0 right-0 bg-[#060e1c]/98 border-b border-white/8 px-6 py-5 flex flex-col gap-4 md:hidden">
+        <div
+          className="absolute top-16 left-0 right-0 border-b px-6 py-5 flex flex-col gap-4 md:hidden"
+          style={{ backgroundColor: '#0F1120', borderColor: 'rgba(255,255,255,0.1)' }}
+        >
           {links.map((l) => (
             <a
               key={l.href}
               href={l.href}
-              className="text-sm text-white/70 hover:text-white transition-colors"
+              className="text-sm transition-colors hover:text-white"
+              style={{ color: '#9CA3AF' }}
               onClick={() => setMenuOpen(false)}
             >
               {l.label}
             </a>
           ))}
-          <div className="border-t border-white/8 pt-4">
+          <div className="border-t pt-4" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
             <Link
               href="/register"
-              className="block text-sm font-semibold bg-green-500 hover:bg-green-400 text-[#080f08] px-4 py-2.5 rounded-lg transition-colors text-center"
+              className="block text-sm font-semibold px-4 py-2.5 rounded-md transition-colors text-center"
+              style={{ backgroundColor: '#4ADE80', color: '#0F1120' }}
               onClick={() => setMenuOpen(false)}
             >
               Get started

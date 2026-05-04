@@ -43,7 +43,7 @@ export default function ForgotPasswordPage() {
 
   if (sent) {
     return (
-      <Card className="bg-white/10 border-white/20 text-white backdrop-blur-sm">
+      <Card className="bg-[#1A1F38] border-white/10 text-white">
         <CardContent className="pt-8 pb-6 text-center space-y-4">
           <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center mx-auto">
             <CheckCircle2 className="w-6 h-6 text-green-400" />
@@ -74,7 +74,7 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <Card className="bg-white/10 border-white/20 text-white backdrop-blur-sm">
+    <Card className="bg-[#1A1F38] border-white/10 text-white">
       <CardHeader>
         <CardTitle className="text-xl">Forgot your password?</CardTitle>
         <CardDescription className="text-green-200">
@@ -104,7 +104,7 @@ export default function ForgotPasswordPage() {
         <CardFooter className="flex flex-col gap-3">
           <Button
             type="submit"
-            className="w-full bg-green-500 hover:bg-green-400 text-green-950 font-semibold"
+            className="w-full bg-[#4ADE80] hover:bg-[#22C55E] text-green-950 font-semibold"
             disabled={loading}
           >
             {loading ? 'Sending…' : 'Send Reset Link'}

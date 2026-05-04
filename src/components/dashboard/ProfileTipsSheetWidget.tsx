@@ -13,7 +13,7 @@ export function ProfileTipsSheetWidget() {
 
   return (
     <>
-      <div className="rounded-2xl border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <div className="flex items-center gap-2 mb-3">
           <div className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center">
             <Sparkles className="w-3.5 h-3.5 text-muted-foreground" />

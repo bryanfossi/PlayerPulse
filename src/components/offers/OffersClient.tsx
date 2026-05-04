@@ -128,13 +128,13 @@ function OfferCard({
 
   return (
     <div className={cn(
-      'relative bg-card border border-border rounded-2xl overflow-hidden flex flex-col transition-opacity',
+      'relative bg-card border border-border rounded-xl overflow-hidden flex flex-col transition-opacity',
       offer.status === 'declined' && 'opacity-60',
       (deleting || updating) && 'opacity-50 pointer-events-none',
     )}>
       {/* Accepted accent */}
       {offer.status === 'accepted' && (
-        <div className="h-1 bg-gradient-to-r from-green-500 to-emerald-400" />
+        <div className="h-1 bg-[#4ADE80]" />
       )}
 
       {/* Header */}
@@ -238,7 +238,7 @@ function OfferCard({
         {offer.status !== 'accepted' && (
           <Button
             size="sm"
-            className="h-7 text-xs gap-1 bg-green-500 hover:bg-green-400 text-[#080f08]"
+            className="h-7 text-xs gap-1 bg-[#4ADE80] hover:bg-[#22C55E] text-[#0F1120]"
             onClick={() => handleStatus('accepted')}
             disabled={updating}
           >
@@ -290,7 +290,7 @@ function OfferCard({
 
 function OfferSchoolCard({ record }: { record: OfferSchoolRecord }) {
   return (
-    <div className="bg-card border border-[#C9A227]/20 rounded-2xl p-4 space-y-2">
+    <div className="bg-card border border-[#4ADE80]/20 rounded-xl p-4 space-y-2">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
@@ -307,7 +307,7 @@ function OfferSchoolCard({ record }: { record: OfferSchoolRecord }) {
             </p>
           )}
         </div>
-        <Trophy className="w-4 h-4 text-[#C9A227] flex-shrink-0 mt-0.5" />
+        <Trophy className="w-4 h-4 text-[#4ADE80] flex-shrink-0 mt-0.5" />
       </div>
       <p className="text-xs text-muted-foreground">
         Offer received: {formatDate(record.updated_at)}
@@ -320,7 +320,7 @@ function OfferSchoolCard({ record }: { record: OfferSchoolRecord }) {
       <div className="pt-1">
         <Link
           href="/offers"
-          className="text-[11px] text-[#C9A227] hover:underline"
+          className="text-[11px] text-[#4ADE80] hover:underline"
           onClick={(e) => e.stopPropagation()}
         >
           Log full offer details →
@@ -398,7 +398,7 @@ export function OffersClient({ initialOffers, schools, offerSchools = [] }: Prop
       {/* Recruited schools (from player_school status = offer_received) */}
       {offerSchools.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-sm font-semibold flex items-center gap-2 text-[#C9A227]">
+          <h2 className="text-sm font-semibold flex items-center gap-2 text-[#4ADE80]">
             <Trophy className="w-4 h-4" /> Schools That Have Offered
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -418,7 +418,7 @@ export function OffersClient({ initialOffers, schools, offerSchools = [] }: Prop
         </p>
         <Button
           size="sm"
-          className="gap-1.5 bg-green-500 hover:bg-green-400 text-[#080f08] font-semibold"
+          className="gap-1.5 bg-[#4ADE80] hover:bg-[#22C55E] text-[#0F1120] font-semibold"
           onClick={() => { setEditing(null); setDialogOpen(true) }}
         >
           <Plus className="w-4 h-4" />
@@ -428,8 +428,8 @@ export function OffersClient({ initialOffers, schools, offerSchools = [] }: Prop
 
       {/* Empty state */}
       {offers.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-border p-12 text-center space-y-3">
-          <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto">
+        <div className="rounded-xl border border-dashed border-border p-12 text-center space-y-3">
+          <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto">
             <Trophy className="w-6 h-6 text-amber-400" />
           </div>
           <p className="font-semibold">No offers yet</p>
@@ -438,7 +438,7 @@ export function OffersClient({ initialOffers, schools, offerSchools = [] }: Prop
           </p>
           <Button
             size="sm"
-            className="mt-2 gap-1.5 bg-green-500 hover:bg-green-400 text-[#080f08] font-semibold"
+            className="mt-2 gap-1.5 bg-[#4ADE80] hover:bg-[#22C55E] text-[#0F1120] font-semibold"
             onClick={() => { setEditing(null); setDialogOpen(true) }}
           >
             <Plus className="w-4 h-4" /> Log First Offer

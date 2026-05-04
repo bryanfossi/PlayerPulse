@@ -1,6 +1,19 @@
 export const brand = {
   colors: {
-    green: '#22C55E',
+    // Primary surfaces
+    bgPrimary: '#0F1120',
+    bgSecondary: '#1A1F38',
+    // Accent (electric green)
+    accent: '#4ADE80',
+    accentDeep: '#22C55E',
+    // Text
+    textPrimary: '#FFFFFF',
+    textMuted: '#9CA3AF',
+    // Borders
+    border: 'rgba(255,255,255,0.1)',
+
+    // Legacy aliases — kept for incremental migration
+    green: '#4ADE80',
     dark: '#0F1120',
     white: '#FFFFFF',
     mintPop: '#E2F9EC',
@@ -12,6 +25,6 @@ export const brand = {
     icon: '/brand/logo-icon.svg',
     light: '/brand/logo-full-light.svg',
   },
-  appName: 'PlayerPulse',
-  tagline: 'Your recruiting process, organized.',
-}
+  appName: 'FuseID',
+  tagline: 'Your recruiting process, fused.',
+} as const

@@ -163,7 +163,7 @@ export default async function DashboardPage() {
       {/* ── Top 10 Schools (full-width) ── */}
       <Section
         title="My Top 10 Schools"
-        icon={<Trophy className="w-4 h-4 text-[#C9A227]" />}
+        icon={<Trophy className="w-4 h-4 text-[#4ADE80]" />}
         action={{ label: 'Reorder in My Schools', href: '/schools' }}
       >
         {topSchools.length === 0 ? (
@@ -180,7 +180,7 @@ export default async function DashboardPage() {
                   {ps.rank_order}
                 </span>
                 <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                  ps.tier === 'Lock' ? 'bg-[#C9A227]' :
+                  ps.tier === 'Lock' ? 'bg-[#4ADE80]' :
                   ps.tier === 'Realistic' ? 'bg-blue-400' : 'bg-amber-400'
                 }`} />
                 <div className="flex-1 min-w-0">
@@ -275,7 +275,7 @@ function StatCard({ label, value, icon: Icon, color }: {
 }) {
   const valueColor = color === 'green' ? 'text-green-400' : color === 'amber' ? 'text-amber-400' : 'text-foreground'
   return (
-    <div className="rounded-2xl border border-border bg-card px-5 py-4">
+    <div className="rounded-xl border border-border bg-card px-5 py-4">
       <div className="flex items-center justify-between gap-2 mb-3">
         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{label}</p>
         <div className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center">
@@ -292,12 +292,12 @@ function TierBar({ tier, count, total, color }: {
 }) {
   const pct = total > 0 ? Math.round((count / total) * 100) : 0
   const cfg = {
-    gold: { bg: 'bg-[#C9A227]/10', border: 'border-[#C9A227]/25', text: 'text-[#C9A227]', bar: 'bg-[#C9A227]' },
+    gold: { bg: 'bg-[#4ADE80]/10', border: 'border-[#4ADE80]/25', text: 'text-[#4ADE80]', bar: 'bg-[#4ADE80]' },
     blue: { bg: 'bg-blue-500/10', border: 'border-blue-500/20', text: 'text-blue-400', bar: 'bg-blue-500' },
     amber: { bg: 'bg-amber-500/10', border: 'border-amber-500/20', text: 'text-amber-400', bar: 'bg-amber-500' },
   }[color]
   return (
-    <div className={`rounded-2xl border ${cfg.border} ${cfg.bg} px-4 py-4`}>
+    <div className={`rounded-xl border ${cfg.border} ${cfg.bg} px-4 py-4`}>
       <div className="flex items-center justify-between mb-2">
         <p className={`text-xs font-semibold uppercase tracking-widest ${cfg.text}`}>{tier}</p>
         <p className={`text-2xl font-black ${cfg.text}`}>{count}</p>
@@ -315,7 +315,7 @@ function Section({ title, icon, action, children }: {
   action?: { label: string; href: string }; children: React.ReactNode
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card overflow-hidden">
+    <div className="rounded-xl border border-border bg-card overflow-hidden">
       <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border">
         <div className="flex items-center gap-2">
           {icon}

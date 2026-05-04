@@ -1,5 +1,5 @@
 /**
- * PlayerPulse Multi-Sport Configuration Types
+ * FuseID Multi-Sport Configuration Types
  * ------------------------------------------------------------
  * Every sport supported by the platform is described by a
  * SportConfig object. Adding a new sport should require only

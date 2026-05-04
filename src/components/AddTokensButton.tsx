@@ -36,7 +36,7 @@ export function AddTokensButton() {
   return (
     <div className="flex items-center gap-2">
       <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-colors ${
-        empty ? 'bg-red-500/10 border-red-500/30' : 'bg-[#C9A227]/10 border-[#C9A227]/20'
+        empty ? 'bg-red-500/10 border-red-500/30' : 'bg-[#4ADE80]/10 border-[#4ADE80]/20'
       }`}>
         <TokenBalance showLabel />
       </div>

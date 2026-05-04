@@ -48,7 +48,7 @@ export default function LoginPage() {
   }
 
   return (
-    <Card className="bg-white/10 border-white/20 text-white backdrop-blur-sm">
+    <Card className="bg-[#1A1F38] border-white/10 text-white">
       <CardHeader>
         <CardTitle className="text-xl">Welcome back</CardTitle>
         <CardDescription className="text-green-200">Sign in to your recruiting account</CardDescription>
@@ -93,7 +93,7 @@ export default function LoginPage() {
         <CardFooter className="flex flex-col gap-3">
           <Button
             type="submit"
-            className="w-full bg-green-500 hover:bg-green-400 text-green-950 font-semibold"
+            className="w-full bg-[#4ADE80] hover:bg-[#22C55E] text-green-950 font-semibold"
             disabled={loading}
           >
             {loading ? 'Signing in…' : 'Sign In'}

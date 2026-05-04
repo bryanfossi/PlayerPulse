@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import type { ThemeName, ThemeTokens } from '@/lib/themes'
 import { THEMES } from '@/lib/themes'
 
-const STORAGE_KEY = 'playerpulse-theme'
+const STORAGE_KEY = 'fuseid-theme'
 
 // Tailwind HSL overrides per theme (these values map to CSS vars used by Tailwind)
 const TAILWIND_OVERRIDES: Record<ThemeName, Record<string, string>> = {

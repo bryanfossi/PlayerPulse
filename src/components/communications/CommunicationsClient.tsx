@@ -159,7 +159,7 @@ export function CommunicationsClient({ initialContacts, schools, preselectedPsId
             <Button
               size="sm"
               onClick={() => setDraftModalOpen(true)}
-              className="gap-1.5 flex-shrink-0 h-9 bg-[#C9A227] hover:bg-[#d4ac2e] text-[#1A3A5C] font-bold"
+              className="gap-1.5 flex-shrink-0 h-9 bg-[#4ADE80] hover:bg-[#22C55E] text-[#0F1120] font-bold"
             >
               <Mail className="w-4 h-4" />
               <span className="hidden sm:inline">Draft Email</span>

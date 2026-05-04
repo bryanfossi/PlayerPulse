@@ -7,28 +7,42 @@ html {
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * FuseID brand system
+ * - Background primary:  #0F1120 (deep navy)        → HSL 231 36% 9%
+ * - Background secondary:#1A1F38 (navy mid)         → HSL 229 38% 16%
+ * - Accent:              #4ADE80 (electric green)   → HSL 142 69% 58%
+ * - Accent deep:         #22C55E                    → HSL 142 71% 45%
+ * - Text primary:        #FFFFFF                    → HSL 0 0% 100%
+ * - Text muted:          #9CA3AF                    → HSL 220 9% 65%
+ * - Border:              rgba(255,255,255,0.1)      → HSL 0 0% 100% with alpha
+ * Dark backgrounds only — light mode is no longer supported (vars left
+ * for libraries that read them, but UI is always dark).
+ */
+
 :root {
-  --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 3.9%;
-  --primary: 142 76% 36%;
-  --primary-foreground: 355 100% 97%;
-  --secondary: 240 4.8% 95.9%;
-  --secondary-foreground: 240 5.9% 10%;
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
-  --accent: 240 4.8% 95.9%;
-  --accent-foreground: 240 5.9% 10%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
-  --ring: 142 76% 36%;
-  --radius: 0.625rem;
-  --chart-1: 142 76% 36%;
+  --background: 231 36% 9%;
+  --foreground: 0 0% 100%;
+  --card: 229 38% 16%;
+  --card-foreground: 0 0% 100%;
+  --popover: 229 38% 16%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 142 69% 58%;
+  --primary-foreground: 231 36% 9%;
+  --secondary: 229 38% 16%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 229 38% 16%;
+  --muted-foreground: 220 9% 65%;
+  --accent: 142 69% 58%;
+  --accent-foreground: 231 36% 9%;
+  --destructive: 0 70% 55%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 100%;
+  --border-alpha: 0.1;
+  --input: 229 38% 16%;
+  --ring: 142 69% 58%;
+  --radius: 0.5rem;
+  --chart-1: 142 69% 58%;
   --chart-2: 217 91% 60%;
   --chart-3: 38 92% 50%;
   --chart-4: 280 65% 60%;
@@ -36,34 +50,30 @@ html {
 }
 
 .dark {
-  /* Background shifted to brand-navy hue family (214) with richer saturation */
-  --background: 214 35% 7%;
-  --foreground: 210 22% 93%;
-  --card: 214 28% 11%;
-  --card-foreground: 210 22% 93%;
-  --popover: 214 28% 11%;
-  --popover-foreground: 210 22% 93%;
-  --primary: 142 66% 45%;
-  --primary-foreground: 144 61% 10%;
-  --secondary: 214 22% 16%;
-  --secondary-foreground: 210 22% 90%;
-  --muted: 214 22% 13%;
-  --muted-foreground: 214 18% 52%;
-  --accent: 214 22% 16%;
-  --accent-foreground: 210 22% 90%;
-  --destructive: 0 70% 45%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 214 20% 20%;
-  --input: 214 22% 14%;
-  --ring: 142 66% 45%;
-  --chart-1: 142 66% 45%;
-  --chart-2: 217 91% 60%;
-  --chart-3: 38 92% 50%;
-  --chart-4: 280 65% 60%;
-  --chart-5: 340 75% 55%;
+  --background: 231 36% 9%;
+  --foreground: 0 0% 100%;
+  --card: 229 38% 16%;
+  --card-foreground: 0 0% 100%;
+  --popover: 229 38% 16%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 142 69% 58%;
+  --primary-foreground: 231 36% 9%;
+  --secondary: 229 38% 16%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 229 38% 16%;
+  --muted-foreground: 220 9% 65%;
+  --accent: 142 69% 58%;
+  --accent-foreground: 231 36% 9%;
+  --destructive: 0 70% 55%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 100%;
+  --input: 229 38% 16%;
+  --ring: 142 69% 58%;
 }
 
 @theme inline {
+  --font-sans: Inter, "DM Sans", system-ui, sans-serif;
+
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-card: hsl(var(--card));
@@ -80,7 +90,7 @@ html {
   --color-accent-foreground: hsl(var(--accent-foreground));
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
-  --color-border: hsl(var(--border));
+  --color-border: hsl(var(--border) / var(--border-alpha));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
   --color-chart-1: hsl(var(--chart-1));
@@ -88,27 +98,49 @@ html {
   --color-chart-3: hsl(var(--chart-3));
   --color-chart-4: hsl(var(--chart-4));
   --color-chart-5: hsl(var(--chart-5));
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: calc(var(--radius) - 0px);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
 }
 
 * {
-  border-color: hsl(var(--border));
+  border-color: hsl(var(--border) / var(--border-alpha));
+}
+
+html {
+  background-color: hsl(var(--background));
 }
 
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
+  font-family: Inter, "DM Sans", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.005em;
 }
 
-/* ── Brand theme semantic vars (set by ThemeProvider at runtime) ── */
+/* Display / heading default: tight tracking, heavy weight */
+h1, h2, h3, h4 {
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+/* UI label utility — per FuseID spec */
+.fuse-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #4ADE80;
+  font-weight: 600;
+}
+
+/* Brand theme semantic vars (used by ThemeProvider) — re-aligned to FuseID */
 :root {
-  --color-bg: #0f1a2e;
-  --color-surface: #1A3A5C;
+  --color-bg: #0F1120;
+  --color-surface: #1A1F38;
   --color-text-primary: #FFFFFF;
-  --color-text-secondary: #8aabcc;
-  --color-accent-brand: #C9A227;
-  --color-border-brand: #2a4a6a;
+  --color-text-secondary: #9CA3AF;
+  --color-accent-brand: #4ADE80;
+  --color-border-brand: rgba(255,255,255,0.1);
 }

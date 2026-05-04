@@ -83,7 +83,7 @@ export default async function ProfilePage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-[#C9A227]/15 border border-[#C9A227]/25 flex items-center justify-center text-[#C9A227] font-black text-xl flex-shrink-0">
+          <div className="w-14 h-14 rounded-xl bg-[#4ADE80]/15 border border-[#4ADE80]/25 flex items-center justify-center text-[#4ADE80] font-black text-xl flex-shrink-0">
             {player.first_name[0]}{player.last_name[0]}
           </div>
           <div>

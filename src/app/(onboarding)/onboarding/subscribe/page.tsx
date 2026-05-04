@@ -66,9 +66,9 @@ export default function SubscribePage() {
       )}
 
       {/* Pricing card */}
-      <div className="rounded-2xl border border-[#C9A227]/40 bg-card overflow-hidden">
-        <div className="bg-[#C9A227]/10 border-b border-[#C9A227]/20 px-6 py-5 text-center">
-          <p className="text-xs font-semibold uppercase tracking-widest text-[#C9A227] mb-1">PlayerPulse Pro</p>
+      <div className="rounded-xl border border-[#4ADE80]/40 bg-card overflow-hidden">
+        <div className="bg-[#4ADE80]/10 border-b border-[#4ADE80]/20 px-6 py-5 text-center">
+          <p className="fuse-label mb-1">FuseID Pro</p>
           <div className="flex items-end justify-center gap-1">
             <span className="text-4xl font-black">$29</span>
             <span className="text-muted-foreground text-sm mb-1">/month</span>
@@ -92,7 +92,7 @@ export default function SubscribePage() {
           <button
             onClick={handleSubscribe}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#C9A227] text-black font-bold text-sm hover:bg-[#C9A227]/90 disabled:opacity-60 transition-colors"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#4ADE80] text-black font-bold text-sm hover:bg-[#4ADE80]/90 disabled:opacity-60 transition-colors"
           >
             {loading ? (
               <>

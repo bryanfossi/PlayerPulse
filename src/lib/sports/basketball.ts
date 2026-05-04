@@ -1,7 +1,7 @@
 import type { SportConfig } from './types'
 
 /**
- * Basketball — third active sport for PlayerPulse.
+ * Basketball — third active sport for FuseID.
  * Key asymmetry: women's D1 is now headcount (15 full rides as of 2024-25 expansion);
  * men's D1 is also headcount at 13 full rides. D2, NAIA, and JUCO are equivalency.
  */

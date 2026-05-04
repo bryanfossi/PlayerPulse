@@ -26,27 +26,27 @@ interface Props {
 
 const INTEREST_CONFIG = {
   High: {
-    gradient: 'from-green-500 to-emerald-600',
-    glow: 'shadow-green-500/30',
-    badge: 'bg-white/20 text-white',
+    gradient: 'border-[#4ADE80] bg-[#4ADE80]/10',
+    glow: '',
+    badge: 'bg-[#4ADE80]/20 text-[#4ADE80]',
     bars: 4,
   },
   Medium: {
-    gradient: 'from-amber-400 to-orange-500',
-    glow: 'shadow-amber-500/30',
-    badge: 'bg-white/20 text-white',
+    gradient: 'border-amber-400 bg-amber-400/10',
+    glow: '',
+    badge: 'bg-amber-400/20 text-amber-400',
     bars: 2,
   },
   Low: {
-    gradient: 'from-red-500 to-rose-600',
-    glow: 'shadow-red-500/30',
-    badge: 'bg-white/20 text-white',
+    gradient: 'border-red-500 bg-red-500/10',
+    glow: '',
+    badge: 'bg-red-500/20 text-red-400',
     bars: 1,
   },
   Unclear: {
-    gradient: 'from-zinc-400 to-zinc-600',
-    glow: 'shadow-zinc-400/20',
-    badge: 'bg-white/20 text-white',
+    gradient: 'border-white/15 bg-white/5',
+    glow: '',
+    badge: 'bg-white/10 text-white/70',
     bars: 0,
   },
 }
@@ -80,8 +80,8 @@ function InterestBanner({ result }: { result: AnalysisResult }) {
   const cfg = INTEREST_CONFIG[result.interest_level] ?? INTEREST_CONFIG.Unclear
   return (
     <div className={cn(
-      'rounded-xl bg-gradient-to-br p-5 shadow-lg',
-      cfg.gradient, cfg.glow,
+      'rounded-xl border p-5',
+      cfg.gradient,
     )}>
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1">
@@ -164,7 +164,7 @@ function NextStepCard({ result }: { result: AnalysisResult }) {
 function LoadingSkeleton() {
   return (
     <div className="space-y-3 animate-pulse">
-      <div className="rounded-xl h-32 bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-700 dark:to-zinc-800" />
+      <div className="rounded-xl h-32 bg-muted" />
       <div className="rounded-xl border border-border overflow-hidden">
         <div className="h-10 bg-muted" />
         <div className="p-4 space-y-2">

@@ -33,7 +33,7 @@ export default async function OnboardingLayout({ children }: { children: React.R
           <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center">
             <span className="text-primary-foreground font-bold text-xs">PP</span>
           </div>
-          <span className="font-bold text-lg">PlayerPulse</span>
+          <span className="font-bold text-lg">FuseID</span>
         </div>
         {children}
       </div>

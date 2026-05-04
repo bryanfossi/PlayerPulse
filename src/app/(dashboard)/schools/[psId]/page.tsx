@@ -68,7 +68,7 @@ export default async function SchoolDetailPage({
   const s = ps.school
 
   const TIER_STYLES = {
-    Lock: 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-[#C9A227]/15 dark:text-[#C9A227] dark:border-[#C9A227]/30',
+    Lock: 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-[#4ADE80]/15 dark:text-[#4ADE80] dark:border-[#4ADE80]/30',
     Realistic: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800',
     Reach: 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800',
   }
@@ -109,8 +109,8 @@ export default async function SchoolDetailPage({
 
         {/* Overall score */}
         {ps.overall_score != null && (
-          <div className="flex flex-col items-center justify-center w-20 h-20 rounded-2xl bg-[#C9A227]/10 border border-[#C9A227]/25 flex-shrink-0">
-            <span className="text-3xl font-black text-[#C9A227] leading-none">{ps.overall_score}</span>
+          <div className="flex flex-col items-center justify-center w-20 h-20 rounded-xl bg-[#4ADE80]/10 border border-[#4ADE80]/25 flex-shrink-0">
+            <span className="text-3xl font-black text-[#4ADE80] leading-none">{ps.overall_score}</span>
             <span className="text-[10px] text-muted-foreground mt-0.5">/ 100</span>
           </div>
         )}

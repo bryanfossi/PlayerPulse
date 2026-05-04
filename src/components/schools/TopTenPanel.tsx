@@ -20,13 +20,13 @@ import { toast } from 'sonner'
 import type { BoardItem } from './SchoolCard'
 
 const TIER_DOT: Record<string, string> = {
-  Lock: 'bg-[#C9A227]',
+  Lock: 'bg-[#4ADE80]',
   Realistic: 'bg-blue-400',
   Reach: 'bg-amber-400',
 }
 
 const TIER_PILL: Record<string, string> = {
-  Lock: 'bg-[#C9A227]/15 text-[#C9A227]',
+  Lock: 'bg-[#4ADE80]/15 text-[#4ADE80]',
   Realistic: 'bg-blue-500/15 text-blue-400',
   Reach: 'bg-amber-500/15 text-amber-400',
 }

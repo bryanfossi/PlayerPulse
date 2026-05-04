@@ -24,7 +24,7 @@ export const TOKEN_COSTS = {
 } as const
 
 export const TOKEN_GRANTS = {
-  /** Monthly allowance included with PlayerPulse Pro subscription. */
+  /** Monthly allowance included with FuseID Pro subscription. */
   SUBSCRIPTION_MONTHLY_ALLOWANCE: 30,
   /** Tokens granted per token-pack purchase. */
   PACK_PURCHASE: 30,

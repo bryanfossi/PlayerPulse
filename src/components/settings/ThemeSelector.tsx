@@ -28,17 +28,17 @@ export function ThemeSelector() {
             <button
               key={name}
               onClick={() => setTheme(name)}
-              className={`relative rounded-xl border-2 p-4 text-left transition-all ${
+              className={`relative rounded-xl border-2 p-4 text-left transition-colors ${
                 isActive
-                  ? 'border-[#C9A227] shadow-md shadow-[#C9A227]/10'
+                  ? 'border-[#4ADE80]'
                   : 'border-border hover:border-muted-foreground/40'
               }`}
               style={{ background: t.bg }}
             >
               {/* Selected checkmark */}
               {isActive && (
-                <span className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#C9A227] flex items-center justify-center">
-                  <Check className="w-3 h-3 text-[#1A3A5C]" />
+                <span className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#4ADE80] flex items-center justify-center">
+                  <Check className="w-3 h-3 text-[#0F1120]" />
                 </span>
               )}
 
@@ -63,7 +63,7 @@ export function ThemeSelector() {
                 className="mt-3 rounded-md p-2 text-[10px]"
                 style={{ background: t.surface, color: t.textSecondary, border: `1px solid ${t.border}` }}
               >
-                <span style={{ color: t.textPrimary, fontWeight: 600 }}>PlayerPulse</span>
+                <span style={{ color: t.textPrimary, fontWeight: 600 }}>FuseID</span>
                 {' · '}
                 <span style={{ color: t.accent }}>Match Engine</span>
               </div>

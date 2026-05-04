@@ -50,7 +50,7 @@ export default async function SettingsPage() {
             Visual Theme
           </CardTitle>
           <p className="text-xs text-muted-foreground">
-            Choose how PlayerPulse looks for you. Your preference is saved locally.
+            Choose how FuseID looks for you. Your preference is saved locally.
           </p>
         </CardHeader>
         <CardContent>

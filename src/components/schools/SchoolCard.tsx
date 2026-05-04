@@ -18,7 +18,7 @@ import type { PlayerSchool, School, PlayerSchoolStatus } from '@/types/app'
 export type BoardItem = PlayerSchool & { school: School }
 
 const TIER_STYLES = {
-  Lock: 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-[#C9A227]/15 dark:text-[#C9A227] dark:border-[#C9A227]/30',
+  Lock: 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-[#4ADE80]/15 dark:text-[#4ADE80] dark:border-[#4ADE80]/30',
   Realistic: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800',
   Reach: 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800',
 }
@@ -97,7 +97,7 @@ export function SchoolCard({ item, dragHandleProps, onStatusChange, onRemove, cl
   }
 
   return (
-    <div className={cn('bg-card border border-border rounded-lg overflow-hidden shadow-sm', pending && 'opacity-60', className)}>
+    <div className={cn('bg-card border border-border rounded-lg overflow-hidden', pending && 'opacity-60', className)}>
       {/* Card header */}
       <div className="flex items-start gap-2 p-3">
         {/* Drag handle / loading indicator */}
@@ -120,7 +120,7 @@ export function SchoolCard({ item, dragHandleProps, onStatusChange, onRemove, cl
             >
               {s.name}
               {item.status === 'offer_received' && (
-                <Trophy className="w-3.5 h-3.5 text-[#C9A227] flex-shrink-0" />
+                <Trophy className="w-3.5 h-3.5 text-[#4ADE80] flex-shrink-0" />
               )}
             </Link>
             <button
@@ -155,8 +155,8 @@ export function SchoolCard({ item, dragHandleProps, onStatusChange, onRemove, cl
 
         {/* Score circle */}
         {item.overall_score != null && (
-          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#C9A227]/10 border border-[#C9A227]/25 flex flex-col items-center justify-center">
-            <span className="text-sm font-bold text-[#C9A227] leading-none">{item.overall_score}</span>
+          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#4ADE80]/10 border border-[#4ADE80]/25 flex flex-col items-center justify-center">
+            <span className="text-sm font-bold text-[#4ADE80] leading-none">{item.overall_score}</span>
           </div>
         )}
       </div>

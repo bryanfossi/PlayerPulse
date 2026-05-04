@@ -9,29 +9,32 @@ export interface ThemeTokens {
   border: string
 }
 
+// FuseID brand-aligned tokens. The primary "dark" theme matches the
+// brand spec exactly — the other themes remain available for the theme
+// selector preview but should mostly route users to dark.
 export const THEMES: Record<ThemeName, ThemeTokens> = {
   dark: {
-    bg: '#0f1a2e',
-    surface: '#1A3A5C',
+    bg: '#0F1120',
+    surface: '#1A1F38',
     textPrimary: '#FFFFFF',
-    textSecondary: '#8aabcc',
-    accent: '#C9A227',
-    border: '#2a4a6a',
+    textSecondary: '#9CA3AF',
+    accent: '#4ADE80',
+    border: 'rgba(255,255,255,0.1)',
   },
   light: {
     bg: '#F5F7FA',
     surface: '#FFFFFF',
-    textPrimary: '#1A3A5C',
-    textSecondary: '#4a6a8a',
-    accent: '#C9A227',
-    border: '#D1DCE8',
+    textPrimary: '#0F1120',
+    textSecondary: '#4B5563',
+    accent: '#22C55E',
+    border: '#E5E7EB',
   },
   neutral: {
     bg: '#F0EDE8',
     surface: '#FFFFFF',
     textPrimary: '#2C2C2C',
     textSecondary: '#6B6B6B',
-    accent: '#C9A227',
+    accent: '#22C55E',
     border: '#D8D3CC',
   },
 }

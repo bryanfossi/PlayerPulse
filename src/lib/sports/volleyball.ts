@@ -1,7 +1,7 @@
 import type { SportConfig } from './types'
 
 /**
- * Volleyball — second active sport for PlayerPulse.
+ * Volleyball — second active sport for FuseID.
  * Key asymmetry: women's D1 is headcount (12 full rides), men's D1 is equivalency (4.5).
  */
 export const volleyball: SportConfig = {

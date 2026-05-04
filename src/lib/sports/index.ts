@@ -1,5 +1,5 @@
 /**
- * PlayerPulse Sport Registry
+ * FuseID Sport Registry
  * ------------------------------------------------------------
  * Master list of every sport the platform knows about.
  * Adding a new sport is a matter of:
@@ -36,7 +36,7 @@ export { lacrosse } from './lacrosse'
 export { baseball } from './baseball'
 export { volleyball } from './volleyball'
 
-/** Every sport known to PlayerPulse, in registration order. */
+/** Every sport known to FuseID, in registration order. */
 export const sports: SportConfig[] = [soccer, basketball, lacrosse, baseball, volleyball]
 
 /** Sports that are currently live in the app. */

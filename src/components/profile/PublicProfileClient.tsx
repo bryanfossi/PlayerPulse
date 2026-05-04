@@ -594,7 +594,7 @@ export function PublicProfileClient({ player, topSchools, slug }: Props) {
         <div style={{ maxWidth: 1152, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
           <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>&copy; {new Date().getFullYear()} {fullName}</span>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'rgba(255,255,255,0.25)' }}>Recruiting profile powered by PlayerPulse</div>
+            <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'rgba(255,255,255,0.25)' }}>Recruiting profile powered by FuseID</div>
             <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'rgba(255,255,255,0.25)' }}>PromotedSoccerConsultants.com</div>
           </div>
         </div>

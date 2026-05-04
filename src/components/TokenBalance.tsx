@@ -22,7 +22,7 @@ export function TokenBalance({ showLabel }: Props) {
     }
   }, [tokens])
 
-  const color = tokens === 0 ? '#E05555' : tokens < 5 ? '#E09A1A' : '#C9A227'
+  const color = tokens === 0 ? '#E05555' : tokens < 5 ? '#E09A1A' : '#4ADE80'
 
   const tooltip =
     tokens === 0

@@ -71,13 +71,13 @@ export default async function InviteAcceptPage({
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#050e1c] via-[#0c1e38] to-[#1A3A5C] flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white dark:bg-[#0d1e35] rounded-2xl shadow-2xl p-8">
+    <div className="min-h-screen bg-[#0F1120] flex items-center justify-center p-4">
+      <div className="w-full max-w-md rounded-xl border p-8" style={{ backgroundColor: '#1A1F38', borderColor: 'rgba(255,255,255,0.1)' }}>
         <div className="flex items-center gap-2 mb-8">
-          <div className="w-7 h-7 bg-[#C9A227] rounded-lg flex items-center justify-center">
-            <span className="text-[#1A3A5C] font-black text-xs">PP</span>
+          <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ backgroundColor: '#4ADE80' }}>
+            <span className="font-black text-xs" style={{ color: '#0F1120' }}>F</span>
           </div>
-          <span className="font-bold text-sm">PlayerPulse</span>
+          <span className="font-bold text-sm">FuseID</span>
         </div>
         {children}
       </div>

@@ -51,7 +51,7 @@ export function PublicProfileToggle({ slug, enabled: initialEnabled }: Props) {
 
   if (!slug) {
     return (
-      <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+      <div className="rounded-xl border border-border bg-card p-4 space-y-3">
         <div className="flex items-center gap-2">
           <Globe className="w-4 h-4 text-muted-foreground" />
           <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Public Profile</p>
@@ -66,7 +66,7 @@ export function PublicProfileToggle({ slug, enabled: initialEnabled }: Props) {
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+    <div className="rounded-xl border border-border bg-card p-4 space-y-3">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Globe className="w-4 h-4 text-muted-foreground" />
