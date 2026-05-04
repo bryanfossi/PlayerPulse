@@ -15,6 +15,7 @@
 import type { SportConfig } from './types'
 import { soccer } from './soccer'
 import { basketball } from './basketball'
+import { football } from './football'
 import { lacrosse } from './lacrosse'
 import { baseball } from './baseball'
 import { volleyball } from './volleyball'
@@ -32,12 +33,13 @@ export type {
 
 export { soccer } from './soccer'
 export { basketball } from './basketball'
+export { football } from './football'
 export { lacrosse } from './lacrosse'
 export { baseball } from './baseball'
 export { volleyball } from './volleyball'
 
 /** Every sport known to FuseID, in registration order. */
-export const sports: SportConfig[] = [soccer, basketball, lacrosse, baseball, volleyball]
+export const sports: SportConfig[] = [soccer, basketball, football, volleyball, lacrosse, baseball]
 
 /** Sports that are currently live in the app. */
 export const activeSports: SportConfig[] = sports.filter((s) => s.active)

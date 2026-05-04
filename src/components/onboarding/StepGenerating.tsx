@@ -104,7 +104,7 @@ export function StepGenerating() {
           <div className="w-20 h-20 rounded-full bg-foreground flex items-center justify-center animate-bounce">
             {/* suppressHydrationWarning: sport_id comes from localStorage, intentionally differs from SSR default */}
             <span className="text-4xl select-none" suppressHydrationWarning>
-              {data.sport_id === 'volleyball' ? '🏐' : data.sport_id === 'basketball' ? '🏀' : '⚽'}
+              {data.sport_id === 'volleyball' ? '🏐' : data.sport_id === 'basketball' ? '🏀' : data.sport_id === 'football' ? '🏈' : '⚽'}
             </span>
           </div>
           <div className="absolute inset-0 w-20 h-20 rounded-full border-4 border-primary animate-ping opacity-20" />

@@ -151,6 +151,8 @@ export function StepAthletic() {
               ? 'Midwest Volleyball Club'
               : sport.id === 'basketball'
               ? 'Team Loaded EYBL'
+              : sport.id === 'football'
+              ? 'St. Thomas Aquinas HS'
               : 'Ohio Premier SC'
           }
           {...register('club_team')}
