@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { anthropic } from '@/lib/anthropic'
 import { getSportOrDefault } from '@/lib/sports'
+import { TOKEN_COSTS } from '@/lib/tokens/costs'
 import type { Database } from '@/types/database'
 
 type PlayerRow = Database['public']['Tables']['players']['Row']
@@ -34,6 +35,21 @@ export async function POST() {
     if (!player) return NextResponse.json({ error: 'Player not found' }, { status: 404 })
 
     const sport = getSportOrDefault(player.sport_id)
+
+    // Token gate
+    const { data: ok, error: tokenErr } = await service.rpc('consume_tokens', {
+      p_user_id: user.id,
+      p_amount: TOKEN_COSTS.AI_QUERY,
+    })
+    if (tokenErr || !ok) {
+      return NextResponse.json(
+        {
+          error: 'NO_TOKENS',
+          message: `Generating a recruiting timeline costs ${TOKEN_COSTS.AI_QUERY} token. You're out — purchase a token pack to continue.`,
+        },
+        { status: 402 },
+      )
+    }
 
     const today = new Date()
     const currentMonth = today.toLocaleString('en-US', { month: 'long', year: 'numeric' })
@@ -78,7 +94,8 @@ Return ONLY a valid JSON array:
       const match = raw.match(/\[[\s\S]+\]/)
       timeline = JSON.parse(match ? match[0] : raw)
     } catch {
-      return NextResponse.json({ error: 'AI_PARSE_ERROR' }, { status: 500 })
+      await service.rpc('refund_tokens', { p_user_id: user.id, p_amount: TOKEN_COSTS.AI_QUERY })
+      return NextResponse.json({ error: 'AI_PARSE_ERROR', message: 'Failed to parse AI response. Your token has been refunded.' }, { status: 500 })
     }
 
     return NextResponse.json({ timeline })

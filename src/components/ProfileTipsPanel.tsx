@@ -1,10 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { AlertCircle, Loader2, TrendingUp, AlertTriangle, Lightbulb, Star, Flame, Plus, Check } from 'lucide-react'
+import { AlertCircle, Loader2, TrendingUp, AlertTriangle, Lightbulb, Star, Flame, Plus, Check, Zap } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { useTokens } from '@/contexts/TokenContext'
+import { TOKEN_COSTS } from '@/lib/tokens/costs'
 
 interface Tip {
   category: string
@@ -49,9 +51,11 @@ const READINESS_CONFIG = {
 }
 
 export function ProfileTipsPanel() {
+  const { spend } = useTokens()
   const [data, setData] = useState<ProfileTipsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [outOfTokens, setOutOfTokens] = useState(false)
   const [savedKeys, setSavedKeys] = useState<Set<string>>(new Set())
   const [savingKey, setSavingKey] = useState<string | null>(null)
 
@@ -61,9 +65,14 @@ export function ProfileTipsPanel() {
         const res = await fetch('/api/ai/profile-tips', { method: 'POST' })
         const json = await res.json()
         if (!res.ok) {
-          setError(json.error ?? 'Failed to load tips')
+          if (json.error === 'NO_TOKENS') {
+            setOutOfTokens(true)
+          } else {
+            setError(json.error ?? 'Failed to load tips')
+          }
           return
         }
+        spend(TOKEN_COSTS.AI_QUERY) // optimistic UI decrement
         if (Array.isArray(json.tips)) {
           setData({
             overall_readiness: 'On Track',
@@ -86,6 +95,7 @@ export function ProfileTipsPanel() {
       }
     }
     fetchTips()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   async function handleSaveAsAction(tip: Tip, key: string) {
@@ -120,6 +130,20 @@ export function ProfileTipsPanel() {
       <div className="flex flex-col items-center justify-center py-12 gap-3">
         <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
         <p className="text-sm text-muted-foreground">Analyzing your profile...</p>
+      </div>
+    )
+  }
+
+  if (outOfTokens) {
+    return (
+      <div className="flex items-start gap-3 rounded-md border px-4 py-4" style={{ borderColor: '#4ADE80', backgroundColor: 'rgba(74,222,128,0.08)' }}>
+        <Zap className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#4ADE80' }} />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold" style={{ color: '#4ADE80' }}>Out of tokens</p>
+          <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>
+            Generating action tips costs {TOKEN_COSTS.AI_QUERY} token. Buy a 30-token pack to keep generating.
+          </p>
+        </div>
       </div>
     )
   }

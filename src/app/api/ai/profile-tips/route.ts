@@ -3,6 +3,7 @@ import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { anthropic } from '@/lib/anthropic'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { getSportOrDefault } from '@/lib/sports'
+import { TOKEN_COSTS } from '@/lib/tokens/costs'
 import type { Database } from '@/types/database'
 
 type PlayerRow = Database['public']['Tables']['players']['Row']
@@ -67,6 +68,21 @@ export async function POST(request: Request) {
       .lt('follow_up_date', new Date().toISOString().slice(0, 10))
       .not('follow_up_date', 'is', null)
 
+    // Token gate: deduct BEFORE Claude call
+    const { data: ok, error: tokenErr } = await service.rpc('consume_tokens', {
+      p_user_id: user.id,
+      p_amount: TOKEN_COSTS.AI_QUERY,
+    })
+    if (tokenErr || !ok) {
+      return NextResponse.json(
+        {
+          error: 'NO_TOKENS',
+          message: `Generating action tips costs ${TOKEN_COSTS.AI_QUERY} token. You're out — purchase a token pack to continue.`,
+        },
+        { status: 402 },
+      )
+    }
+
     const prompt = `You are an expert college ${sport.name.toLowerCase()} recruiting advisor. Analyze this player's recruiting status and give 4 specific, actionable tips.
 
 PLAYER
@@ -114,12 +130,22 @@ GUIDELINES
       .join('')
       .trim()
 
-    let tips: { tip: string; priority: 'high' | 'medium' | 'low' }[]
+    let tips: { tip: string; priority: 'high' | 'medium' | 'low' }[] = []
     try {
       tips = JSON.parse(raw)
     } catch {
       const match = raw.match(/\[[\s\S]+\]/)
-      tips = match ? JSON.parse(match[0]) : []
+      try {
+        tips = match ? JSON.parse(match[0]) : []
+      } catch {
+        tips = []
+      }
+    }
+
+    // Refund if Claude returned nothing usable
+    if (!Array.isArray(tips) || tips.length === 0) {
+      await service.rpc('refund_tokens', { p_user_id: user.id, p_amount: TOKEN_COSTS.AI_QUERY })
+      return NextResponse.json({ error: 'No tips generated. Your token has been refunded.' }, { status: 500 })
     }
 
     return NextResponse.json({ tips })

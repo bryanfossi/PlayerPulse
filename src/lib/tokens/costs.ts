@@ -17,6 +17,12 @@
 export const TOKEN_COSTS = {
   /** Regenerating an AI-drafted coach outreach email. */
   EMAIL_DRAFT: 1,
+  /**
+   * Generic short AI query — coach email analysis, AI action generator
+   * (profile tips), offer comparison, recruiting timeline, etc.
+   * Anything where Claude returns a small structured response.
+   */
+  AI_QUERY: 1,
   /** Generating an AI fit assessment for a single school (rescore). */
   SCHOOL_FIT_ASSESSMENT: 3,
   /** Regenerating the entire ranked match list (Top 40). */
@@ -37,6 +43,7 @@ export type TokenAction = keyof typeof TOKEN_COSTS
  */
 export const TOKEN_COST_LABEL: Record<TokenAction, string> = {
   EMAIL_DRAFT: '1 token',
+  AI_QUERY: '1 token',
   SCHOOL_FIT_ASSESSMENT: '3 tokens',
   FULL_MATCH_RERUN: '10 tokens',
 }

@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import {
   Sparkles, MessageSquareQuote, ArrowRight, Loader2, Plus,
-  School as SchoolIcon, CheckCircle2, AlertCircle,
+  School as SchoolIcon, CheckCircle2, AlertCircle, Zap,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -16,6 +16,8 @@ import {
 } from '@/components/ui/select'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { useTokens } from '@/contexts/TokenContext'
+import { TOKEN_COSTS } from '@/lib/tokens/costs'
 
 interface SchoolOption {
   player_school_id: string
@@ -66,6 +68,7 @@ const DIVISIONS = ['D1', 'D2', 'D3', 'NAIA', 'JUCO']
 type Mode = 'existing' | 'new'
 
 export function CoachAnalyzerClient({ schools }: Props) {
+  const { tokens, spend } = useTokens()
   const [mode, setMode] = useState<Mode>(schools.length > 0 ? 'existing' : 'new')
   const [psId, setPsId] = useState('')
   const [newSchoolName, setNewSchoolName] = useState('')
@@ -74,13 +77,16 @@ export function CoachAnalyzerClient({ schools }: Props) {
   const [coachMessage, setCoachMessage] = useState('')
   const [result, setResult] = useState<AnalysisResult | null>(null)
   const [error, setError] = useState('')
+  const [outOfTokens, setOutOfTokens] = useState(false)
   const [analyzing, startAnalyzing] = useTransition()
+  const cost = TOKEN_COSTS.AI_QUERY
+  const canAfford = tokens >= cost
 
   function handleAnalyze() {
     setError('')
+    setOutOfTokens(false)
     setResult(null)
 
-    // Validate based on mode
     if (mode === 'existing' && !psId) {
       setError('Pick a school from your list')
       return
@@ -91,6 +97,10 @@ export function CoachAnalyzerClient({ schools }: Props) {
     }
     if (!coachMessage.trim()) {
       setError('Paste the coach\'s email')
+      return
+    }
+    if (!canAfford) {
+      setOutOfTokens(true)
       return
     }
 
@@ -113,9 +123,14 @@ export function CoachAnalyzerClient({ schools }: Props) {
         })
         const json = await res.json()
         if (!res.ok) {
-          setError(json.error ?? 'Analysis failed. Please try again.')
+          if (json.error === 'NO_TOKENS') {
+            setOutOfTokens(true)
+          } else {
+            setError(json.error ?? 'Analysis failed. Please try again.')
+          }
           return
         }
+        spend(cost) // optimistic UI decrement; server already deducted
         setResult(json as AnalysisResult)
         if (mode === 'new' && saveToList && json.created_player_school_id) {
           toast.success(`${newSchoolName.trim()} added to your schools list`)
@@ -309,6 +324,18 @@ export function CoachAnalyzerClient({ schools }: Props) {
               </div>
             )}
 
+            {outOfTokens && (
+              <div className="flex items-start gap-3 rounded-md border px-4 py-3" style={{ borderColor: '#4ADE80', backgroundColor: 'rgba(74,222,128,0.08)' }}>
+                <Zap className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#4ADE80' }} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold" style={{ color: '#4ADE80' }}>Out of tokens</p>
+                  <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>
+                    Coach email analysis costs {cost} token. Buy a 30-token pack to keep analyzing.
+                  </p>
+                </div>
+              </div>
+            )}
+
             <Button
               onClick={handleAnalyze}
               disabled={analyzing}
@@ -325,6 +352,7 @@ export function CoachAnalyzerClient({ schools }: Props) {
                 <>
                   <Sparkles className="w-4 h-4" />
                   Analyze Email
+                  <span className="text-[10px] font-normal opacity-70 ml-1">({cost} token)</span>
                 </>
               )}
             </Button>

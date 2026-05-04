@@ -4,6 +4,7 @@ import { anthropic } from '@/lib/anthropic'
 import { buildAnalyzeReplyPrompt } from '@/lib/prompts/analyze-reply'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { getSportOrDefault } from '@/lib/sports'
+import { TOKEN_COSTS } from '@/lib/tokens/costs'
 import type { Database } from '@/types/database'
 
 type PlayerRow = Database['public']['Tables']['players']['Row']
@@ -174,6 +175,21 @@ export async function POST(request: Request) {
       }
     }
 
+    // ── Token gate: deduct BEFORE Claude call ────────────────
+    const { data: ok, error: tokenErr } = await service.rpc('consume_tokens', {
+      p_user_id: user.id,
+      p_amount: TOKEN_COSTS.AI_QUERY,
+    })
+    if (tokenErr || !ok) {
+      return NextResponse.json(
+        {
+          error: 'NO_TOKENS',
+          message: `Coach email analysis costs ${TOKEN_COSTS.AI_QUERY} token. You're out — purchase a token pack to continue.`,
+        },
+        { status: 402 },
+      )
+    }
+
     // ── Run the analysis ──────────────────────────────────────
     const prompt = buildAnalyzeReplyPrompt({
       first_name: player.first_name,
@@ -207,8 +223,16 @@ export async function POST(request: Request) {
       result = JSON.parse(raw)
     } catch {
       const match = raw.match(/\{[\s\S]+\}/)
-      if (!match) return NextResponse.json({ error: 'Failed to parse AI response' }, { status: 500 })
-      result = JSON.parse(match[0])
+      if (!match) {
+        await service.rpc('refund_tokens', { p_user_id: user.id, p_amount: TOKEN_COSTS.AI_QUERY })
+        return NextResponse.json({ error: 'Failed to parse AI response. Your token has been refunded.' }, { status: 500 })
+      }
+      try {
+        result = JSON.parse(match[0])
+      } catch {
+        await service.rpc('refund_tokens', { p_user_id: user.id, p_amount: TOKEN_COSTS.AI_QUERY })
+        return NextResponse.json({ error: 'Failed to parse AI response. Your token has been refunded.' }, { status: 500 })
+      }
     }
 
     return NextResponse.json({
