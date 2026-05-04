@@ -31,11 +31,11 @@ export default async function SchoolsPage() {
       player_level_band, roster_level_band, roster_depth,
       first_year_opportunity, merit_aid_potential, estimated_merit_aid,
       merit_aid_confidence, merit_aid_note, distance_miles,
-      acad_note, level_note, pt_note, notes, added_at, updated_at, source,
+      acad_note, level_note, pt_note, notes, momentum, momentum_updated_at, added_at, updated_at, source,
       school:schools (
         id, name, verified_division, conference, city, state, campus_type,
         enrollment, avg_gpa, acceptance_rate, in_state_tuition, out_state_tuition,
-        has_scholarship, soccer_url, logo_url, usc_top25_seasons, prestige,
+        has_scholarship, soccer_url, sport_urls, logo_url, usc_top25_seasons, prestige,
         created_at, updated_at
       )
     `)

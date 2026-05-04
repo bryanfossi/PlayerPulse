@@ -50,7 +50,7 @@ export default async function SchoolDetailPage({
       player_level_band, roster_level_band, roster_depth,
       first_year_opportunity, merit_aid_potential, estimated_merit_aid,
       merit_aid_confidence, merit_aid_note, distance_miles,
-      acad_note, level_note, pt_note, notes, added_at, updated_at, source,
+      acad_note, level_note, pt_note, notes, momentum, momentum_updated_at, added_at, updated_at, source,
       school:schools (
         id, name, verified_division, conference, city, state, campus_type,
         enrollment, avg_gpa, acceptance_rate, in_state_tuition, out_state_tuition,
@@ -139,7 +139,13 @@ export default async function SchoolDetailPage({
       </div>
 
       {/* Status + Actions (client component for interactivity) */}
-      <SchoolDetailActions psId={psId} currentStatus={ps.status} currentTier={ps.tier} currentNotes={ps.notes} />
+      <SchoolDetailActions
+        psId={psId}
+        currentStatus={ps.status}
+        currentTier={ps.tier}
+        currentNotes={ps.notes}
+        currentMomentum={ps.momentum}
+      />
 
       {/* School Info */}
       <Card>

@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { ScoreBreakdown } from './ScoreBreakdown'
+import { MomentumPicker } from './MomentumPicker'
 import { cn } from '@/lib/utils'
 import type { PlayerSchool, School, PlayerSchoolStatus } from '@/types/app'
 
@@ -161,8 +162,8 @@ export function SchoolCard({ item, dragHandleProps, onStatusChange, onRemove, cl
         )}
       </div>
 
-      {/* Status row */}
-      <div className="px-3 pb-3 flex items-center justify-between gap-2">
+      {/* Status + momentum row */}
+      <div className="px-3 pb-2 flex items-center justify-between gap-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
@@ -187,6 +188,11 @@ export function SchoolCard({ item, dragHandleProps, onStatusChange, onRemove, cl
           </DropdownMenuContent>
         </DropdownMenu>
 
+        <MomentumPicker playerSchoolId={item.id} initial={item.momentum} compact />
+      </div>
+
+      {/* Footer row */}
+      <div className="px-3 pb-3 flex justify-end">
         <Link
           href={`/schools/${item.id}`}
           className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"

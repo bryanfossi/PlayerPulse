@@ -14,7 +14,8 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
-import type { PlayerSchoolStatus, Tier } from '@/types/app'
+import { MomentumPicker } from './MomentumPicker'
+import type { PlayerSchoolStatus, Tier, Momentum } from '@/types/app'
 
 const STATUS_LABELS: Record<PlayerSchoolStatus, string> = {
   researching: 'Researching',
@@ -31,9 +32,10 @@ interface Props {
   currentStatus: PlayerSchoolStatus
   currentTier: Tier | null
   currentNotes: string | null
+  currentMomentum: Momentum | null
 }
 
-export function SchoolDetailActions({ psId, currentStatus, currentTier, currentNotes }: Props) {
+export function SchoolDetailActions({ psId, currentStatus, currentTier, currentNotes, currentMomentum }: Props) {
   const [status, setStatus] = useState<PlayerSchoolStatus>(currentStatus)
   const [tier, setTier] = useState<Tier | 'none'>(currentTier ?? 'none')
   const [notes, setNotes] = useState(currentNotes ?? '')
@@ -73,6 +75,17 @@ export function SchoolDetailActions({ psId, currentStatus, currentTier, currentN
   return (
     <Card>
       <CardContent className="pt-4 space-y-4">
+        {/* Momentum — saves immediately, separate from the dirty-save form below */}
+        <div className="space-y-1.5">
+          <Label>Momentum</Label>
+          <div className="flex items-center gap-2">
+            <MomentumPicker playerSchoolId={psId} initial={currentMomentum} />
+            <span className="text-xs text-muted-foreground">
+              How does this opportunity feel right now?
+            </span>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Status */}
           <div className="space-y-1.5">

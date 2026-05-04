@@ -147,10 +147,14 @@ export interface PlayerSchool {
   level_note: string | null
   pt_note: string | null
   notes: string | null
+  momentum: Momentum | null
+  momentum_updated_at: string | null
   added_at: string
   updated_at: string
   source: 'match_engine' | 'manual'
 }
+
+export type Momentum = 'hot' | 'neutral' | 'cold'
 
 export interface Contact {
   id: string

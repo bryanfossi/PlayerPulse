@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
+import { MomentumPicker } from './MomentumPicker'
 import type { PlayerSchoolStatus } from '@/types/app'
 import type { BoardItem } from './SchoolCard'
 
@@ -133,6 +134,7 @@ export function SchoolListView({ items, onStatusChange, onRemove }: Props) {
             <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">Div</th>
             <Th label="Tier" k="tier" />
             <Th label="Status" k="status" />
+            <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">Momentum</th>
             <Th label="Score" k="overall_score" />
             <Th label="Distance" k="distance_miles" />
             <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">Merit Aid</th>
@@ -193,6 +195,9 @@ export function SchoolListView({ items, onStatusChange, onRemove }: Props) {
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
+              </td>
+              <td className="px-3 py-2.5">
+                <MomentumPicker playerSchoolId={item.id} initial={item.momentum} compact />
               </td>
               <td className="px-3 py-2.5">
                 {item.overall_score != null && (

@@ -19,7 +19,17 @@ export async function PATCH(
       tier: PSRow['tier']
       notes: string | null
       rank_order: number
+      momentum: 'hot' | 'neutral' | 'cold' | null
     }> = await request.json()
+
+    // Validate momentum enum if present
+    if (
+      body.momentum !== undefined &&
+      body.momentum !== null &&
+      !['hot', 'neutral', 'cold'].includes(body.momentum)
+    ) {
+      return NextResponse.json({ error: 'Invalid momentum value' }, { status: 400 })
+    }
 
     const service = createServiceClient()
 
@@ -47,6 +57,10 @@ export async function PATCH(
     if (body.tier !== undefined) update.tier = body.tier
     if (body.notes !== undefined) update.notes = body.notes
     if (body.rank_order !== undefined) update.rank_order = body.rank_order
+    if (body.momentum !== undefined) {
+      update.momentum = body.momentum
+      update.momentum_updated_at = new Date().toISOString()
+    }
 
     const { error } = await service
       .from('player_schools')
