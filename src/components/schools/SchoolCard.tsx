@@ -98,8 +98,16 @@ export function SchoolCard({ item, dragHandleProps, onStatusChange, onMomentumCh
     })
   }
 
+  // Momentum-based hue/glow — orange for hot, sky-blue for cold, default for neutral/null
+  const momentumStyle =
+    item.momentum === 'hot'
+      ? 'border-orange-500/50 shadow-[0_0_18px_rgba(249,115,22,0.22)]'
+      : item.momentum === 'cold'
+      ? 'border-sky-500/50 shadow-[0_0_18px_rgba(14,165,233,0.22)]'
+      : 'border-border'
+
   return (
-    <div className={cn('bg-card border border-border rounded-lg overflow-hidden', pending && 'opacity-60', className)}>
+    <div className={cn('bg-card border rounded-lg overflow-hidden transition-shadow', momentumStyle, pending && 'opacity-60', className)}>
       {/* Card header */}
       <div className="flex items-start gap-2 p-3">
         {/* Drag handle / loading indicator */}
