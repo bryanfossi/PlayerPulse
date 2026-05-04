@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { AlertCircle, Loader2, TrendingUp, AlertTriangle, Lightbulb, Star, Flame } from 'lucide-react'
+import { AlertCircle, Loader2, TrendingUp, AlertTriangle, Lightbulb, Star, Flame, Plus, Check } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
 interface Tip {
@@ -25,21 +26,18 @@ const SEVERITY_CONFIG = {
     border: 'border-l-red-500',
     bg: 'bg-red-500/5',
     badge: 'bg-red-500/10 text-red-400 border-red-500/20',
-    label: 'Critical',
   },
   Important: {
     icon: AlertTriangle,
     border: 'border-l-amber-500',
     bg: 'bg-amber-500/5',
     badge: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-    label: 'Important',
   },
   Suggestion: {
     icon: Lightbulb,
     border: 'border-l-blue-500',
     bg: 'bg-blue-500/5',
     badge: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-    label: 'Suggestion',
   },
 }
 
@@ -54,6 +52,8 @@ export function ProfileTipsPanel() {
   const [data, setData] = useState<ProfileTipsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [savedKeys, setSavedKeys] = useState<Set<string>>(new Set())
+  const [savingKey, setSavingKey] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchTips() {
@@ -64,7 +64,6 @@ export function ProfileTipsPanel() {
           setError(json.error ?? 'Failed to load tips')
           return
         }
-        // Support both old (array) and new (structured) formats
         if (Array.isArray(json.tips)) {
           setData({
             overall_readiness: 'On Track',
@@ -88,6 +87,33 @@ export function ProfileTipsPanel() {
     }
     fetchTips()
   }, [])
+
+  async function handleSaveAsAction(tip: Tip, key: string) {
+    setSavingKey(key)
+    try {
+      const res = await fetch('/api/actions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: tip.title.slice(0, 200),
+          description: tip.detail,
+          source: 'profile_tip',
+          source_payload: { category: tip.category, severity: tip.severity },
+        }),
+      })
+      const json = await res.json()
+      if (!res.ok) {
+        toast.error(json.error ?? 'Could not save action.')
+        return
+      }
+      setSavedKeys((prev) => new Set(prev).add(key))
+      toast.success('Saved to your actions list')
+    } catch {
+      toast.error('Network error — could not save action.')
+    } finally {
+      setSavingKey(null)
+    }
+  }
 
   if (loading) {
     return (
@@ -126,7 +152,6 @@ export function ProfileTipsPanel() {
         <span className="text-xs text-muted-foreground">Overall Readiness</span>
       </div>
 
-      {/* Strongest / Biggest risk */}
       {(data.strongest_asset || data.biggest_risk) && (
         <div className="grid grid-cols-1 gap-3">
           {data.strongest_asset && (
@@ -150,7 +175,6 @@ export function ProfileTipsPanel() {
         </div>
       )}
 
-      {/* Tips by severity */}
       {[
         { list: criticalTips, severity: 'Critical' as const },
         { list: importantTips, severity: 'Important' as const },
@@ -162,10 +186,13 @@ export function ProfileTipsPanel() {
             {list.map((tip, i) => {
               const cfg = SEVERITY_CONFIG[severity]
               const Icon = cfg.icon
+              const key = `${severity}-${i}`
+              const saved = savedKeys.has(key)
+              const saving = savingKey === key
               return (
                 <div
                   key={i}
-                  className={cn('border-l-2 rounded-r-lg px-4 py-3 space-y-1', cfg.border, cfg.bg)}
+                  className={cn('border-l-2 rounded-r-lg px-4 py-3 space-y-2', cfg.border, cfg.bg)}
                 >
                   <div className="flex items-center gap-2">
                     <Icon className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
@@ -175,6 +202,35 @@ export function ProfileTipsPanel() {
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed">{tip.detail}</p>
+                  <div className="pt-1">
+                    <button
+                      onClick={() => !saved && handleSaveAsAction(tip, key)}
+                      disabled={saved || saving}
+                      className={cn(
+                        'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border transition-colors',
+                        saved
+                          ? 'border-green-500/30 bg-green-500/10 text-green-400 cursor-default'
+                          : 'border-white/15 hover:border-[#4ADE80] hover:bg-[#4ADE80]/10 hover:text-[#4ADE80]',
+                      )}
+                    >
+                      {saved ? (
+                        <>
+                          <Check className="w-3 h-3" />
+                          Added to Actions
+                        </>
+                      ) : saving ? (
+                        <>
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                          Saving…
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="w-3 h-3" />
+                          Save as Action
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
               )
             })}

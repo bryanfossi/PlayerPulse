@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, School, MessageSquare, Sparkles, User,
-  LogOut, Trophy, Settings,
+  LogOut, Trophy, Settings, ListTodo,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
@@ -13,6 +13,7 @@ import { TokenBalance } from '@/components/TokenBalance'
 
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/actions', label: 'Actions', icon: ListTodo },
   { href: '/schools', label: 'My Schools', icon: School },
   { href: '/offers', label: 'Offers', icon: Trophy },
   { href: '/communications', label: 'Communications', icon: MessageSquare },

@@ -563,6 +563,49 @@ export type Database = {
         }
         Relationships: []
       }
+      actions: {
+        Row: {
+          id: string
+          player_id: string
+          title: string
+          description: string | null
+          status: 'open' | 'completed' | 'snoozed' | 'archived'
+          due_date: string | null
+          completed_at: string | null
+          player_school_id: string | null
+          contact_id: string | null
+          source: 'manual' | 'profile_tip' | 'follow_up' | 'system'
+          source_payload: Json | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          player_id: string
+          title: string
+          description?: string | null
+          status?: 'open' | 'completed' | 'snoozed' | 'archived'
+          due_date?: string | null
+          completed_at?: string | null
+          player_school_id?: string | null
+          contact_id?: string | null
+          source?: 'manual' | 'profile_tip' | 'follow_up' | 'system'
+          source_payload?: Json | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          title?: string
+          description?: string | null
+          status?: 'open' | 'completed' | 'snoozed' | 'archived'
+          due_date?: string | null
+          completed_at?: string | null
+          player_school_id?: string | null
+          contact_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: Record<string, never>
     Functions: {

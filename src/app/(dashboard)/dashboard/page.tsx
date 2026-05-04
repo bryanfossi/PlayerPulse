@@ -7,6 +7,8 @@ import {
 } from 'lucide-react'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { AddTokensButton } from '@/components/AddTokensButton'
+import { ProfileTipsButton } from '@/components/dashboard/ProfileTipsButton'
+import { ActionsChart } from '@/components/dashboard/ActionsChart'
 import type { Database } from '@/types/database'
 import type { ContactType, Momentum } from '@/types/app'
 
@@ -58,7 +60,12 @@ export default async function DashboardPage() {
   > | null
   if (!player) redirect('/onboarding')
 
-  const [psResult, contactsResult] = await Promise.all([
+  // 90 days ago in ISO form for the actions chart query
+  const ninetyDaysAgo = new Date()
+  ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
+  const ninetyDaysAgoIso = ninetyDaysAgo.toISOString()
+
+  const [psResult, contactsResult, actionsResult] = await Promise.all([
     service
       .from('player_schools')
       .select('id, tier, status, overall_score, rank_order, momentum, school:schools(id, name, verified_division)')
@@ -70,7 +77,17 @@ export default async function DashboardPage() {
       .eq('player_id', player.id)
       .order('contact_date', { ascending: false })
       .limit(20),
+    service
+      .from('actions')
+      .select('completed_at')
+      .eq('player_id', player.id)
+      .eq('status', 'completed')
+      .gte('completed_at', ninetyDaysAgoIso),
   ])
+
+  const completedActionDates = ((actionsResult.data ?? []) as Array<{ completed_at: string | null }>)
+    .filter((a) => a.completed_at)
+    .map((a) => a.completed_at!.slice(0, 10))
 
   type PSWithSchool = Pick<PSRow, 'id' | 'tier' | 'status' | 'overall_score' | 'rank_order' | 'momentum'> & {
     school: Pick<SchoolRow, 'id' | 'name' | 'verified_division'>
@@ -219,7 +236,10 @@ export default async function DashboardPage() {
             {player.primary_position} · Class of {player.grad_year} · {player.club_team}
           </p>
         </div>
-        <AddTokensButton />
+        <div className="flex items-center gap-2 flex-wrap">
+          <ProfileTipsButton />
+          <AddTokensButton />
+        </div>
       </div>
 
       {/* ───────────────────────────────────────────────────────── */}
@@ -336,6 +356,21 @@ export default async function DashboardPage() {
             ))}
           </div>
         )}
+      </section>
+
+      {/* ───────────────────────────────────────────────────────── */}
+      {/* ACTIONS CHART — 90-day completion trend                    */}
+      {/* ───────────────────────────────────────────────────────── */}
+      <section>
+        <div className="flex items-baseline justify-between mb-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: '#9CA3AF' }}>
+            Action history
+          </p>
+          <Link href="/actions" className="text-xs font-medium transition-colors hover:text-white inline-flex items-center gap-1" style={{ color: '#9CA3AF' }}>
+            View all <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+        <ActionsChart completedDates={completedActionDates} days={90} />
       </section>
 
       {/* ───────────────────────────────────────────────────────── */}
