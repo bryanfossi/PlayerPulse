@@ -62,7 +62,7 @@ function BuyTokensButton() {
     <button
       onClick={handleClick}
       disabled={loading}
-      className="flex-shrink-0 flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-md bg-amber-500 hover:bg-amber-400 text-[#1a0f00] transition-colors disabled:opacity-60"
+      className="flex-shrink-0 flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-md bg-[#4ADE80] hover:bg-[#22C55E] text-[#0F1120] transition-colors disabled:opacity-60"
     >
       {loading ? 'Opening…' : 'Buy Tokens'}
     </button>
@@ -366,12 +366,12 @@ export function DraftEmailClient({ schools, preselectedPsId, preselectedType }: 
       {error && (
         error === 'NO_TOKENS'
           ? (
-            <div className="flex items-start gap-3 rounded-lg bg-amber-500/10 border border-amber-500/30 px-4 py-3">
-              <Zap className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+            <div className="flex items-start gap-3 rounded-lg border px-4 py-3" style={{ borderColor: '#4ADE80', backgroundColor: 'rgba(74, 222, 128, 0.08)' }}>
+              <Zap className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#4ADE80' }} />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-amber-400">Monthly limit reached</p>
-                <p className="text-xs text-amber-400/80 mt-0.5">
-                  You&apos;ve used all 10 free email drafts this month. Purchase tokens to keep drafting.
+                <p className="text-sm font-semibold" style={{ color: '#4ADE80' }}>Out of tokens</p>
+                <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>
+                  Each email draft costs 1 token. Buy a 30-token pack to keep drafting.
                 </p>
               </div>
               <BuyTokensButton />

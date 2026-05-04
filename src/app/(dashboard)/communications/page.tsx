@@ -64,15 +64,18 @@ export default async function CommunicationsPage({
     school: c.school,
   }))
 
-  // Fetch player's schools for the contact form dropdown
+  // Fetch player's schools for the contact form + draft-email modal.
+  // Includes city/state/tier/status so the embedded DraftEmailClient has
+  // the same data as the dedicated /ai/draft page.
   const { data: psRaw } = await service
     .from('player_schools')
-    .select('id, school:schools(id, name, verified_division)')
+    .select('id, tier, status, school:schools(id, name, verified_division, city, state)')
     .eq('player_id', player.id)
+    .neq('status', 'declined')
     .order('rank_order', { ascending: true })
 
-  type PSWithSchool = Pick<PSRow, 'id'> & {
-    school: Pick<SchoolRow, 'id' | 'name' | 'verified_division'>
+  type PSWithSchool = Pick<PSRow, 'id' | 'tier' | 'status'> & {
+    school: Pick<SchoolRow, 'id' | 'name' | 'verified_division' | 'city' | 'state'>
   }
 
   const schools: SchoolOption[] = ((psRaw ?? []) as unknown as PSWithSchool[]).map((ps) => ({
@@ -80,6 +83,10 @@ export default async function CommunicationsPage({
     school_id: ps.school.id,
     school_name: ps.school.name,
     verified_division: ps.school.verified_division,
+    city: ps.school.city,
+    state: ps.school.state,
+    tier: ps.tier,
+    status: ps.status,
   }))
 
   return (

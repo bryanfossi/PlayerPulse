@@ -26,6 +26,10 @@ export interface SchoolOption {
   school_id: string
   school_name: string
   verified_division: string | null
+  city: string | null
+  state: string | null
+  tier: string | null
+  status: import('@/types/app').PlayerSchoolStatus
 }
 
 const CONTACT_TYPE_LABELS: Record<ContactType, string> = {
