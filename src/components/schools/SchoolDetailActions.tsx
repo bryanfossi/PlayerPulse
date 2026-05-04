@@ -39,6 +39,7 @@ export function SchoolDetailActions({ psId, currentStatus, currentTier, currentN
   const [status, setStatus] = useState<PlayerSchoolStatus>(currentStatus)
   const [tier, setTier] = useState<Tier | 'none'>(currentTier ?? 'none')
   const [notes, setNotes] = useState(currentNotes ?? '')
+  const [momentum, setMomentum] = useState<Momentum | null>(currentMomentum)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
   const [pending, startTransition] = useTransition()
@@ -79,7 +80,7 @@ export function SchoolDetailActions({ psId, currentStatus, currentTier, currentN
         <div className="space-y-1.5">
           <Label>Momentum</Label>
           <div className="flex items-center gap-2">
-            <MomentumPicker playerSchoolId={psId} initial={currentMomentum} />
+            <MomentumPicker playerSchoolId={psId} value={momentum} onChange={setMomentum} />
             <span className="text-xs text-muted-foreground">
               How does this opportunity feel right now?
             </span>

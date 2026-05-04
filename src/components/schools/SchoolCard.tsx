@@ -14,7 +14,7 @@ import {
 import { ScoreBreakdown } from './ScoreBreakdown'
 import { MomentumPicker } from './MomentumPicker'
 import { cn } from '@/lib/utils'
-import type { PlayerSchool, School, PlayerSchoolStatus } from '@/types/app'
+import type { PlayerSchool, School, PlayerSchoolStatus, Momentum } from '@/types/app'
 
 export type BoardItem = PlayerSchool & { school: School }
 
@@ -50,11 +50,12 @@ interface Props {
   item: BoardItem
   dragHandleProps?: Record<string, unknown>
   onStatusChange: (id: string, status: PlayerSchoolStatus) => void
+  onMomentumChange: (id: string, momentum: Momentum | null) => void
   onRemove: (id: string) => void
   className?: string
 }
 
-export function SchoolCard({ item, dragHandleProps, onStatusChange, onRemove, className }: Props) {
+export function SchoolCard({ item, dragHandleProps, onStatusChange, onMomentumChange, onRemove, className }: Props) {
   const [pending, startTransition] = useTransition()
   const { school: s } = item
 
@@ -188,7 +189,12 @@ export function SchoolCard({ item, dragHandleProps, onStatusChange, onRemove, cl
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <MomentumPicker playerSchoolId={item.id} initial={item.momentum} compact />
+        <MomentumPicker
+          playerSchoolId={item.id}
+          value={item.momentum}
+          onChange={(m) => onMomentumChange(item.id, m)}
+          compact
+        />
       </div>
 
       {/* Footer row */}

@@ -11,7 +11,7 @@ import { RerunButton } from '@/components/RerunButton'
 import { useTokens } from '@/contexts/TokenContext'
 import { TOKEN_COSTS } from '@/lib/tokens/costs'
 import { cn } from '@/lib/utils'
-import type { PlayerSchoolStatus } from '@/types/app'
+import type { PlayerSchoolStatus, Momentum } from '@/types/app'
 import type { BoardItem } from './SchoolCard'
 
 interface Props {
@@ -27,6 +27,10 @@ export function SchoolsBoardClient({ initialItems, playerId }: Props) {
 
   const handleStatusChange = useCallback((id: string, status: PlayerSchoolStatus) => {
     setItems((prev) => prev.map((item) => (item.id === id ? { ...item, status } : item)))
+  }, [])
+
+  const handleMomentumChange = useCallback((id: string, momentum: Momentum | null) => {
+    setItems((prev) => prev.map((item) => (item.id === id ? { ...item, momentum } : item)))
   }, [])
 
   const handleRemove = useCallback((id: string) => {
@@ -139,6 +143,7 @@ export function SchoolsBoardClient({ initialItems, playerId }: Props) {
           playerId={playerId}
           onItemsChange={handleItemsChange}
           onStatusChange={handleStatusChange}
+          onMomentumChange={handleMomentumChange}
           onRemove={handleRemove}
         />
       )}
@@ -146,6 +151,7 @@ export function SchoolsBoardClient({ initialItems, playerId }: Props) {
         <SchoolListView
           items={items}
           onStatusChange={handleStatusChange}
+          onMomentumChange={handleMomentumChange}
           onRemove={handleRemove}
         />
       )}

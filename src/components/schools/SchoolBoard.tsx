@@ -18,12 +18,20 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { SchoolCard, type BoardItem } from './SchoolCard'
 import { cn } from '@/lib/utils'
-import type { PlayerSchoolStatus, Tier } from '@/types/app'
+import type { PlayerSchoolStatus, Tier, Momentum } from '@/types/app'
+
+// Sort key for momentum: hot at top (0), neutral/null in middle (1), cold at bottom (2).
+function momentumPriority(m: Momentum | null): number {
+  if (m === 'hot') return 0
+  if (m === 'cold') return 2
+  return 1 // neutral or null
+}
 
 interface TierColumnProps {
   tier: Tier
   items: BoardItem[]
   onStatusChange: (id: string, status: PlayerSchoolStatus) => void
+  onMomentumChange: (id: string, momentum: Momentum | null) => void
   onRemove: (id: string) => void
 }
 
@@ -48,10 +56,12 @@ const TIER_HEADER: Record<Tier, { label: string; description: string; headerClas
 function SortableCard({
   item,
   onStatusChange,
+  onMomentumChange,
   onRemove,
 }: {
   item: BoardItem
   onStatusChange: (id: string, status: PlayerSchoolStatus) => void
+  onMomentumChange: (id: string, momentum: Momentum | null) => void
   onRemove: (id: string) => void
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -69,13 +79,14 @@ function SortableCard({
         item={item}
         dragHandleProps={{ ...attributes, ...listeners }}
         onStatusChange={onStatusChange}
+        onMomentumChange={onMomentumChange}
         onRemove={onRemove}
       />
     </div>
   )
 }
 
-function TierColumn({ tier, items, onStatusChange, onRemove }: TierColumnProps) {
+function TierColumn({ tier, items, onStatusChange, onMomentumChange, onRemove }: TierColumnProps) {
   const config = TIER_HEADER[tier]
   const ids = items.map((i) => i.id)
 
@@ -100,6 +111,7 @@ function TierColumn({ tier, items, onStatusChange, onRemove }: TierColumnProps) 
               key={item.id}
               item={item}
               onStatusChange={onStatusChange}
+              onMomentumChange={onMomentumChange}
               onRemove={onRemove}
             />
           ))}
@@ -117,10 +129,11 @@ interface SchoolBoardProps {
   playerId: string
   onItemsChange: (items: BoardItem[]) => void
   onStatusChange: (id: string, status: PlayerSchoolStatus) => void
+  onMomentumChange: (id: string, momentum: Momentum | null) => void
   onRemove: (id: string) => void
 }
 
-export function SchoolBoard({ items, playerId, onItemsChange, onStatusChange, onRemove }: SchoolBoardProps) {
+export function SchoolBoard({ items, playerId, onItemsChange, onStatusChange, onMomentumChange, onRemove }: SchoolBoardProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
   )
@@ -128,7 +141,15 @@ export function SchoolBoard({ items, playerId, onItemsChange, onStatusChange, on
   const tiers: Tier[] = ['Lock', 'Realistic', 'Reach']
   const grouped = tiers.reduce<Record<Tier, BoardItem[]>>(
     (acc, t) => {
-      acc[t] = items.filter((i) => i.tier === t).sort((a, b) => a.rank_order - b.rank_order)
+      // Sort by momentum priority first (hot → neutral/null → cold), then rank_order
+      acc[t] = items
+        .filter((i) => i.tier === t)
+        .sort((a, b) => {
+          const pa = momentumPriority(a.momentum)
+          const pb = momentumPriority(b.momentum)
+          if (pa !== pb) return pa - pb
+          return a.rank_order - b.rank_order
+        })
       return acc
     },
     { Lock: [], Realistic: [], Reach: [] }
@@ -186,6 +207,7 @@ export function SchoolBoard({ items, playerId, onItemsChange, onStatusChange, on
             tier={tier}
             items={grouped[tier]}
             onStatusChange={onStatusChange}
+            onMomentumChange={onMomentumChange}
             onRemove={onRemove}
           />
         ))}

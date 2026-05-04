@@ -12,8 +12,14 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
 import { MomentumPicker } from './MomentumPicker'
-import type { PlayerSchoolStatus } from '@/types/app'
+import type { PlayerSchoolStatus, Momentum } from '@/types/app'
 import type { BoardItem } from './SchoolCard'
+
+function momentumPriority(m: Momentum | null): number {
+  if (m === 'hot') return 0
+  if (m === 'cold') return 2
+  return 1
+}
 
 type SortKey = 'rank_order' | 'overall_score' | 'school.name' | 'status' | 'tier' | 'distance_miles'
 type SortDir = 'asc' | 'desc'
@@ -68,15 +74,22 @@ function sortItems(items: BoardItem[], key: SortKey, dir: SortDir): BoardItem[] 
 interface Props {
   items: BoardItem[]
   onStatusChange: (id: string, status: PlayerSchoolStatus) => void
+  onMomentumChange: (id: string, momentum: Momentum | null) => void
   onRemove: (id: string) => void
 }
 
-export function SchoolListView({ items, onStatusChange, onRemove }: Props) {
+export function SchoolListView({ items, onStatusChange, onMomentumChange, onRemove }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>('rank_order')
   const [sortDir, setSortDir] = useState<SortDir>('asc')
   const [, startTransition] = useTransition()
 
-  const sorted = sortItems(items, sortKey, sortDir)
+  // Always pre-sort by momentum priority (hot → neutral/null → cold), then apply
+  // the user's selected column sort within each momentum group.
+  const sorted = [...sortItems(items, sortKey, sortDir)].sort((a, b) => {
+    const pa = momentumPriority(a.momentum)
+    const pb = momentumPriority(b.momentum)
+    return pa - pb
+  })
 
   function handleSort(key: SortKey) {
     if (key === sortKey) {
@@ -197,7 +210,12 @@ export function SchoolListView({ items, onStatusChange, onRemove }: Props) {
                 </DropdownMenu>
               </td>
               <td className="px-3 py-2.5">
-                <MomentumPicker playerSchoolId={item.id} initial={item.momentum} compact />
+                <MomentumPicker
+                  playerSchoolId={item.id}
+                  value={item.momentum}
+                  onChange={(m) => onMomentumChange(item.id, m)}
+                  compact
+                />
               </td>
               <td className="px-3 py-2.5">
                 {item.overall_score != null && (
