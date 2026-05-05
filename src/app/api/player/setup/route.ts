@@ -73,6 +73,16 @@ export async function POST(request: Request) {
       return validationError('Both height feet and inches are required')
     }
 
+    // Weight — required for football, optional for other sports
+    const sportId = body.sport_id || 'soccer'
+    const weightLbs = body.weight_lbs ? parseInt(body.weight_lbs) : null
+    if (weightLbs !== null && (isNaN(weightLbs) || weightLbs < 50 || weightLbs > 450)) {
+      return validationError('Weight must be between 50 and 450 lbs')
+    }
+    if (sportId === 'football' && weightLbs === null) {
+      return validationError('Weight is required for football')
+    }
+
     const forcedSchools = body.forced_schools
       ? body.forced_schools.split(',').map((s) => s.trim()).filter(Boolean)
       : []
@@ -85,7 +95,7 @@ export async function POST(request: Request) {
       .upsert(
         {
           user_id: user.id,
-          sport_id: body.sport_id || 'soccer',
+          sport_id: sportId,
           first_name: body.first_name.trim(),
           last_name: body.last_name.trim(),
           gender: body.gender as 'Male' | 'Female',
@@ -102,6 +112,7 @@ export async function POST(request: Request) {
           highest_club_level: body.highest_club_level,
           highlight_url: body.highlight_url || null,
           height_inches: totalHeightInches,
+          weight_lbs: weightLbs,
           target_levels: body.target_levels,
           recruiting_radius_mi: radius,
           tuition_importance: body.tuition_importance,

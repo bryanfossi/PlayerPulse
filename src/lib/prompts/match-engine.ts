@@ -32,6 +32,7 @@ export function buildMatchEnginePrompt(player: Player, sport: SportConfig): stri
   const heightStr = player.height_inches
     ? `${Math.floor(player.height_inches / 12)}'${player.height_inches % 12}" (${player.height_inches} inches)`
     : 'Not provided'
+  const weightStr = player.weight_lbs ? `${player.weight_lbs} lbs` : 'Not provided'
 
   return `## College ${sport.name} Recruiting Match Engine — TSV Output
 
@@ -67,6 +68,7 @@ Graduation Year:              ${player.grad_year}
 Primary Position:             ${player.primary_position}
 Secondary Position:           ${player.secondary_position ?? 'None'}
 Height:                       ${heightStr}
+Weight:                       ${weightStr}
 Highest Level of Play:        ${player.highest_club_level}
 Club Team:                    ${player.club_team}
 Unweighted GPA:               ${player.unweighted_gpa ?? 'Not provided'}

@@ -51,6 +51,7 @@ export interface WizardData {
   highlight_url: string
   height_feet: string
   height_inches: string
+  weight_lbs: string
   // Step 4 – Preferences
   target_levels: string[]
   recruiting_radius_mi: string
@@ -81,6 +82,7 @@ export const DEFAULT_WIZARD_DATA: WizardData = {
   highlight_url: '',
   height_feet: '',
   height_inches: '',
+  weight_lbs: '',
   target_levels: ['D1', 'D2', 'D3'],
   recruiting_radius_mi: '',
   tuition_importance: 'Not a factor',

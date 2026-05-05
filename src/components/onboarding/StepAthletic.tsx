@@ -10,36 +10,55 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
-const schema = z.object({
-  primary_position: z.string().min(1, 'Required'),
-  secondary_position: z.string().optional(),
-  club_team: z.string().min(1, 'Required'),
-  highest_club_level: z.string().min(1, 'Required'),
-  highlight_url: z.string().optional(),
-  height_feet: z
-    .string()
-    .min(1, 'Required')
-    .refine((v) => {
-      const n = parseInt(v, 10)
-      return !isNaN(n) && n >= 3 && n <= 8
-    }, 'Enter 3–8'),
-  height_inches: z
-    .string()
-    .min(1, 'Required')
-    .refine((v) => {
-      const n = parseInt(v, 10)
-      return !isNaN(n) && n >= 0 && n <= 11
-    }, 'Enter 0–11'),
-})
-type FormData = z.infer<typeof schema>
+// Weight is required only for football. Schema is built per-render so it can
+// react to the current sport_id without a separate validation pass.
+function buildSchema(sportId: string) {
+  const weightRequiredForSport = sportId === 'football'
+
+  return z.object({
+    primary_position: z.string().min(1, 'Required'),
+    secondary_position: z.string().optional(),
+    club_team: z.string().min(1, 'Required'),
+    highest_club_level: z.string().min(1, 'Required'),
+    highlight_url: z.string().optional(),
+    height_feet: z
+      .string()
+      .min(1, 'Required')
+      .refine((v) => {
+        const n = parseInt(v, 10)
+        return !isNaN(n) && n >= 3 && n <= 8
+      }, 'Enter 3–8'),
+    height_inches: z
+      .string()
+      .min(1, 'Required')
+      .refine((v) => {
+        const n = parseInt(v, 10)
+        return !isNaN(n) && n >= 0 && n <= 11
+      }, 'Enter 0–11'),
+    weight_lbs: z
+      .string()
+      .optional()
+      .refine(
+        (v) => {
+          if (!v?.trim()) return !weightRequiredForSport
+          const n = parseInt(v, 10)
+          return !isNaN(n) && n >= 50 && n <= 450
+        },
+        weightRequiredForSport ? 'Required for football (50–450)' : 'Enter 50–450',
+      ),
+  })
+}
+type FormData = z.infer<ReturnType<typeof buildSchema>>
 
 export function StepAthletic() {
   const router = useRouter()
   const { data, update } = useWizard()
   const sport = getSportOrDefault(data.sport_id)
 
+  const weightRequired = sport.id === 'football'
+
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(buildSchema(sport.id)),
     defaultValues: {
       primary_position: data.primary_position,
       secondary_position: data.secondary_position,
@@ -48,6 +67,7 @@ export function StepAthletic() {
       highlight_url: data.highlight_url,
       height_feet: data.height_feet,
       height_inches: data.height_inches,
+      weight_lbs: data.weight_lbs,
     },
   })
 
@@ -60,6 +80,7 @@ export function StepAthletic() {
       highlight_url: values.highlight_url ?? '',
       height_feet: values.height_feet,
       height_inches: values.height_inches,
+      weight_lbs: values.weight_lbs ?? '',
     })
     router.push('/onboarding/preferences')
   }
@@ -138,6 +159,39 @@ export function StepAthletic() {
             )}
           </div>
         </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="weight_lbs">
+          Weight{' '}
+          {weightRequired ? (
+            <span className="text-destructive">*</span>
+          ) : (
+            <span className="text-muted-foreground text-xs">(optional)</span>
+          )}
+        </Label>
+        <div className="relative max-w-[160px]">
+          <Input
+            id="weight_lbs"
+            type="number"
+            min={50}
+            max={450}
+            placeholder={weightRequired ? '215' : '—'}
+            {...register('weight_lbs')}
+            className="pr-10"
+          />
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">
+            lbs
+          </span>
+        </div>
+        {errors.weight_lbs && (
+          <p className="text-destructive text-xs">{errors.weight_lbs.message}</p>
+        )}
+        {weightRequired && !errors.weight_lbs && (
+          <p className="text-xs" style={{ color: '#9CA3AF' }}>
+            Football coaches evaluate by weight at every position. Be accurate.
+          </p>
+        )}
       </div>
 
       <div className="space-y-1.5">
