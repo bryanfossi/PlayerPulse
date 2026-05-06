@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     title: 'FuseID — Your College Recruiting Command Center',
     description:
       'AI-powered school matching, coach communication tracking, and real-time recruiting intelligence for serious college recruits.',
-    url: 'https://fuseid.app',
+    url: 'https://fuse-id.online',
     siteName: 'FuseID',
     type: 'website',
   },
