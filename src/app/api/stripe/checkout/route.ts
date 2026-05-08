@@ -29,6 +29,7 @@ export async function POST(request: Request) {
         line_items: [{ price: priceId, quantity: 1 }],
         success_url: `${appUrl}${resolvedSuccess}?billing=success`,
         cancel_url: `${appUrl}${resolvedCancel}?billing=canceled`,
+        allow_promotion_codes: true,
         metadata: { user_id: user.id, type: 'subscription' },
       })
       return NextResponse.json({ url: session.url })
@@ -43,6 +44,7 @@ export async function POST(request: Request) {
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${appUrl}/dashboard?billing=success`,
       cancel_url: `${appUrl}/dashboard?billing=canceled`,
+      allow_promotion_codes: true,
       metadata: { user_id: user.id, type: 'tokens' },
     })
     return NextResponse.json({ url: session.url })
