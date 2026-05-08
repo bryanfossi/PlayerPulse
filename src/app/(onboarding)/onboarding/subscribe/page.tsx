@@ -1,18 +1,37 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { CheckCircle2, Loader2, Trophy, Brain, BarChart3, Mail, Star } from 'lucide-react'
+import { CheckCircle2, Loader2, Trophy, Brain, BarChart3, Mail, Sparkles, MessageSquareQuote } from 'lucide-react'
 
 const FEATURES = [
-  { icon: Trophy, text: 'Personalized Top 40 school list via AI Match Engine' },
-  { icon: Brain, text: 'Smart email drafting for coach outreach' },
-  { icon: BarChart3, text: 'Full recruiting dashboard & pipeline tracking' },
-  { icon: Mail, text: 'Contact log & follow-up reminders' },
-  { icon: Star, text: '3 Match Engine reruns included + add more anytime' },
+  { icon: Trophy, text: 'AI-powered Top 40 school matching tailored to your profile' },
+  { icon: BarChart3, text: 'Full recruiting dashboard, kanban board, offer tracker' },
+  { icon: Sparkles, text: '30 monthly AI tokens included (refresh each billing cycle)' },
+  { icon: Brain, text: 'AI email drafting (1 token / draft)' },
+  { icon: MessageSquareQuote, text: 'Coach email analyzer + single-school fit assessments' },
+  { icon: Mail, text: 'Communications log, follow-up reminders, parent read-only link' },
 ]
 
 export default function SubscribePage() {
+  // useSearchParams() requires a Suspense boundary in Next.js 15. Without it,
+  // the page can hang during initial hydration on production builds.
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <SubscribeContent />
+    </Suspense>
+  )
+}
+
+function LoadingFallback() {
+  return (
+    <div className="flex justify-center py-16">
+      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+    </div>
+  )
+}
+
+function SubscribeContent() {
   const searchParams = useSearchParams()
   const billingStatus = searchParams.get('billing')
 
@@ -46,13 +65,10 @@ export default function SubscribePage() {
     return <ActivatingState />
   }
 
-  if (billingStatus === 'canceled') {
-    // Fall through to pricing page, but show a notice
-  }
-
   return (
     <div className="space-y-8">
       <div className="text-center space-y-2">
+        <p className="fuse-label">Early Adopter Pricing</p>
         <h1 className="text-2xl font-bold tracking-tight">Start Your Recruiting Journey</h1>
         <p className="text-muted-foreground text-sm">
           One plan. Everything you need to find the right college program.
@@ -69,17 +85,18 @@ export default function SubscribePage() {
       <div className="rounded-xl border border-[#4ADE80]/40 bg-card overflow-hidden">
         <div className="bg-[#4ADE80]/10 border-b border-[#4ADE80]/20 px-6 py-5 text-center">
           <p className="fuse-label mb-1">FuseID Pro</p>
-          <div className="flex items-end justify-center gap-1">
-            <span className="text-4xl font-black">$29</span>
+          <div className="flex items-end justify-center gap-2">
+            <span className="text-4xl font-black">$14.99</span>
             <span className="text-muted-foreground text-sm mb-1">/month</span>
+            <span className="text-muted-foreground/60 line-through text-sm mb-1">$29</span>
           </div>
-          <p className="text-xs text-muted-foreground mt-1">Cancel anytime</p>
+          <p className="text-xs text-muted-foreground mt-1">Locked in until you cancel · cancel anytime</p>
         </div>
 
         <div className="px-6 py-5 space-y-3">
           {FEATURES.map(({ icon: Icon, text }) => (
             <div key={text} className="flex items-start gap-3">
-              <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
+              <CheckCircle2 className="w-4 h-4 text-[#4ADE80] flex-shrink-0 mt-0.5" />
               <span className="text-sm text-muted-foreground">{text}</span>
             </div>
           ))}
@@ -92,7 +109,7 @@ export default function SubscribePage() {
           <button
             onClick={handleSubscribe}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#4ADE80] text-black font-bold text-sm hover:bg-[#4ADE80]/90 disabled:opacity-60 transition-colors"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-md bg-[#4ADE80] text-[#0F1120] font-bold text-sm hover:bg-[#22C55E] disabled:opacity-60 transition-colors"
           >
             {loading ? (
               <>
@@ -100,14 +117,14 @@ export default function SubscribePage() {
                 Redirecting to checkout…
               </>
             ) : (
-              'Get Started — $29/mo'
+              'Get Started — $14.99/mo'
             )}
           </button>
         </div>
       </div>
 
       <p className="text-center text-xs text-muted-foreground">
-        Secure payment via Stripe. No hidden fees.
+        Secure payment via Stripe. No hidden fees. Price increases to $29/mo for new signups after launch — subscribe now to keep $14.99 for life.
       </p>
     </div>
   )
@@ -129,8 +146,8 @@ function ActivatingState() {
   return (
     <div className="text-center py-12 space-y-6">
       <div className="flex justify-center">
-        <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/30 flex items-center justify-center">
-          <CheckCircle2 className="w-8 h-8 text-green-400" />
+        <div className="w-16 h-16 rounded-full bg-[#4ADE80]/10 border border-[#4ADE80]/30 flex items-center justify-center">
+          <CheckCircle2 className="w-8 h-8 text-[#4ADE80]" />
         </div>
       </div>
       <div className="space-y-2">

@@ -1,7 +1,9 @@
 import { redirect } from 'next/navigation'
 import { headers, cookies } from 'next/headers'
+import Link from 'next/link'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { FeedbackButton } from '@/components/FeedbackButton'
+import { brand } from '@/lib/brand'
 
 export default async function OnboardingLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -30,11 +32,14 @@ export default async function OnboardingLayout({ children }: { children: React.R
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-2xl mx-auto px-4 py-8">
-        <div className="flex items-center gap-2 mb-10">
-          <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-xs">PP</span>
-          </div>
-          <span className="font-bold text-lg">FuseID</span>
+        <div className="flex items-center mb-10">
+          <Link href="/">
+            <img
+              src={brand.logo.full}
+              alt={brand.appName}
+              style={{ height: '36px', width: 'auto' }}
+            />
+          </Link>
         </div>
         {children}
       </div>
