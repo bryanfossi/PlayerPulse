@@ -563,6 +563,32 @@ export type Database = {
         }
         Relationships: []
       }
+      feedback: {
+        Row: {
+          id: string
+          user_id: string | null
+          email: string | null
+          page_url: string | null
+          user_agent: string | null
+          message: string
+          status: 'new' | 'read' | 'responded' | 'archived'
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          email?: string | null
+          page_url?: string | null
+          user_agent?: string | null
+          message: string
+          status?: 'new' | 'read' | 'responded' | 'archived'
+          created_at?: string
+        }
+        Update: {
+          status?: 'new' | 'read' | 'responded' | 'archived'
+        }
+        Relationships: []
+      }
       actions: {
         Row: {
           id: string

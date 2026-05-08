@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { MobileNav } from '@/components/layout/MobileNav'
+import { FeedbackButton } from '@/components/FeedbackButton'
 import { TokenProvider } from '@/contexts/TokenContext'
 import type { Database } from '@/types/database'
 
@@ -45,6 +46,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
         {/* Mobile bottom nav */}
         <MobileNav />
+
+        {/* Floating feedback button — visible on every dashboard page */}
+        <FeedbackButton />
       </div>
     </TokenProvider>
   )

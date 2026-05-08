@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { headers, cookies } from 'next/headers'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { FeedbackButton } from '@/components/FeedbackButton'
 
 export default async function OnboardingLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -37,6 +38,7 @@ export default async function OnboardingLayout({ children }: { children: React.R
         </div>
         {children}
       </div>
+      <FeedbackButton />
     </div>
   )
 }
