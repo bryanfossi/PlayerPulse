@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { Suspense, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -19,7 +19,15 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>
 
 export default function LoginPage() {
-  const router = useRouter()
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  )
+}
+
+function LoginForm() {
+  const searchParams = useSearchParams()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -43,8 +51,18 @@ export default function LoginPage() {
       return
     }
 
-    router.push('/dashboard')
-    router.refresh()
+    // Respect ?redirectTo= if the middleware sent the user here from a
+    // gated page. Allowlist same-origin paths only to prevent open redirect.
+    const redirectToParam = searchParams.get('redirectTo')
+    const redirectTo =
+      redirectToParam && redirectToParam.startsWith('/') && !redirectToParam.startsWith('//')
+        ? redirectToParam
+        : '/dashboard'
+
+    // Use a full browser navigation rather than router.push() — this guarantees
+    // the auth cookie set by signInWithPassword is included in the next request.
+    // router.push() races the cookie write and causes a blank first paint.
+    window.location.href = redirectTo
   }
 
   return (

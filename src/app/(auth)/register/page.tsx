@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -24,9 +23,9 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>
 
 export default function RegisterPage() {
-  const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [submittedEmail, setSubmittedEmail] = useState<string | null>(null)
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -40,11 +39,14 @@ export default function RegisterPage() {
     setError(null)
 
     const supabase = createClient()
-    const { error } = await supabase.auth.signUp({
+    const { data: signUpData, error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
       options: {
         data: { role: data.role },
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
+          data.role === 'player' ? '/onboarding' : '/dashboard',
+        )}`,
       },
     })
 
@@ -54,12 +56,47 @@ export default function RegisterPage() {
       return
     }
 
-    if (data.role === 'player') {
-      router.push('/onboarding')
-    } else {
-      router.push('/dashboard')
+    // If Supabase has email confirmation enabled, signUpData.session is null
+    // and the user needs to click the link in their inbox before being signed
+    // in. Show a "check your inbox" screen instead of redirecting them to a
+    // gated page that bounces back to /login.
+    if (!signUpData.session) {
+      setSubmittedEmail(data.email)
+      setLoading(false)
+      return
     }
-    router.refresh()
+
+    // No email confirmation — user is logged in already. Use a full navigation
+    // so the auth cookie is included on the next request (router.push() races
+    // the cookie write and causes a blank first paint).
+    window.location.href = data.role === 'player' ? '/onboarding' : '/dashboard'
+  }
+
+  if (submittedEmail) {
+    return (
+      <Card className="bg-[#1A1F38] border-white/10 text-white">
+        <CardHeader>
+          <CardTitle className="text-xl">Check your inbox</CardTitle>
+          <CardDescription className="text-green-200">
+            We sent a confirmation link to <strong>{submittedEmail}</strong>.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm text-green-100">
+          <p>Click the link in that email to verify your address and start onboarding.</p>
+          <p className="text-green-200 text-xs">
+            Didn&apos;t get it? Check spam, or try again with a different email.
+          </p>
+        </CardContent>
+        <CardFooter>
+          <Link
+            href="/login"
+            className="text-green-300 hover:text-white underline text-sm"
+          >
+            Already confirmed? Sign in
+          </Link>
+        </CardFooter>
+      </Card>
+    )
   }
 
   return (
