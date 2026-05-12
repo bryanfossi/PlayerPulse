@@ -6,6 +6,7 @@ const PUBLIC_PATHS = [
   '/register',
   '/forgot-password',
   '/reset-password',
+  '/auth/callback',
   '/api/invites/accept',
   '/api/stripe/webhook',
   '/api/contacts/inbound',
