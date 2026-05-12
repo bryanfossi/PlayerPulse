@@ -89,6 +89,20 @@ export async function POST(request: Request) {
 
     const service = createServiceClient()
 
+    // Check if the user already paid (subscription was activated on profiles
+    // before the player record existed — that's the normal flow, since the
+    // paywall comes before the wizard). If so, we need to grant the monthly
+    // allowance NOW since the activate_subscription webhook would have
+    // silently no-op'd on the (then-missing) player row.
+    const { data: profileRow } = await service
+      .from('profiles')
+      .select('subscription_active, subscription_id, subscription_status')
+      .eq('id', user.id)
+      .maybeSingle()
+    const hasActiveSub = (profileRow as { subscription_active?: boolean } | null)?.subscription_active === true
+    const profileSubId = (profileRow as { subscription_id?: string | null } | null)?.subscription_id ?? null
+    const profileSubStatus = (profileRow as { subscription_status?: string | null } | null)?.subscription_status ?? null
+
     // Upsert the player record — match on user_id
     const { data: player, error } = await service
       .from('players')
@@ -129,6 +143,38 @@ export async function POST(request: Request) {
     if (error) {
       console.error('[player/setup] upsert error:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    // If the user has an active subscription on profiles but the player record
+    // is new (or has 0 allowance tokens), sync subscription state + grant the
+    // 30 monthly allowance tokens. This closes the timing gap between
+    // Stripe webhook firing (before player exists) and the wizard finishing.
+    if (hasActiveSub) {
+      const { data: postUpsertPlayer } = await service
+        .from('players')
+        .select('allowance_tokens, subscription_active')
+        .eq('id', player.id)
+        .maybeSingle()
+      const currentAllowance = (postUpsertPlayer as { allowance_tokens?: number } | null)?.allowance_tokens ?? 0
+      const currentSubActive = (postUpsertPlayer as { subscription_active?: boolean } | null)?.subscription_active === true
+
+      // Only grant if not already granted. Prevents re-granting on re-runs of setup.
+      if (!currentSubActive || currentAllowance === 0) {
+        const { error: syncErr } = await service
+          .from('players')
+          .update({
+            subscription_active: true,
+            subscription_id: profileSubId,
+            subscription_status: profileSubStatus ?? 'active',
+            allowance_tokens: 30,
+            rerun_tokens_reset_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', player.id)
+        if (syncErr) {
+          console.error('[player/setup] subscription sync failed (non-fatal):', syncErr)
+        }
+      }
     }
 
     return NextResponse.json({ player_id: player.id })
