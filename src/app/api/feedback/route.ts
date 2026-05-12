@@ -87,6 +87,33 @@ export async function POST(request: Request) {
       console.warn('[feedback] RESEND_API_KEY not set — feedback saved to DB but no email sent')
     }
 
+    // 3) Optionally forward to a Google Sheet via Apps Script Web App.
+    //    Same pattern as the email — fire-and-forget, non-fatal on failure.
+    const sheetUrl = process.env.FEEDBACK_SHEET_WEBHOOK_URL
+    const sheetSecret = process.env.FEEDBACK_SHEET_SECRET
+    if (sheetUrl && sheetSecret) {
+      try {
+        const sheetRes = await fetch(sheetUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            secret: sheetSecret,
+            email: user.email ?? null,
+            page_url: body.page_url ?? null,
+            user_agent: userAgent,
+            message,
+          }),
+          // Apps Script can be slow on first request; give it 10s.
+          signal: AbortSignal.timeout(10_000),
+        })
+        if (!sheetRes.ok) {
+          console.error('[feedback] sheet webhook returned', sheetRes.status)
+        }
+      } catch (err) {
+        console.error('[feedback] sheet webhook threw:', err)
+      }
+    }
+
     return NextResponse.json({ success: true, id: row?.id })
   } catch (err) {
     console.error('[feedback] unexpected error:', err)
