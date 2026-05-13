@@ -72,12 +72,15 @@ export async function POST(request: Request) {
       }
     }
 
-    // Build prompt and call Claude Opus
+    // Build prompt and call Claude. Sonnet 4.6 is used here rather than
+    // Opus 4.7 because generating 40 TSV rows on Opus pushes past Vercel's
+    // 60s function cap. Sonnet handles structured ranking output well
+    // and finishes comfortably under the timeout.
     const sport = getSportOrDefault(player.sport_id)
     const prompt = buildMatchEnginePrompt(player, sport)
 
     const message = await anthropic.messages.create({
-      model: 'claude-opus-4-7',
+      model: 'claude-sonnet-4-6',
       max_tokens: 8192,
       system: `You are an expert U.S. college ${sport.name} recruiting coordinator. Output TSV only. No prose. No markdown. No commentary.`,
       messages: [{ role: 'user', content: prompt }],
