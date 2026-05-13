@@ -8,6 +8,7 @@ import {
 import { createClient } from '@/lib/supabase/server'
 import { activeSports } from '@/lib/sports'
 import { MarketingNav } from '@/components/marketing/MarketingNav'
+import { SUBSCRIPTION_TIERS, TOKEN_PACKS } from '@/lib/tokens/costs'
 
 export const metadata: Metadata = {
   title: 'FuseID — Your College Recruiting Command Center',
@@ -70,7 +71,7 @@ export default async function HomePage() {
             className="inline-flex items-center gap-2 px-7 py-3 rounded-md font-bold text-base transition-colors"
             style={{ backgroundColor: '#4ADE80', color: '#0F1120' }}
           >
-            Lock in $14.99/mo
+            Get started — free
             <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
@@ -83,7 +84,7 @@ export default async function HomePage() {
         </div>
 
         <p className="mt-4 text-xs" style={{ color: '#9CA3AF' }}>
-          Early adopter pricing &nbsp;·&nbsp; locked in until you cancel
+          No credit card required &nbsp;·&nbsp; upgrade only when you&apos;re ready
         </p>
 
         {/* Mock kanban dashboard */}
@@ -204,64 +205,153 @@ export default async function HomePage() {
 
       {/* ── Pricing ─────────────────────────────────────────────── */}
       <section id="pricing" className="px-6 md:px-12 py-28 scroll-mt-16">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <p className="fuse-label mb-3">Early adopter pricing</p>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight">One plan. Everything you need.</h2>
+            <p className="fuse-label mb-3">Pricing</p>
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight">Start free. Upgrade when you&apos;re ready.</h2>
             <p className="mt-4 max-w-xl mx-auto" style={{ color: '#9CA3AF' }}>
-              Sign up now and lock in early adopter pricing — your $14.99/mo rate stays the same as long as you&apos;re subscribed.
+              Every plan includes the full recruiting toolkit. Subscriptions add monthly AI tokens that auto-refresh — token packs let you top up anytime.
             </p>
           </div>
 
-          <div className="relative rounded-xl border p-8 space-y-6 max-w-md mx-auto" style={{ borderColor: '#4ADE80', backgroundColor: '#1A1F38' }}>
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-md border text-[11px] font-bold uppercase tracking-[0.08em]" style={{ borderColor: '#4ADE80', backgroundColor: '#0F1120', color: '#4ADE80' }}>
-              Early Adopter Special
-            </div>
-
-            <div>
-              <p className="fuse-label mb-2">FuseID Pro</p>
-              <div className="flex items-end gap-2">
-                <span className="text-5xl font-black">$14.99</span>
-                <span className="mb-1.5" style={{ color: '#9CA3AF' }}>/month</span>
-                <span className="line-through ml-2 mb-1.5" style={{ color: 'rgba(255,255,255,0.3)' }}>$29</span>
+          {/* 3-column plan grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
+            {/* Free */}
+            <div className="rounded-xl border p-6 flex flex-col gap-5" style={{ borderColor: 'rgba(255,255,255,0.1)', backgroundColor: '#1A1F38' }}>
+              <div>
+                <p className="fuse-label mb-2">Free</p>
+                <div className="flex items-end gap-2">
+                  <span className="text-4xl font-black">$0</span>
+                  <span className="mb-1 text-sm" style={{ color: '#9CA3AF' }}>/forever</span>
+                </div>
+                <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>Get your bearings, then upgrade when you need AI tokens.</p>
               </div>
-              <p className="text-sm mt-1" style={{ color: '#9CA3AF' }}>Locked in until you cancel · cancel anytime</p>
+
+              <ul className="space-y-2.5 flex-1">
+                {[
+                  'AI-powered Top 40 school matching (1 free run)',
+                  'Full recruiting dashboard + kanban board',
+                  'Offer tracker',
+                  'Coach communication log',
+                  'Free AI profile tips',
+                  'Buy token packs as you need them',
+                ].map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-sm">
+                    <Check className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#4ADE80' }} />
+                    <span style={{ color: '#9CA3AF' }}>{f}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href="/register"
+                className="block text-center px-5 py-2.5 rounded-md font-bold text-sm transition-colors border"
+                style={{ borderColor: 'rgba(255,255,255,0.15)', color: '#FFFFFF' }}
+              >
+                Start free
+              </Link>
             </div>
 
-            <ul className="space-y-3">
-              {[
-                'AI-powered Top 40 school matching',
-                'Unlimited schools on your board',
-                '30 monthly tokens included',
-                'AI email drafting (1 token each)',
-                'Single-school fit assessments (3 tokens)',
-                'Coach reply analysis',
-                'Offer tracker & comparisons',
-                'Parent read-only link',
-              ].map((f) => (
-                <li key={f} className="flex items-start gap-2.5 text-sm">
-                  <Check className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#4ADE80' }} />
-                  {f}
-                </li>
-              ))}
-            </ul>
+            {/* Starter */}
+            <div className="rounded-xl border p-6 flex flex-col gap-5" style={{ borderColor: 'rgba(255,255,255,0.1)', backgroundColor: '#1A1F38' }}>
+              <div>
+                <p className="fuse-label mb-2">{SUBSCRIPTION_TIERS.starter.label}</p>
+                <div className="flex items-end gap-2">
+                  <span className="text-4xl font-black">${(SUBSCRIPTION_TIERS.starter.priceCents / 100).toFixed(2)}</span>
+                  <span className="mb-1 text-sm" style={{ color: '#9CA3AF' }}>/month</span>
+                </div>
+                <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>For athletes actively reaching out to coaches.</p>
+              </div>
 
-            <p className="text-xs leading-relaxed" style={{ color: '#9CA3AF' }}>
-              Tokens refresh monthly with your subscription. Need more? Buy a 30-token pack for $4.99 — pack tokens never expire.
-            </p>
+              <ul className="space-y-2.5 flex-1">
+                {[
+                  `${SUBSCRIPTION_TIERS.starter.monthlyTokens} AI tokens / month (auto-refresh)`,
+                  'Everything in Free, plus:',
+                  'AI email drafting (1 token / draft)',
+                  'Unlimited match list reruns (10 tokens each)',
+                  'Tokens roll into a fresh batch monthly',
+                ].map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-sm">
+                    <Check className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#4ADE80' }} />
+                    <span style={{ color: '#9CA3AF' }}>{f}</span>
+                  </li>
+                ))}
+              </ul>
 
-            <Link
-              href="/register"
-              className="block text-center px-6 py-3 rounded-md font-bold transition-colors"
-              style={{ backgroundColor: '#4ADE80', color: '#0F1120' }}
-            >
-              Get started — $14.99/mo
-            </Link>
+              <Link
+                href="/register"
+                className="block text-center px-5 py-2.5 rounded-md font-bold text-sm transition-colors border"
+                style={{ borderColor: 'rgba(255,255,255,0.15)', color: '#FFFFFF' }}
+              >
+                Choose Starter
+              </Link>
+            </div>
 
-            <p className="text-xs text-center" style={{ color: '#9CA3AF' }}>
-              Price increases to $29/mo for new signups after launch. Subscribe now to keep $14.99 forever.
-            </p>
+            {/* Pro — highlighted */}
+            <div className="relative rounded-xl border p-6 flex flex-col gap-5" style={{ borderColor: '#4ADE80', backgroundColor: '#1A1F38' }}>
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-md border text-[11px] font-bold uppercase tracking-[0.08em]" style={{ borderColor: '#4ADE80', backgroundColor: '#0F1120', color: '#4ADE80' }}>
+                Most popular
+              </div>
+
+              <div>
+                <p className="fuse-label mb-2">{SUBSCRIPTION_TIERS.pro.label}</p>
+                <div className="flex items-end gap-2">
+                  <span className="text-4xl font-black">${(SUBSCRIPTION_TIERS.pro.priceCents / 100).toFixed(2)}</span>
+                  <span className="mb-1 text-sm" style={{ color: '#9CA3AF' }}>/month</span>
+                </div>
+                <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>For athletes serious about their recruiting cycle.</p>
+              </div>
+
+              <ul className="space-y-2.5 flex-1">
+                {[
+                  `${SUBSCRIPTION_TIERS.pro.monthlyTokens} AI tokens / month (auto-refresh)`,
+                  'Everything in Starter, plus:',
+                  'Coach email analyzer + sentiment scoring',
+                  'Single-school fit assessments (3 tokens)',
+                  'Parent read-only access link',
+                ].map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-sm">
+                    <Check className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#4ADE80' }} />
+                    <span style={{ color: '#9CA3AF' }}>{f}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href="/register"
+                className="block text-center px-5 py-2.5 rounded-md font-bold text-sm transition-colors"
+                style={{ backgroundColor: '#4ADE80', color: '#0F1120' }}
+              >
+                Choose Pro
+              </Link>
+            </div>
           </div>
+
+          {/* Token packs note */}
+          <div className="mt-10 max-w-3xl mx-auto rounded-lg border p-5 text-center" style={{ borderColor: 'rgba(255,255,255,0.1)', backgroundColor: '#1A1F38' }}>
+            <p className="text-sm font-semibold mb-2">Need more tokens? Top up anytime.</p>
+            <p className="text-xs leading-relaxed" style={{ color: '#9CA3AF' }}>
+              One-time token packs — never expire. Available to every tier, including Free.
+            </p>
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-3 text-xs">
+              {(['mini', 'standard', 'max'] as const).map((id) => {
+                const pack = TOKEN_PACKS[id]
+                return (
+                  <span key={id} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border" style={{ borderColor: 'rgba(255,255,255,0.1)', backgroundColor: '#0F1120' }}>
+                    <span className="font-bold" style={{ color: '#4ADE80' }}>{pack.label}</span>
+                    <span style={{ color: '#9CA3AF' }}>·</span>
+                    <span>{pack.amount} tokens</span>
+                    <span style={{ color: '#9CA3AF' }}>·</span>
+                    <span className="font-semibold">${(pack.priceCents / 100).toFixed(2)}</span>
+                  </span>
+                )
+              })}
+            </div>
+          </div>
+
+          <p className="mt-6 text-xs text-center" style={{ color: '#9CA3AF' }}>
+            FuseID is for athletes 13 and older. Cancel any subscription anytime — no contracts, no fees.
+          </p>
         </div>
       </section>
 
@@ -299,7 +389,7 @@ export default async function HomePage() {
                 className="inline-flex items-center gap-2 px-8 py-3.5 rounded-md font-bold text-base transition-colors"
                 style={{ backgroundColor: '#4ADE80', color: '#0F1120' }}
               >
-                Lock in $14.99/mo
+                Get started — free
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <a
