@@ -9,8 +9,10 @@ import { TOKEN_COSTS } from '@/lib/tokens/costs'
 import type { Player } from '@/types/app'
 import type { Database } from '@/types/database'
 
-// Allow up to 60 seconds for Opus to generate 40 rows
-export const maxDuration = 60
+// Vercel Pro supports up to 300s on standard functions. Sonnet typically
+// finishes 40 TSV rows in ~20-40s, but we set the ceiling to 300s as a
+// safety net so slow generations don't 504.
+export const maxDuration = 300
 
 type PlayerRow = Database['public']['Tables']['players']['Row']
 
