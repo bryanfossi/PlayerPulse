@@ -11,14 +11,35 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 
+function ageInYears(dob: string): number | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dob)
+  if (!m) return null
+  const d = new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])))
+  if (Number.isNaN(d.getTime())) return null
+  const now = new Date()
+  let age = now.getUTCFullYear() - d.getUTCFullYear()
+  const beforeBirthday =
+    now.getUTCMonth() < d.getUTCMonth() ||
+    (now.getUTCMonth() === d.getUTCMonth() && now.getUTCDate() < d.getUTCDate())
+  if (beforeBirthday) age -= 1
+  return age
+}
+
 const schema = z.object({
   email: z.string().email('Enter a valid email'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   confirmPassword: z.string(),
   role: z.enum(['player', 'parent']),
+  date_of_birth: z.string().min(1, 'Date of birth is required'),
 }).refine((d) => d.password === d.confirmPassword, {
   message: 'Passwords do not match',
   path: ['confirmPassword'],
+}).refine((d) => {
+  const age = ageInYears(d.date_of_birth)
+  return age !== null && age >= 13
+}, {
+  message: 'You must be at least 13 years old to use FuseID',
+  path: ['date_of_birth'],
 })
 type FormData = z.infer<typeof schema>
 
@@ -43,7 +64,7 @@ export default function RegisterPage() {
       email: data.email,
       password: data.password,
       options: {
-        data: { role: data.role },
+        data: { role: data.role, date_of_birth: data.date_of_birth },
         emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
           data.role === 'player' ? '/onboarding' : '/dashboard',
         )}`,
@@ -54,6 +75,33 @@ export default function RegisterPage() {
       setError(error.message)
       setLoading(false)
       return
+    }
+
+    // Persist DOB to profiles (and run the server-side COPPA check). We only
+    // do this when we have a real session — if signUp returned no session
+    // (email-confirmation enabled), the user isn't authenticated yet, so we
+    // pass the DOB through user metadata above and the auth callback /
+    // server route will pick it up on first login.
+    if (signUpData.session) {
+      try {
+        const res = await fetch('/api/auth/register-extras', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ date_of_birth: data.date_of_birth }),
+        })
+        if (!res.ok) {
+          const json = await res.json().catch(() => ({}))
+          setError(json.error ?? 'Could not complete registration.')
+          // Sign the half-registered user back out so they don't get stuck
+          // in a logged-in-but-not-onboarded state.
+          await supabase.auth.signOut()
+          setLoading(false)
+          return
+        }
+      } catch {
+        // Network failure — leave the user signed in; profile will be
+        // backfilled on next login via the auth callback.
+      }
     }
 
     // If Supabase has email confirmation enabled, signUpData.session is null
@@ -170,6 +218,18 @@ export default function RegisterPage() {
               {...register('confirmPassword')}
             />
             {errors.confirmPassword && <p className="text-red-300 text-xs">{errors.confirmPassword.message}</p>}
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="date_of_birth" className="text-green-100">Date of birth</Label>
+            <Input
+              id="date_of_birth"
+              type="date"
+              className="bg-white/10 border-white/20 text-white placeholder:text-white/40 focus-visible:ring-green-400"
+              {...register('date_of_birth')}
+            />
+            {errors.date_of_birth && <p className="text-red-300 text-xs">{errors.date_of_birth.message}</p>}
+            <p className="text-green-200/60 text-xs">FuseID is for athletes 13 and older.</p>
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-3">

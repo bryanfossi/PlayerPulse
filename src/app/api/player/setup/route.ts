@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { recordTokenTransaction } from '@/lib/tokens/audit'
+import { TOKEN_GRANTS } from '@/lib/tokens/costs'
 import type { WizardData } from '@/types/wizard'
 
 function validationError(msg: string) {
@@ -96,12 +98,13 @@ export async function POST(request: Request) {
     // silently no-op'd on the (then-missing) player row.
     const { data: profileRow } = await service
       .from('profiles')
-      .select('subscription_active, subscription_id, subscription_status')
+      .select('subscription_active, subscription_id, subscription_status, tier')
       .eq('id', user.id)
       .maybeSingle()
     const hasActiveSub = (profileRow as { subscription_active?: boolean } | null)?.subscription_active === true
     const profileSubId = (profileRow as { subscription_id?: string | null } | null)?.subscription_id ?? null
     const profileSubStatus = (profileRow as { subscription_status?: string | null } | null)?.subscription_status ?? null
+    const profileTier = (profileRow as { tier?: 'free' | 'starter' | 'pro' | 'legacy' } | null)?.tier ?? 'free'
 
     // Upsert the player record — match on user_id
     const { data: player, error } = await service
@@ -133,6 +136,7 @@ export async function POST(request: Request) {
           annual_tuition_budget: body.annual_tuition_budget || null,
           forced_schools: forcedSchools.length ? forcedSchools : null,
           onboarding_complete: false, // set to true after match engine succeeds
+          tier: profileTier, // mirror profile tier so server-side checks are one-query
           updated_at: new Date().toISOString(),
         },
         { onConflict: 'user_id' }
@@ -166,13 +170,21 @@ export async function POST(request: Request) {
             subscription_active: true,
             subscription_id: profileSubId,
             subscription_status: profileSubStatus ?? 'active',
-            allowance_tokens: 30,
+            allowance_tokens: TOKEN_GRANTS.SUBSCRIPTION_MONTHLY_ALLOWANCE,
             rerun_tokens_reset_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           })
           .eq('id', player.id)
         if (syncErr) {
           console.error('[player/setup] subscription sync failed (non-fatal):', syncErr)
+        } else {
+          await recordTokenTransaction({
+            service,
+            playerId: player.id,
+            type: 'signup_grant',
+            amount: TOKEN_GRANTS.SUBSCRIPTION_MONTHLY_ALLOWANCE,
+            sourceRef: profileSubId,
+          })
         }
       }
     }

@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
+import { UpgradeModal } from '@/components/UpgradeModal'
 import { cn } from '@/lib/utils'
 import type { EmailDraftType, PlayerSchoolStatus } from '@/types/app'
 
@@ -43,29 +44,21 @@ const DRAFT_TYPE_LABELS: Record<EmailDraftType, string> = {
 }
 
 function BuyTokensButton() {
-  const [loading, setLoading] = useState(false)
-  async function handleClick() {
-    setLoading(true)
-    try {
-      const res = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'tokens' }),
-      })
-      const json = await res.json()
-      if (json.url) window.location.href = json.url
-    } finally {
-      setLoading(false)
-    }
-  }
+  const [open, setOpen] = useState(false)
   return (
-    <button
-      onClick={handleClick}
-      disabled={loading}
-      className="flex-shrink-0 flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-md bg-[#4ADE80] hover:bg-[#22C55E] text-[#0F1120] transition-colors disabled:opacity-60"
-    >
-      {loading ? 'Opening…' : 'Buy Tokens'}
-    </button>
+    <>
+      <button
+        onClick={() => setOpen(true)}
+        className="flex-shrink-0 flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-md bg-[#4ADE80] hover:bg-[#22C55E] text-[#0F1120] transition-colors"
+      >
+        Get Tokens
+      </button>
+      <UpgradeModal
+        open={open}
+        onOpenChange={setOpen}
+        context="Email drafting uses 1 token. Top up to keep drafting."
+      />
+    </>
   )
 }
 

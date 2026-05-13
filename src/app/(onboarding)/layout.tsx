@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation'
-import { headers, cookies } from 'next/headers'
 import Link from 'next/link'
-import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { FeedbackButton } from '@/components/FeedbackButton'
 import { brand } from '@/lib/brand'
 
@@ -10,24 +9,10 @@ export default async function OnboardingLayout({ children }: { children: React.R
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  // Check subscription via profiles table (exists for all users from signup trigger)
-  const service = createServiceClient()
-  const { data: profile } = await service
-    .from('profiles')
-    .select('subscription_active')
-    .eq('id', user.id)
-    .maybeSingle()
-
-  const headersList = await headers()
-  const pathname = headersList.get('x-pathname') ?? ''
-  const isSubscribePage = pathname === '/onboarding/subscribe'
-
-  const cookieStore = await cookies()
-  const paymentPending = cookieStore.get('payment_pending')?.value === '1'
-
-  if (!profile?.subscription_active && !isSubscribePage && !paymentPending) {
-    redirect('/onboarding/subscribe')
-  }
+  // Free tier means everyone gets through onboarding without paying. The
+  // /onboarding/subscribe page is still accessible as an opt-in upgrade
+  // path, but it's no longer a mandatory gate. Subscription state is
+  // checked at the per-feature level via token costs instead.
 
   return (
     <div className="min-h-screen bg-background">

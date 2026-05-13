@@ -2,20 +2,60 @@
 
 import { Suspense, useState, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { CheckCircle2, Loader2, Trophy, Brain, BarChart3, Mail, Sparkles, MessageSquareQuote } from 'lucide-react'
+import { CheckCircle2, Loader2, Sparkles } from 'lucide-react'
+import { SUBSCRIPTION_TIERS, type SubscriptionTierId } from '@/lib/tokens/costs'
 
-const FEATURES = [
-  { icon: Trophy, text: 'AI-powered Top 40 school matching tailored to your profile' },
-  { icon: BarChart3, text: 'Full recruiting dashboard, kanban board, offer tracker' },
-  { icon: Sparkles, text: '30 monthly AI tokens included (refresh each billing cycle)' },
-  { icon: Brain, text: 'AI email drafting (1 token / draft)' },
-  { icon: MessageSquareQuote, text: 'Coach email analyzer + single-school fit assessments' },
-  { icon: Mail, text: 'Communications log, follow-up reminders, parent read-only link' },
+interface PlanCard {
+  id: SubscriptionTierId
+  name: string
+  priceCents: number
+  tokens: number
+  tagline: string
+  features: string[]
+  highlight: boolean
+  ctaLabel: string
+}
+
+const PLANS: PlanCard[] = [
+  {
+    id: 'starter',
+    name: 'Starter',
+    priceCents: SUBSCRIPTION_TIERS.starter.priceCents,
+    tokens: SUBSCRIPTION_TIERS.starter.monthlyTokens,
+    tagline: 'For athletes just starting their search',
+    features: [
+      `${SUBSCRIPTION_TIERS.starter.monthlyTokens} monthly AI tokens (auto-refresh)`,
+      'AI-powered Top 40 school matching',
+      'Full recruiting dashboard + kanban board',
+      'AI email drafting (1 token / draft)',
+      'Communications log + follow-up reminders',
+    ],
+    highlight: false,
+    ctaLabel: 'Start with Starter',
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    priceCents: SUBSCRIPTION_TIERS.pro.priceCents,
+    tokens: SUBSCRIPTION_TIERS.pro.monthlyTokens,
+    tagline: 'For athletes serious about recruiting',
+    features: [
+      `${SUBSCRIPTION_TIERS.pro.monthlyTokens} monthly AI tokens (auto-refresh)`,
+      'Everything in Starter, plus:',
+      'Coach email analyzer + sentiment scoring',
+      'Single-school fit assessments',
+      'Parent read-only link',
+    ],
+    highlight: true,
+    ctaLabel: 'Start with Pro',
+  },
 ]
 
+function formatPrice(cents: number): string {
+  return `$${(cents / 100).toFixed(2)}`
+}
+
 export default function SubscribePage() {
-  // useSearchParams() requires a Suspense boundary in Next.js 15. Without it,
-  // the page can hang during initial hydration on production builds.
   return (
     <Suspense fallback={<LoadingFallback />}>
       <SubscribeContent />
@@ -35,17 +75,21 @@ function SubscribeContent() {
   const searchParams = useSearchParams()
   const billingStatus = searchParams.get('billing')
 
-  const [loading, setLoading] = useState(false)
+  const [loadingPlan, setLoadingPlan] = useState<SubscriptionTierId | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  async function handleSubscribe() {
-    setLoading(true)
+  async function handleSubscribe(plan: SubscriptionTierId) {
+    setLoadingPlan(plan)
     setError(null)
     try {
       const res = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'subscription', successPath: '/onboarding/subscribe' }),
+        body: JSON.stringify({
+          type: 'subscription',
+          plan,
+          successPath: '/onboarding/subscribe',
+        }),
       })
       const json = await res.json()
       if (!res.ok || !json.url) {
@@ -56,7 +100,7 @@ function SubscribeContent() {
     } catch {
       setError('Network error. Please try again.')
     } finally {
-      setLoading(false)
+      setLoadingPlan(null)
     }
   }
 
@@ -68,10 +112,10 @@ function SubscribeContent() {
   return (
     <div className="space-y-8">
       <div className="text-center space-y-2">
-        <p className="fuse-label">Early Adopter Pricing</p>
+        <p className="fuse-label">Pick a plan</p>
         <h1 className="text-2xl font-bold tracking-tight">Start Your Recruiting Journey</h1>
         <p className="text-muted-foreground text-sm">
-          One plan. Everything you need to find the right college program.
+          Two plans. Both auto-refresh your AI tokens every month. Cancel anytime.
         </p>
       </div>
 
@@ -81,50 +125,86 @@ function SubscribeContent() {
         </div>
       )}
 
-      {/* Pricing card */}
-      <div className="rounded-xl border border-[#4ADE80]/40 bg-card overflow-hidden">
-        <div className="bg-[#4ADE80]/10 border-b border-[#4ADE80]/20 px-6 py-5 text-center">
-          <p className="fuse-label mb-1">FuseID Pro</p>
-          <div className="flex items-end justify-center gap-2">
-            <span className="text-4xl font-black">$14.99</span>
-            <span className="text-muted-foreground text-sm mb-1">/month</span>
-            <span className="text-muted-foreground/60 line-through text-sm mb-1">$29</span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">Locked in until you cancel · cancel anytime</p>
+      {error && (
+        <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300 text-center">
+          {error}
         </div>
+      )}
 
-        <div className="px-6 py-5 space-y-3">
-          {FEATURES.map(({ icon: Icon, text }) => (
-            <div key={text} className="flex items-start gap-3">
-              <CheckCircle2 className="w-4 h-4 text-[#4ADE80] flex-shrink-0 mt-0.5" />
-              <span className="text-sm text-muted-foreground">{text}</span>
+      {/* Plans grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {PLANS.map((plan) => {
+          const loading = loadingPlan === plan.id
+          return (
+            <div
+              key={plan.id}
+              className={`rounded-xl border overflow-hidden flex flex-col ${
+                plan.highlight
+                  ? 'border-[#4ADE80]/50 bg-card'
+                  : 'border-white/10 bg-card'
+              }`}
+            >
+              <div
+                className={`px-6 py-5 text-center border-b ${
+                  plan.highlight
+                    ? 'bg-[#4ADE80]/10 border-[#4ADE80]/20'
+                    : 'bg-white/[0.02] border-white/10'
+                }`}
+              >
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <p className="fuse-label">{plan.name}</p>
+                  {plan.highlight && (
+                    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-[#4ADE80] text-[#0F1120]">
+                      Most popular
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-end justify-center gap-2">
+                  <span className="text-4xl font-black">{formatPrice(plan.priceCents)}</span>
+                  <span className="text-muted-foreground text-sm mb-1">/month</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">{plan.tagline}</p>
+              </div>
+
+              <div className="px-6 py-5 space-y-3 flex-1">
+                {plan.features.map((f) => (
+                  <div key={f} className="flex items-start gap-3">
+                    <CheckCircle2 className="w-4 h-4 text-[#4ADE80] flex-shrink-0 mt-0.5" />
+                    <span className="text-sm text-muted-foreground">{f}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="px-6 pb-6">
+                <button
+                  onClick={() => handleSubscribe(plan.id)}
+                  disabled={loadingPlan !== null}
+                  className={`w-full flex items-center justify-center gap-2 py-3 rounded-md font-bold text-sm transition-colors disabled:opacity-60 ${
+                    plan.highlight
+                      ? 'bg-[#4ADE80] text-[#0F1120] hover:bg-[#22C55E]'
+                      : 'bg-white/10 text-white hover:bg-white/15 border border-white/15'
+                  }`}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Redirecting…
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      {plan.ctaLabel}
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
-          ))}
-        </div>
-
-        <div className="px-6 pb-6">
-          {error && (
-            <p className="text-sm text-destructive text-center mb-3">{error}</p>
-          )}
-          <button
-            onClick={handleSubscribe}
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-md bg-[#4ADE80] text-[#0F1120] font-bold text-sm hover:bg-[#22C55E] disabled:opacity-60 transition-colors"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Redirecting to checkout…
-              </>
-            ) : (
-              'Get Started — $14.99/mo'
-            )}
-          </button>
-        </div>
+          )
+        })}
       </div>
 
       <p className="text-center text-xs text-muted-foreground">
-        Secure payment via Stripe. No hidden fees. Price increases to $29/mo for new signups after launch — subscribe now to keep $14.99 for life.
+        Secure payment via Stripe. No hidden fees. Cancel anytime in one click.
       </p>
     </div>
   )
@@ -137,8 +217,6 @@ function ActivatingState() {
     // Set a 3-minute cookie so the onboarding layout allows through even if
     // the Stripe webhook hasn't fired yet
     document.cookie = 'payment_pending=1; max-age=180; path=/'
-
-    // Auto-redirect after 3 seconds to give the webhook time to process
     const t = setTimeout(() => router.push('/onboarding'), 3000)
     return () => clearTimeout(t)
   }, [router])
