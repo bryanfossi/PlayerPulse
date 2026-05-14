@@ -3,11 +3,13 @@
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { Loader2, ExternalLink, RefreshCw } from 'lucide-react'
+import { Loader2, ExternalLink, RefreshCw, Bug, Lightbulb, HelpCircle, MoreHorizontal } from 'lucide-react'
 import { toast } from 'sonner'
 
 export type FeedbackStatus = 'new' | 'read' | 'responded' | 'archived'
 export type StatusFilter = 'all' | FeedbackStatus
+export type FeedbackType = 'bug' | 'feature' | 'question' | 'other'
+export type TypeFilter = 'all' | FeedbackType
 
 export interface FeedbackRow {
   id: string
@@ -17,17 +19,33 @@ export interface FeedbackRow {
   user_agent: string | null
   message: string
   status: FeedbackStatus
+  type: FeedbackType
   created_at: string
 }
 
 const STATUSES: FeedbackStatus[] = ['new', 'read', 'responded', 'archived']
-const FILTERS: StatusFilter[] = ['all', 'new', 'read', 'responded', 'archived']
+const STATUS_FILTERS: StatusFilter[] = ['all', 'new', 'read', 'responded', 'archived']
+const TYPE_FILTERS: TypeFilter[] = ['all', 'bug', 'feature', 'question', 'other']
 
 const STATUS_STYLES: Record<FeedbackStatus, string> = {
   new:       'bg-red-500/10 text-red-300 border-red-500/30',
   read:      'bg-amber-500/10 text-amber-300 border-amber-500/30',
   responded: 'bg-[#4ADE80]/10 text-[#4ADE80] border-[#4ADE80]/30',
   archived:  'bg-white/5 text-muted-foreground border-white/10',
+}
+
+const TYPE_STYLES: Record<FeedbackType, string> = {
+  bug:      'bg-red-500/10 text-red-300 border-red-500/30',
+  feature:  'bg-amber-500/10 text-amber-300 border-amber-500/30',
+  question: 'bg-blue-500/10 text-blue-300 border-blue-500/30',
+  other:    'bg-white/5 text-muted-foreground border-white/10',
+}
+
+const TYPE_ICONS: Record<FeedbackType, typeof Bug> = {
+  bug: Bug,
+  feature: Lightbulb,
+  question: HelpCircle,
+  other: MoreHorizontal,
 }
 
 function formatTimestamp(iso: string): string {
@@ -43,11 +61,19 @@ function formatTimestamp(iso: string): string {
 
 interface Props {
   initialRows: FeedbackRow[]
-  filter: StatusFilter
-  counts: Record<StatusFilter, number>
+  statusFilter: StatusFilter
+  typeFilter: TypeFilter
+  statusCounts: Record<StatusFilter, number>
+  typeCounts: Record<TypeFilter, number>
 }
 
-export function FeedbackClient({ initialRows, filter, counts }: Props) {
+export function FeedbackClient({
+  initialRows,
+  statusFilter,
+  typeFilter,
+  statusCounts,
+  typeCounts,
+}: Props) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -55,10 +81,10 @@ export function FeedbackClient({ initialRows, filter, counts }: Props) {
   const [pendingId, setPendingId] = useState<string | null>(null)
   const [refreshing, startRefresh] = useTransition()
 
-  function applyFilter(next: StatusFilter) {
+  function applyFilter(key: 'status' | 'type', value: string) {
     const params = new URLSearchParams(searchParams.toString())
-    if (next === 'all') params.delete('status')
-    else params.set('status', next)
+    if (value === 'all') params.delete(key)
+    else params.set(key, value)
     router.push(`${pathname}?${params.toString()}`)
   }
 
@@ -92,14 +118,17 @@ export function FeedbackClient({ initialRows, filter, counts }: Props) {
 
   return (
     <div className="space-y-4">
-      {/* Filter chips */}
+      {/* Type filter row */}
       <div className="flex flex-wrap items-center gap-2">
-        {FILTERS.map((f) => {
-          const active = f === filter
+        <span className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground/70 mr-1">
+          Type
+        </span>
+        {TYPE_FILTERS.map((f) => {
+          const active = f === typeFilter
           return (
             <button
               key={f}
-              onClick={() => applyFilter(f)}
+              onClick={() => applyFilter('type', f)}
               className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-colors capitalize ${
                 active
                   ? 'bg-[#4ADE80] border-[#4ADE80] text-[#0F1120]'
@@ -108,7 +137,33 @@ export function FeedbackClient({ initialRows, filter, counts }: Props) {
             >
               {f}
               <span className={`ml-1.5 text-[10px] ${active ? 'text-[#0F1120]/70' : 'text-muted-foreground/60'}`}>
-                {counts[f] ?? 0}
+                {typeCounts[f] ?? 0}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Status filter row */}
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground/70 mr-1">
+          Status
+        </span>
+        {STATUS_FILTERS.map((f) => {
+          const active = f === statusFilter
+          return (
+            <button
+              key={f}
+              onClick={() => applyFilter('status', f)}
+              className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-colors capitalize ${
+                active
+                  ? 'bg-[#4ADE80] border-[#4ADE80] text-[#0F1120]'
+                  : 'bg-white/5 border-white/10 text-muted-foreground hover:text-white hover:border-white/20'
+              }`}
+            >
+              {f}
+              <span className={`ml-1.5 text-[10px] ${active ? 'text-[#0F1120]/70' : 'text-muted-foreground/60'}`}>
+                {statusCounts[f] ?? 0}
               </span>
             </button>
           )
@@ -127,7 +182,9 @@ export function FeedbackClient({ initialRows, filter, counts }: Props) {
       {/* Table */}
       {rows.length === 0 ? (
         <div className="rounded-lg border border-white/10 bg-white/[0.02] p-12 text-center text-sm text-muted-foreground">
-          No feedback {filter !== 'all' && `with status "${filter}"`} yet.
+          No feedback {statusFilter !== 'all' || typeFilter !== 'all'
+            ? `matches the current filters`
+            : `yet`}.
         </div>
       ) : (
         <div className="rounded-lg border border-white/10 overflow-hidden">
@@ -135,6 +192,7 @@ export function FeedbackClient({ initialRows, filter, counts }: Props) {
             <thead>
               <tr className="bg-white/[0.03] border-b border-white/10">
                 <th className="px-3 py-2 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">When</th>
+                <th className="px-3 py-2 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Type</th>
                 <th className="px-3 py-2 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">From</th>
                 <th className="px-3 py-2 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Message</th>
                 <th className="px-3 py-2 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Page</th>
@@ -144,10 +202,19 @@ export function FeedbackClient({ initialRows, filter, counts }: Props) {
             <tbody>
               {rows.map((row) => {
                 const isPending = pendingId === row.id
+                const TypeIcon = TYPE_ICONS[row.type]
                 return (
                   <tr key={row.id} className="border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-colors align-top">
                     <td className="px-3 py-3 text-xs text-muted-foreground whitespace-nowrap">
                       {formatTimestamp(row.created_at)}
+                    </td>
+                    <td className="px-3 py-3 text-xs whitespace-nowrap">
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-semibold capitalize ${TYPE_STYLES[row.type]}`}
+                      >
+                        <TypeIcon className="w-3 h-3" />
+                        {row.type}
+                      </span>
                     </td>
                     <td className="px-3 py-3 text-xs">
                       {row.email ? (
@@ -166,7 +233,7 @@ export function FeedbackClient({ initialRows, filter, counts }: Props) {
                         </div>
                       )}
                     </td>
-                    <td className="px-3 py-3 text-xs max-w-[28rem]">
+                    <td className="px-3 py-3 text-xs max-w-[24rem]">
                       <p className="whitespace-pre-wrap break-words">{row.message}</p>
                     </td>
                     <td className="px-3 py-3 text-xs">

@@ -3,6 +3,16 @@ import { createClient, createServiceClient } from '@/lib/supabase/server'
 
 const FEEDBACK_RECIPIENT = 'bryan.fossi@promotedsoccerconsultants.com'
 
+const ALLOWED_TYPES = ['bug', 'feature', 'question', 'other'] as const
+type FeedbackType = (typeof ALLOWED_TYPES)[number]
+
+function normalizeType(v: unknown): FeedbackType {
+  if (typeof v === 'string' && (ALLOWED_TYPES as readonly string[]).includes(v)) {
+    return v as FeedbackType
+  }
+  return 'other'
+}
+
 export async function POST(request: Request) {
   try {
     const supabase = await createClient()
@@ -11,6 +21,7 @@ export async function POST(request: Request) {
 
     const body: {
       message?: string
+      type?: string
       page_url?: string
     } = await request.json()
 
@@ -22,11 +33,23 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Message too long (max 5000 chars)' }, { status: 400 })
     }
 
+    const type = normalizeType(body.type)
     const userAgent = request.headers.get('user-agent') ?? null
     const service = createServiceClient()
 
-    // 1) Always persist to DB (durable audit trail)
-    const { data: row, error: insertErr } = await service
+    // 1) Always persist to DB (durable audit trail). `type` is defined in
+    //    migration 017 and not in the generated database.ts yet, so go
+    //    untyped here.
+    const untypedInsert = service as unknown as {
+      from: (t: string) => {
+        insert: (row: Record<string, unknown>) => {
+          select: (cols: string) => {
+            single: () => Promise<{ data: { id: string } | null; error: unknown }>
+          }
+        }
+      }
+    }
+    const { data: row, error: insertErr } = await untypedInsert
       .from('feedback')
       .insert({
         user_id: user.id,
@@ -34,6 +57,7 @@ export async function POST(request: Request) {
         page_url: body.page_url ?? null,
         user_agent: userAgent,
         message,
+        type,
       })
       .select('id')
       .single()
@@ -48,9 +72,11 @@ export async function POST(request: Request) {
     const resendKey = process.env.RESEND_API_KEY
     if (resendKey) {
       try {
-        const subject = `FuseID feedback from ${user.email ?? 'a user'}`
+        const typeLabel = type[0].toUpperCase() + type.slice(1)
+        const subject = `[${typeLabel}] FuseID feedback from ${user.email ?? 'a user'}`
         const html = `
           <h2>New FuseID feedback</h2>
+          <p><strong>Type:</strong> ${typeLabel}</p>
           <p><strong>From:</strong> ${user.email ?? '(no email)'}</p>
           <p><strong>User ID:</strong> ${user.id}</p>
           ${body.page_url ? `<p><strong>Page:</strong> ${body.page_url}</p>` : ''}
@@ -102,6 +128,7 @@ export async function POST(request: Request) {
             page_url: body.page_url ?? null,
             user_agent: userAgent,
             message,
+            type,
           }),
           // Apps Script can be slow on first request; give it 10s.
           signal: AbortSignal.timeout(10_000),

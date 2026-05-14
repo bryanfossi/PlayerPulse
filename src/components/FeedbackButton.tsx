@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { usePathname } from 'next/navigation'
-import { MessageCircle, Loader2, Send, X, CheckCircle2 } from 'lucide-react'
+import { MessageCircle, Loader2, Send, X, CheckCircle2, Bug, Lightbulb, HelpCircle, MoreHorizontal } from 'lucide-react'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from '@/components/ui/dialog'
@@ -10,8 +10,18 @@ import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 
+type FeedbackType = 'bug' | 'feature' | 'question' | 'other'
+
+const TYPE_OPTIONS: { id: FeedbackType; label: string; icon: typeof Bug }[] = [
+  { id: 'bug',      label: 'Bug',     icon: Bug },
+  { id: 'feature',  label: 'Feature', icon: Lightbulb },
+  { id: 'question', label: 'Question', icon: HelpCircle },
+  { id: 'other',    label: 'Other',   icon: MoreHorizontal },
+]
+
 export function FeedbackButton() {
   const [open, setOpen] = useState(false)
+  const [type, setType] = useState<FeedbackType>('other')
   const [message, setMessage] = useState('')
   const [sent, setSent] = useState(false)
   const [pending, startTransition] = useTransition()
@@ -31,6 +41,7 @@ export function FeedbackButton() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             message: trimmed,
+            type,
             page_url: typeof window !== 'undefined'
               ? window.location.origin + pathname
               : pathname,
@@ -52,6 +63,7 @@ export function FeedbackButton() {
     setOpen(false)
     // Small delay so the user sees the success state before reset
     setTimeout(() => {
+      setType('other')
       setMessage('')
       setSent(false)
     }, 300)
@@ -107,9 +119,44 @@ export function FeedbackButton() {
             </div>
           ) : (
             <div className="space-y-4 pt-1">
+              <div>
+                <p className="text-[10px] uppercase tracking-wider font-semibold mb-2" style={{ color: '#9CA3AF' }}>
+                  Type
+                </p>
+                <div className="grid grid-cols-4 gap-1.5">
+                  {TYPE_OPTIONS.map((opt) => {
+                    const Icon = opt.icon
+                    const active = type === opt.id
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => setType(opt.id)}
+                        className={`flex flex-col items-center gap-1 px-2 py-2 rounded-md border text-[11px] font-medium transition-colors ${
+                          active
+                            ? 'bg-[#4ADE80]/15 border-[#4ADE80] text-[#4ADE80]'
+                            : 'bg-white/[0.02] border-white/10 text-muted-foreground hover:text-white hover:border-white/20'
+                        }`}
+                      >
+                        <Icon className="w-3.5 h-3.5" />
+                        {opt.label}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
               <Textarea
                 autoFocus
-                placeholder="What's on your mind? Tell us what's working, what's broken, or what you wish FuseID did…"
+                placeholder={
+                  type === 'bug'
+                    ? "What's broken? Steps to reproduce help a lot."
+                    : type === 'feature'
+                    ? "What would make FuseID better for you?"
+                    : type === 'question'
+                    ? "What are you trying to figure out?"
+                    : "What's on your mind?"
+                }
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 rows={6}
