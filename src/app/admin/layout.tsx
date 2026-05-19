@@ -30,6 +30,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </Link>
           <nav className="flex items-center gap-4 text-sm">
             <Link
+              href="/admin/dashboard"
+              className="text-muted-foreground hover:text-white transition-colors"
+            >
+              Dashboard
+            </Link>
+            <Link
               href="/admin/feedback"
               className="text-muted-foreground hover:text-white transition-colors"
             >
