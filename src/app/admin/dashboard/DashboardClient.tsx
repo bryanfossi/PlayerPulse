@@ -827,7 +827,7 @@ function HealthSection({ data }: { data: DashboardData }) {
           <SystemIndicator label="Supabase" ok={s.supabase} okLabel="Connected" badLabel="Unreachable" />
           <SystemIndicator label="Stripe" ok={s.stripe} okLabel={s.stripeLive ? 'Live mode' : 'Test mode'} badLabel="Not configured" />
           <SystemIndicator label="Resend" ok={s.resend} okLabel="Connected" badLabel="Not configured" />
-          <SystemIndicator label="Sentry" ok={false} okLabel="Active" badLabel="Not configured" />
+          <SystemIndicator label="Sentry" ok={s.sentry} okLabel="Monitoring active" badLabel="Not configured" />
         </div>
       </Card>
     </Section>

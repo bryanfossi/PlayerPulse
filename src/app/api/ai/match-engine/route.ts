@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { anthropic } from '@/lib/anthropic'
 import { buildMatchEnginePrompt } from '@/lib/prompts/match-engine'
@@ -278,6 +279,7 @@ export async function POST(request: Request) {
     })
   } catch (err) {
     console.error('[match-engine] unexpected error:', err)
+    Sentry.captureException(err, { tags: { feature: 'match-engine' } })
     return NextResponse.json(
       { error: err instanceof Error ? err.message : 'Internal server error' },
       { status: 500 }

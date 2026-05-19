@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import * as Sentry from '@sentry/nextjs'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { MobileNav } from '@/components/layout/MobileNav'
@@ -13,6 +14,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
+
+  // Tag this request's Sentry scope with who we're serving so any error
+  // captured during render or in API routes is attributed to a real user.
+  Sentry.setUser({ id: user.id, email: user.email ?? undefined })
 
   // Use service client so the query is never blocked by RLS or session state
   const service = createServiceClient()

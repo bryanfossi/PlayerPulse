@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { stripe } from '@/lib/stripe'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import {
@@ -203,6 +204,7 @@ export async function POST(request: Request) {
     }
   } catch (err) {
     console.error('[webhook] handler error for', event.type, ':', err instanceof Error ? err.message : err)
+    Sentry.captureException(err, { tags: { feature: 'stripe-webhook', event_type: event.type } })
   }
 
   return NextResponse.json({ received: true })

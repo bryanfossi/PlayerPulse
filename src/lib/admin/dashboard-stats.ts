@@ -490,6 +490,11 @@ export async function loadDashboardStats() {
   const stripeOk = stripeConfigured()
   const stripeLive = stripeLiveMode()
   const resendOk = !!process.env.RESEND_API_KEY
+  // Sentry: the wizard hardcodes the DSN in sentry.server.config.ts (DSN is a
+  // public identifier), so check for SENTRY_AUTH_TOKEN instead — that's the
+  // one Vercel env var that has to be set for production source-map uploads
+  // and is a good proxy for "Sentry is fully wired up".
+  const sentryOk = !!process.env.SENTRY_AUTH_TOKEN || !!process.env.SENTRY_DSN
 
   // Avoid unused-variable warnings on cohort placeholder
   void onboardingRatePct
@@ -571,6 +576,7 @@ export async function loadDashboardStats() {
       stripe: stripeOk,
       stripeLive,
       resend: resendOk,
+      sentry: sentryOk,
     },
   }
 }

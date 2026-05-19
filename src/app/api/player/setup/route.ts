@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { recordTokenTransaction } from '@/lib/tokens/audit'
 import { TOKEN_GRANTS } from '@/lib/tokens/costs'
@@ -192,6 +193,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ player_id: player.id })
   } catch (err) {
     console.error('[player/setup] unexpected error:', err)
+    Sentry.captureException(err, { tags: { feature: 'player-setup' } })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

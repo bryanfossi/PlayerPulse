@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import * as Sentry from '@sentry/nextjs'
 import { createClient } from '@/lib/supabase/server'
 import { FeedbackButton } from '@/components/FeedbackButton'
 import { brand } from '@/lib/brand'
@@ -8,6 +9,8 @@ export default async function OnboardingLayout({ children }: { children: React.R
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
+
+  Sentry.setUser({ id: user.id, email: user.email ?? undefined })
 
   // Free tier means everyone gets through onboarding without paying. The
   // /onboarding/subscribe page is still accessible as an opt-in upgrade
