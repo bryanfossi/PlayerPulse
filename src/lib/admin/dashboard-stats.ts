@@ -10,6 +10,7 @@
 import { createServiceClient } from '@/lib/supabase/server'
 import { getMRRSummary, getRevenueTrend, stripeConfigured, stripeLiveMode } from '@/lib/stripe/admin'
 import { getActivePlayerIds, isoNDaysAgo } from '@/lib/admin/activity'
+import { getSentryDashboardData, sentryApiConfigured, type SentryDashboardData } from '@/lib/sentry/api'
 
 export type DashboardStats = Awaited<ReturnType<typeof loadDashboardStats>>
 
@@ -103,6 +104,7 @@ export async function loadDashboardStats() {
     revenueTrend,
     inactiveAthletesRows,
     topEngagedRows,
+    sentryData,
   ] = await Promise.all([
     countAll('players'),
     countAll('players', { filterEq: ['onboarding_complete', 'true'] }),
@@ -236,6 +238,11 @@ export async function loadDashboardStats() {
       untyped.from('player_schools').select('player_id').gte('updated_at', since30).limit(20000),
       untyped.from('contacts').select('player_id').gte('created_at', since30).limit(10000),
     ]),
+    // Sentry — last in the array so the destructure ordering stays simple.
+    sentryApiConfigured() ? getSentryDashboardData().catch((e) => {
+      console.error('[dashboard-stats] sentry fetch failed:', e)
+      return null as SentryDashboardData | null
+    }) : Promise.resolve(null as SentryDashboardData | null),
   ])
 
   // ── KPI bar ──
@@ -578,6 +585,7 @@ export async function loadDashboardStats() {
       resend: resendOk,
       sentry: sentryOk,
     },
+    sentry: sentryData,
   }
 }
 

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, useTransition } from 'react'
 import {
   Users, DollarSign, Activity, CheckCircle2, Repeat, Zap, RefreshCw,
-  Loader2, AlertTriangle, ExternalLink, ChevronDown, ChevronRight,
+  Loader2, AlertTriangle, ExternalLink, ChevronDown, ChevronRight, Bug,
 } from 'lucide-react'
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
@@ -129,6 +129,7 @@ export function DashboardClient({ initialData }: Props) {
       <AISection data={data} />
       <PipelineSection data={data} />
       <RecentSignupsSection data={data} />
+      <ErrorsSection data={data} />
       <HealthSection data={data} />
     </div>
   )
@@ -138,6 +139,7 @@ export function DashboardClient({ initialData }: Props) {
 
 function KPIBar({ data }: { data: DashboardData }) {
   const k = data.kpis
+  const errors24h = data.sentry?.errors24h ?? null
   const cards = [
     {
       label: 'Total Athletes',
@@ -177,9 +179,16 @@ function KPIBar({ data }: { data: DashboardData }) {
       icon: Zap,
       accent: k.tokenRevenue30Cents > 0,
     },
+    {
+      label: 'Errors (24h)',
+      value: errors24h === null ? '—' : errors24h.toLocaleString(),
+      icon: Bug,
+      accent: errors24h !== null && errors24h > 0 && errors24h <= 10,
+      bad: errors24h !== null && errors24h > 10,
+    },
   ]
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
       {cards.map((c) => {
         const Icon = c.icon
         const border = c.bad
@@ -761,6 +770,113 @@ function RecentSignupsSection({ data }: { data: DashboardData }) {
             </table>
           </div>
         )}
+      </Card>
+    </Section>
+  )
+}
+
+/* ─── Errors (Sentry) ──────────────────────────────────────────── */
+
+function ErrorsSection({ data }: { data: DashboardData }) {
+  const s = data.sentry
+  if (!s) {
+    return (
+      <Section title="Errors (Sentry)">
+        <Card>
+          <p className="text-sm text-muted-foreground">
+            Sentry API not configured. Set <code className="text-[#C9A227]">SENTRY_API_TOKEN</code> in env to surface errors here.
+          </p>
+        </Card>
+      </Section>
+    )
+  }
+
+  const totalErrors = s.errors24h + s.errors7d
+  const sparkData = s.byDay.map((d) => ({ day: d.day.slice(5), count: d.count }))
+
+  return (
+    <Section title="Errors (Sentry)">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        <div className="lg:col-span-1 grid grid-cols-2 gap-3">
+          <MiniStat label="Errors (24h)" value={s.errors24h} />
+          <MiniStat label="Errors (7d)" value={s.errors7d} />
+        </div>
+        <Card title="14-day Error Trend" className="lg:col-span-2">
+          {sparkData.some((p) => p.count > 0) ? (
+            <ResponsiveContainer width="100%" height={140}>
+              <LineChart data={sparkData} margin={{ top: 4, right: 4, bottom: 4, left: 0 }}>
+                <CartesianGrid stroke="rgba(255,255,255,0.06)" />
+                <XAxis dataKey="day" stroke="rgba(255,255,255,0.4)" fontSize={10} />
+                <YAxis stroke="rgba(255,255,255,0.4)" fontSize={10} allowDecimals={false} />
+                <Tooltip contentStyle={{ background: '#1A1F38', border: '1px solid rgba(255,255,255,0.1)', fontSize: 12 }} />
+                <Line type="monotone" dataKey="count" stroke="#EF4444" strokeWidth={2} dot={{ fill: '#EF4444', r: 2 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <EmptyChart label={totalErrors === 0 ? 'No errors in the last 14 days — nice' : 'No daily breakdown available'} />
+          )}
+        </Card>
+      </div>
+
+      <Card title={`Top Unresolved Issues (7d) — ${s.topIssues.length}`}>
+        {s.topIssues.length === 0 ? (
+          <EmptyChart label="No unresolved issues" />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-white/[0.03] border-b border-white/10">
+                  <th className="px-3 py-2 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Issue</th>
+                  <th className="px-3 py-2 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Where</th>
+                  <th className="px-3 py-2 text-right text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Events</th>
+                  <th className="px-3 py-2 text-right text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Users</th>
+                  <th className="px-3 py-2 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Last Seen</th>
+                  <th className="px-3 py-2 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Level</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {s.topIssues.map((issue) => (
+                  <tr key={issue.id} className="border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-colors">
+                    <td className="px-3 py-2 text-xs">
+                      <p className="font-semibold truncate max-w-[24rem]" title={issue.title}>
+                        {issue.title}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground/70 font-mono">{issue.shortId}</p>
+                    </td>
+                    <td className="px-3 py-2 text-xs text-muted-foreground truncate max-w-[16rem]" title={issue.culprit ?? ''}>
+                      {issue.culprit ?? '—'}
+                    </td>
+                    <td className="px-3 py-2 text-xs text-right font-semibold">{Number(issue.count).toLocaleString()}</td>
+                    <td className="px-3 py-2 text-xs text-right">{issue.userCount}</td>
+                    <td className="px-3 py-2 text-xs text-muted-foreground whitespace-nowrap">{formatDate(issue.lastSeen)}</td>
+                    <td className="px-3 py-2 text-xs">
+                      <span className={`px-2 py-0.5 rounded-full border text-[10px] font-semibold capitalize ${
+                        issue.level === 'fatal' || issue.level === 'error'
+                          ? 'bg-red-500/10 text-red-300 border-red-500/30'
+                          : issue.level === 'warning'
+                          ? 'bg-amber-500/10 text-amber-300 border-amber-500/30'
+                          : 'bg-white/5 text-muted-foreground border-white/10'
+                      }`}>
+                        {issue.level}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2 text-xs">
+                      <a href={issue.permalink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[#4ADE80] hover:underline">
+                        View <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <div className="flex justify-end mt-3">
+          <a href={s.issuesUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-white inline-flex items-center gap-1">
+            Open all issues in Sentry <ExternalLink className="w-3 h-3" />
+          </a>
+        </div>
       </Card>
     </Section>
   )
