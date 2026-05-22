@@ -10,8 +10,12 @@ const PUBLIC_PATHS = [
   '/api/invites/accept',
   '/api/stripe/webhook',
   '/api/contacts/inbound',
+  '/api/admin/generate-article', // Vercel cron + admin-only — gated inside the route handler
   '/player/',
   '/brand/',
+  '/blog',
+  '/sitemap.xml',
+  '/robots.txt',
 ]
 const AUTH_PATHS = ['/login', '/register']
 

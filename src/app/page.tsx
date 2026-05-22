@@ -421,6 +421,7 @@ export default async function HomePage() {
               <a href="#features" className="text-sm transition-colors hover:text-white" style={{ color: '#9CA3AF' }}>Features</a>
               <a href="#how-it-works" className="text-sm transition-colors hover:text-white" style={{ color: '#9CA3AF' }}>How It Works</a>
               <a href="#pricing" className="text-sm transition-colors hover:text-white" style={{ color: '#9CA3AF' }}>Pricing</a>
+              <Link href="/blog" className="text-sm transition-colors hover:text-white" style={{ color: '#9CA3AF' }}>Blog</Link>
               <Link href="/register" className="text-sm transition-colors hover:text-white" style={{ color: '#9CA3AF' }}>Get started</Link>
             </div>
           </div>
