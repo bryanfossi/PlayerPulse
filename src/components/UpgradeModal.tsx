@@ -116,7 +116,7 @@ export function UpgradeModal({
                 }`}
               >
                 {highlight && (
-                  <span className="absolute -top-2 left-3 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#4ADE80] text-[#0F1120]">
+                  <span className="absolute -top-2 left-3 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#4ADE80] text-[#052e16]">
                     Most popular
                   </span>
                 )}
@@ -124,7 +124,7 @@ export function UpgradeModal({
                   <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
                     {pack.label}
                   </p>
-                  <p className="text-2xl font-black mt-0.5">
+                  <p className="text-2xl font-bold mt-0.5">
                     {pack.amount} <span className="text-sm font-normal text-muted-foreground">tokens</span>
                   </p>
                   <p className="text-lg font-bold text-[#4ADE80] mt-1">
@@ -145,7 +145,7 @@ export function UpgradeModal({
                   size="sm"
                   className={`w-full ${
                     highlight
-                      ? 'bg-[#4ADE80] hover:bg-[#22C55E] text-[#0F1120]'
+                      ? 'bg-[#4ADE80] hover:bg-[#22C55E] text-[#052e16]'
                       : ''
                   }`}
                   variant={highlight ? 'default' : 'outline'}
@@ -185,7 +185,7 @@ export function UpgradeModal({
                         {plan.monthlyTokens} tokens/mo
                       </span>
                     </div>
-                    <span className="text-sm font-semibold">
+                    <span className="text-sm font-medium">
                       {isLoading
                         ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
                         : `$${(plan.priceCents / 100).toFixed(2)}/mo`}

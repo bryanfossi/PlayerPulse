@@ -85,8 +85,8 @@ function InterestBanner({ result }: { result: AnalysisResult }) {
     )}>
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1">
-          <p className="text-white/70 text-xs font-semibold uppercase tracking-widest">Coach Interest Level</p>
-          <p className="text-white text-4xl font-black tracking-tight leading-none">{result.interest_level}</p>
+          <p className="text-white/70 text-xs font-medium uppercase tracking-widest">Coach Interest Level</p>
+          <p className="text-white text-4xl font-bold tracking-tight leading-none">{result.interest_level}</p>
         </div>
         <div className="flex flex-col items-end gap-2">
           <SignalBars level={result.interest_level} bars={cfg.bars} />
@@ -103,10 +103,10 @@ function ToneCard({ result }: { result: AnalysisResult }) {
     <div className="rounded-xl border border-border overflow-hidden">
       <div className="bg-muted/50 px-4 py-2.5 flex items-center gap-2 border-b border-border">
         <MessageSquareQuote className="w-3.5 h-3.5 text-muted-foreground" />
-        <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Tone</span>
+        <span className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Tone</span>
       </div>
       <div className="px-4 py-3 flex items-center gap-3">
-        <span className="flex-1 text-sm font-semibold">{result.tone_label}</span>
+        <span className="flex-1 text-sm font-medium">{result.tone_label}</span>
       </div>
       <div className="px-4 pb-3">
         <p className="text-sm text-muted-foreground leading-relaxed">{result.tone_explanation}</p>
@@ -120,7 +120,7 @@ function SignalsCard({ signals }: { signals: string[] }) {
     <div className="rounded-xl border border-border overflow-hidden">
       <div className="bg-muted/50 px-4 py-2.5 flex items-center gap-2 border-b border-border">
         <Sparkles className="w-3.5 h-3.5 text-muted-foreground" />
-        <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Key Signals</span>
+        <span className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Key Signals</span>
         <span className="ml-auto text-[10px] font-medium text-muted-foreground bg-muted rounded-full px-2 py-0.5">{signals.length} found</span>
       </div>
       <div className="divide-y divide-border">
@@ -146,7 +146,7 @@ function NextStepCard({ result }: { result: AnalysisResult }) {
     <div className={cn('rounded-xl border-l-4 border border-border overflow-hidden', cfg.border)}>
       <div className="bg-muted/50 px-4 py-2.5 flex items-center gap-2 border-b border-border">
         <ArrowRight className="w-3.5 h-3.5 text-muted-foreground" />
-        <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Recommended Next Step</span>
+        <span className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Recommended Next Step</span>
         <span className={cn('ml-auto flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full', cfg.bg, cfg.text)}>
           <span className={cn('w-1.5 h-1.5 rounded-full', cfg.dot)} />
           {result.next_step_urgency} urgency

@@ -16,22 +16,22 @@ interface Props {
   initialData: DashboardData
 }
 
+// FUSE-ID brand palette only. No off-brand navy or gold.
 const COLORS = {
-  navy: '#1A3A5C',
-  gold: '#C9A227',
-  green: '#4ADE80',
-  red: '#EF4444',
-  amber: '#F59E0B',
-  blue: '#3B82F6',
-  purple: '#A855F7',
-  muted: 'rgba(255,255,255,0.4)',
+  green:   '#4ade80', // green-400 (primary accent, Lock tier)
+  greenDk: '#22c55e', // green-500 (hover / pressed)
+  red:     '#ef4444', // deadline alert
+  amber:   '#f59e0b', // Reach tier
+  blue:    '#3b82f6', // Realistic tier
+  purple:  '#8b5cf6', // Pro badge
+  muted:   'rgba(255,255,255,0.4)',
 }
 
 const TIER_COLORS: Record<string, string> = {
-  free: COLORS.muted,
+  free:    COLORS.muted,
   starter: COLORS.amber,
-  pro: COLORS.green,
-  legacy: COLORS.blue,
+  pro:     COLORS.green,
+  legacy:  COLORS.blue,
 }
 
 const PIPELINE_COLORS: Record<string, string> = {
@@ -39,12 +39,12 @@ const PIPELINE_COLORS: Record<string, string> = {
   contacted:      COLORS.blue,
   interested:     COLORS.amber,
   campus_visit:   COLORS.purple,
-  offer_received: COLORS.gold,
-  committed:      COLORS.green,
+  offer_received: COLORS.green,
+  committed:      COLORS.greenDk,
   declined:       COLORS.red,
 }
 
-const PIE_COLORS = [COLORS.green, COLORS.gold, COLORS.blue, COLORS.amber, COLORS.purple, COLORS.red, COLORS.muted]
+const PIE_COLORS = [COLORS.green, COLORS.blue, COLORS.amber, COLORS.purple, COLORS.greenDk, COLORS.red, COLORS.muted]
 
 function dollars(cents: number): string {
   return `$${(cents / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })}`
@@ -108,7 +108,7 @@ export function DashboardClient({ initialData }: Props) {
     <div className="max-w-7xl mx-auto space-y-8">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-black tracking-tight">Platform Dashboard</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Platform Dashboard</h1>
           <p className="text-xs text-muted-foreground">
             Last refreshed {formatAgo(relativeSeconds(refreshedAt, now))} · auto-refreshes every 5 min
           </p>
@@ -194,9 +194,9 @@ function KPIBar({ data }: { data: DashboardData }) {
         const border = c.bad
           ? 'border-red-500/40'
           : c.accent
-          ? 'border-[#C9A227]/40'
+          ? 'border-[#4ade80]/40'
           : 'border-white/10'
-        const iconColor = c.bad ? '#EF4444' : c.accent ? COLORS.gold : COLORS.muted
+        const iconColor = c.bad ? COLORS.red : c.accent ? COLORS.green : COLORS.muted
         return (
           <div key={c.label} className={`rounded-xl border ${border} bg-[#1A1F38] p-4`}>
             <div className="flex items-center justify-between mb-3">
@@ -205,7 +205,7 @@ function KPIBar({ data }: { data: DashboardData }) {
               </p>
               <Icon className="w-4 h-4" style={{ color: iconColor }} />
             </div>
-            <p className="text-3xl font-black">{c.value}</p>
+            <p className="text-3xl font-bold">{c.value}</p>
           </div>
         )
       })}
@@ -271,7 +271,7 @@ function RevenueSection({ data }: { data: DashboardData }) {
                 <XAxis type="number" stroke="rgba(255,255,255,0.4)" fontSize={10} />
                 <YAxis dataKey="tier" type="category" stroke="rgba(255,255,255,0.6)" fontSize={11} width={70} />
                 <Tooltip contentStyle={{ background: '#1A1F38', border: '1px solid rgba(255,255,255,0.1)', fontSize: 12 }} />
-                <Bar dataKey="count" fill={COLORS.gold} radius={[0, 4, 4, 0]} />
+                <Bar dataKey="count" fill={COLORS.amber} radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : (
@@ -287,7 +287,7 @@ function RevenueSection({ data }: { data: DashboardData }) {
                 <XAxis dataKey="month" stroke="rgba(255,255,255,0.4)" fontSize={10} />
                 <YAxis stroke="rgba(255,255,255,0.4)" fontSize={10} tickFormatter={(v) => `$${v}`} />
                 <Tooltip contentStyle={{ background: '#1A1F38', border: '1px solid rgba(255,255,255,0.1)', fontSize: 12 }} formatter={(v) => `$${Number(v ?? 0).toFixed(2)}`} />
-                <Line type="monotone" dataKey="amount" stroke={COLORS.gold} strokeWidth={2} dot={{ fill: COLORS.gold, r: 3 }} />
+                <Line type="monotone" dataKey="amount" stroke={COLORS.amber} strokeWidth={2} dot={{ fill: COLORS.amber, r: 3 }} />
               </LineChart>
             </ResponsiveContainer>
           ) : (
@@ -305,7 +305,7 @@ function RevenueSection({ data }: { data: DashboardData }) {
                 <Tooltip contentStyle={{ background: '#1A1F38', border: '1px solid rgba(255,255,255,0.1)', fontSize: 12 }} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
                 <Bar dataKey="purchases" fill={COLORS.green} />
-                <Bar dataKey="revenue" fill={COLORS.gold} />
+                <Bar dataKey="revenue" fill={COLORS.amber} />
               </BarChart>
             </ResponsiveContainer>
           ) : (
@@ -345,15 +345,15 @@ function RevenueSection({ data }: { data: DashboardData }) {
 
 function StatusPill({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    active:     'bg-[#4ADE80]/10 text-[#4ADE80] border-[#4ADE80]/30',
-    trialing:   'bg-[#C9A227]/10 text-[#C9A227] border-[#C9A227]/30',
+    active:     'bg-[#4ade80]/10 text-[#4ade80] border-[#4ade80]/30',
+    trialing:   'bg-[#f59e0b]/10 text-[#f59e0b] border-[#f59e0b]/30',
     past_due:   'bg-red-500/10 text-red-300 border-red-500/30',
     canceled:   'bg-white/5 text-muted-foreground border-white/10',
     cancelled:  'bg-white/5 text-muted-foreground border-white/10',
     incomplete: 'bg-amber-500/10 text-amber-300 border-amber-500/30',
   }
   return (
-    <span className={`px-2 py-0.5 rounded-full border text-[10px] font-semibold capitalize ${styles[status] ?? styles.canceled}`}>
+    <span className={`px-2 py-0.5 rounded-full border text-[10px] font-medium capitalize ${styles[status] ?? styles.canceled}`}>
       {status.replace('_', ' ')}
     </span>
   )
@@ -475,7 +475,7 @@ function EngagementSection({ data }: { data: DashboardData }) {
                     <td className="px-3 py-2 text-xs text-right">{p.draft}</td>
                     <td className="px-3 py-2 text-xs text-right">{p.school}</td>
                     <td className="px-3 py-2 text-xs text-right">{p.contact}</td>
-                    <td className="px-3 py-2 text-xs text-right font-bold text-[#C9A227]">{p.score}</td>
+                    <td className="px-3 py-2 text-xs text-right font-bold text-[#4ade80]">{p.score}</td>
                   </tr>
                 ))}
               </tbody>
@@ -490,7 +490,7 @@ function EngagementSection({ data }: { data: DashboardData }) {
             onClick={() => setShowInactive((v) => !v)}
             className="w-full flex items-center justify-between text-sm"
           >
-            <span className="font-semibold text-amber-300">
+            <span className="font-medium text-amber-300">
               {e.inactive.length} {e.inactive.length === 1 ? 'athlete has' : 'athletes have'} been inactive for 30+ days
             </span>
             {showInactive ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
@@ -536,7 +536,7 @@ function MiniStat({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-xl border border-white/10 bg-[#1A1F38] p-4">
       <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-2">{label}</p>
-      <p className="text-2xl font-black">{value.toLocaleString()}</p>
+      <p className="text-2xl font-bold">{value.toLocaleString()}</p>
     </div>
   )
 }
@@ -598,7 +598,7 @@ function AISection({ data }: { data: DashboardData }) {
                 <XAxis dataKey="bucket" stroke="rgba(255,255,255,0.4)" fontSize={10} />
                 <YAxis stroke="rgba(255,255,255,0.4)" fontSize={10} allowDecimals={false} />
                 <Tooltip contentStyle={{ background: '#1A1F38', border: '1px solid rgba(255,255,255,0.1)', fontSize: 12 }} />
-                <Bar dataKey="count" fill={COLORS.gold} />
+                <Bar dataKey="count" fill={COLORS.amber} />
               </BarChart>
             </ResponsiveContainer>
           ) : (
@@ -702,7 +702,7 @@ function PipelineSection({ data }: { data: DashboardData }) {
                 <XAxis dataKey="sport" stroke="rgba(255,255,255,0.4)" fontSize={10} />
                 <YAxis stroke="rgba(255,255,255,0.4)" fontSize={10} allowDecimals={false} />
                 <Tooltip contentStyle={{ background: '#1A1F38', border: '1px solid rgba(255,255,255,0.1)', fontSize: 12 }} />
-                <Bar dataKey="count" fill={COLORS.gold} />
+                <Bar dataKey="count" fill={COLORS.amber} />
               </BarChart>
             </ResponsiveContainer>
           ) : (
@@ -716,7 +716,7 @@ function PipelineSection({ data }: { data: DashboardData }) {
         <MiniStat label="Offers Logged (30d)" value={p.offers30} />
         <MiniStat label="Commitments" value={p.commitments} />
         <Card title="Avg Net Cost">
-          <p className="text-2xl font-black">${p.avgNetCostUsd.toLocaleString()}</p>
+          <p className="text-2xl font-bold">${p.avgNetCostUsd.toLocaleString()}</p>
           <p className="text-[10px] text-muted-foreground mt-1">Across logged offers</p>
         </Card>
       </div>
@@ -755,10 +755,10 @@ function RecentSignupsSection({ data }: { data: DashboardData }) {
                     <td className="px-3 py-2 text-xs text-muted-foreground">{p.club_team}</td>
                     <td className="px-3 py-2 text-xs capitalize">{p.tier}</td>
                     <td className="px-3 py-2 text-xs">
-                      <span className={`px-2 py-0.5 rounded-full border text-[10px] font-semibold ${
+                      <span className={`px-2 py-0.5 rounded-full border text-[10px] font-medium ${
                         p.onboarding_complete
-                          ? 'bg-[#4ADE80]/10 text-[#4ADE80] border-[#4ADE80]/30'
-                          : 'bg-[#C9A227]/10 text-[#C9A227] border-[#C9A227]/30'
+                          ? 'bg-[#4ade80]/10 text-[#4ade80] border-[#4ade80]/30'
+                          : 'bg-[#f59e0b]/10 text-[#f59e0b] border-[#f59e0b]/30'
                       }`}>
                         {p.onboarding_complete ? 'Complete' : 'Incomplete'}
                       </span>
@@ -784,7 +784,7 @@ function ErrorsSection({ data }: { data: DashboardData }) {
       <Section title="Errors (Sentry)">
         <Card>
           <p className="text-sm text-muted-foreground">
-            Sentry API not configured. Set <code className="text-[#C9A227]">SENTRY_API_TOKEN</code> in env to surface errors here.
+            Sentry API not configured. Set <code className="text-[#4ade80]">SENTRY_API_TOKEN</code> in env to surface errors here.
           </p>
         </Card>
       </Section>
@@ -839,7 +839,7 @@ function ErrorsSection({ data }: { data: DashboardData }) {
                 {s.topIssues.map((issue) => (
                   <tr key={issue.id} className="border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-colors">
                     <td className="px-3 py-2 text-xs">
-                      <p className="font-semibold truncate max-w-[24rem]" title={issue.title}>
+                      <p className="font-medium truncate max-w-[24rem]" title={issue.title}>
                         {issue.title}
                       </p>
                       <p className="text-[10px] text-muted-foreground/70 font-mono">{issue.shortId}</p>
@@ -847,11 +847,11 @@ function ErrorsSection({ data }: { data: DashboardData }) {
                     <td className="px-3 py-2 text-xs text-muted-foreground truncate max-w-[16rem]" title={issue.culprit ?? ''}>
                       {issue.culprit ?? '—'}
                     </td>
-                    <td className="px-3 py-2 text-xs text-right font-semibold">{Number(issue.count).toLocaleString()}</td>
+                    <td className="px-3 py-2 text-xs text-right font-medium">{Number(issue.count).toLocaleString()}</td>
                     <td className="px-3 py-2 text-xs text-right">{issue.userCount}</td>
                     <td className="px-3 py-2 text-xs text-muted-foreground whitespace-nowrap">{formatDate(issue.lastSeen)}</td>
                     <td className="px-3 py-2 text-xs">
-                      <span className={`px-2 py-0.5 rounded-full border text-[10px] font-semibold capitalize ${
+                      <span className={`px-2 py-0.5 rounded-full border text-[10px] font-medium capitalize ${
                         issue.level === 'fatal' || issue.level === 'error'
                           ? 'bg-red-500/10 text-red-300 border-red-500/30'
                           : issue.level === 'warning'
@@ -918,7 +918,7 @@ function HealthSection({ data }: { data: DashboardData }) {
             </AlertCard>
           )}
           {a.zeroTokenSubscribers.length > 0 && (
-            <AlertCard color="gold" title={`Active Subscribers with 0 Tokens (${a.zeroTokenSubscribers.length})`}>
+            <AlertCard color="amber" title={`Active Subscribers with 0 Tokens (${a.zeroTokenSubscribers.length})`}>
               <ul className="text-xs space-y-1">
                 {a.zeroTokenSubscribers.slice(0, 10).map((p) => (
                   <li key={p.id}>{`${p.first_name} ${p.last_name}`.trim()} — {p.tier}</li>
@@ -927,7 +927,7 @@ function HealthSection({ data }: { data: DashboardData }) {
             </AlertCard>
           )}
           {a.expiringInvites.length > 0 && (
-            <AlertCard color="gold" title={`Parent Invites Expiring within 48h (${a.expiringInvites.length})`}>
+            <AlertCard color="amber" title={`Parent Invites Expiring within 48h (${a.expiringInvites.length})`}>
               <ul className="text-xs space-y-1">
                 {a.expiringInvites.slice(0, 10).map((p) => (
                   <li key={p.id}>{p.email} — expires {formatDate(p.expires_at)}</li>
@@ -950,11 +950,10 @@ function HealthSection({ data }: { data: DashboardData }) {
   )
 }
 
-function AlertCard({ color, title, children }: { color: 'red' | 'amber' | 'gold'; title: string; children: React.ReactNode }) {
+function AlertCard({ color, title, children }: { color: 'red' | 'amber'; title: string; children: React.ReactNode }) {
   const styles = {
     red:   'border-red-500/30 bg-red-500/10 text-red-200',
     amber: 'border-amber-500/30 bg-amber-500/10 text-amber-200',
-    gold:  'border-[#C9A227]/30 bg-[#C9A227]/10 text-[#C9A227]',
   }[color]
   return (
     <div className={`rounded-xl border p-4 ${styles}`}>

@@ -95,7 +95,7 @@ function TierColumn({ tier, items, onStatusChange, onMomentumChange, onRemove }:
       {/* Column header */}
       <div className={cn('rounded-t-lg border px-4 py-3', config.headerClass)}>
         <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-sm">{config.label}</h3>
+          <h3 className="font-medium text-sm">{config.label}</h3>
           <span className="text-xs font-medium tabular-nums bg-background/60 rounded-full px-2 py-0.5">
             {items.length}
           </span>

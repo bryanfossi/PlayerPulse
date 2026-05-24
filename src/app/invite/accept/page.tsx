@@ -75,7 +75,7 @@ function Layout({ children }: { children: React.ReactNode }) {
       <div className="w-full max-w-md rounded-xl border p-8" style={{ backgroundColor: '#1A1F38', borderColor: 'rgba(255,255,255,0.1)' }}>
         <div className="flex items-center gap-2 mb-8">
           <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ backgroundColor: '#4ADE80' }}>
-            <span className="font-black text-xs" style={{ color: '#0F1120' }}>F</span>
+            <span className="font-bold text-xs" style={{ color: '#0F1120' }}>F</span>
           </div>
           <span className="font-bold text-sm">FuseID</span>
         </div>

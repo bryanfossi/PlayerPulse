@@ -43,7 +43,7 @@ export default async function BlogIndexPage() {
 
       <section className="pt-32 pb-12 px-6 md:px-12 text-center">
         <p className="fuse-label mb-3">FuseID Blog</p>
-        <h1 className="text-4xl md:text-5xl font-black tracking-tight">College Recruiting, Explained</h1>
+        <h1 className="text-4xl md:text-5xl font-bold tracking-tight">College Recruiting, Explained</h1>
         <p className="mt-4 max-w-2xl mx-auto text-base" style={{ color: '#9CA3AF' }}>
           Practical advice on getting recruited — timelines, email templates, scholarship strategy — for soccer, basketball, football, and volleyball athletes.
         </p>
@@ -77,7 +77,7 @@ export default async function BlogIndexPage() {
                 <p className="mt-2 text-sm leading-relaxed flex-1" style={{ color: '#9CA3AF' }}>
                   {article.description}
                 </p>
-                <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-[#4ADE80] group-hover:gap-2 transition-all">
+                <span className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-[#4ADE80] group-hover:gap-2 transition-all">
                   Read more <ArrowRight className="w-3 h-3" />
                 </span>
               </Link>

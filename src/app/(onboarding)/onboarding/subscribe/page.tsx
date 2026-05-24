@@ -154,13 +154,13 @@ function SubscribeContent() {
                 <div className="flex items-center justify-center gap-2 mb-1">
                   <p className="fuse-label">{plan.name}</p>
                   {plan.highlight && (
-                    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-[#4ADE80] text-[#0F1120]">
+                    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-[#4ADE80] text-[#052e16]">
                       Most popular
                     </span>
                   )}
                 </div>
                 <div className="flex items-end justify-center gap-2">
-                  <span className="text-4xl font-black">{formatPrice(plan.priceCents)}</span>
+                  <span className="text-4xl font-bold">{formatPrice(plan.priceCents)}</span>
                   <span className="text-muted-foreground text-sm mb-1">/month</span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">{plan.tagline}</p>
@@ -181,7 +181,7 @@ function SubscribeContent() {
                   disabled={loadingPlan !== null}
                   className={`w-full flex items-center justify-center gap-2 py-3 rounded-md font-bold text-sm transition-colors disabled:opacity-60 ${
                     plan.highlight
-                      ? 'bg-[#4ADE80] text-[#0F1120] hover:bg-[#22C55E]'
+                      ? 'bg-[#4ADE80] text-[#052e16] hover:bg-[#22C55E]'
                       : 'bg-white/10 text-white hover:bg-white/15 border border-white/15'
                   }`}
                 >

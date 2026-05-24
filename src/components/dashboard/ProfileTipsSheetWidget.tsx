@@ -18,7 +18,7 @@ export function ProfileTipsSheetWidget() {
           <div className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center">
             <Sparkles className="w-3.5 h-3.5 text-muted-foreground" />
           </div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">AI Profile Analysis</p>
+          <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">AI Profile Analysis</p>
         </div>
         <p className="text-xs text-muted-foreground mb-3">
           Get personalized tips on how to improve your recruiting profile.

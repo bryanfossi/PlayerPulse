@@ -90,7 +90,7 @@ export default async function SchoolDetailPage({
           <div className="flex items-center gap-2.5 flex-wrap">
             <h1 className="text-2xl font-bold tracking-tight">{s.name}</h1>
             {s.verified_division && (
-              <Badge variant="outline" className="font-semibold">{s.verified_division}</Badge>
+              <Badge variant="outline" className="font-medium">{s.verified_division}</Badge>
             )}
             {ps.tier && (
               <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${TIER_STYLES[ps.tier]}`}>
@@ -110,7 +110,7 @@ export default async function SchoolDetailPage({
         {/* Overall score */}
         {ps.overall_score != null && (
           <div className="flex flex-col items-center justify-center w-20 h-20 rounded-xl bg-[#4ADE80]/10 border border-[#4ADE80]/25 flex-shrink-0">
-            <span className="text-3xl font-black text-[#4ADE80] leading-none">{ps.overall_score}</span>
+            <span className="text-3xl font-bold text-[#4ADE80] leading-none">{ps.overall_score}</span>
             <span className="text-[10px] text-muted-foreground mt-0.5">/ 100</span>
           </div>
         )}

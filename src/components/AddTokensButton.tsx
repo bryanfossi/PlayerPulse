@@ -24,10 +24,10 @@ export function AddTokensButton() {
 
         <button
           onClick={() => setOpen(true)}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
             empty
               ? 'bg-red-500 hover:bg-red-400 text-white'
-              : 'bg-amber-500 hover:bg-amber-400 text-[#1a0f00]'
+              : 'bg-amber-500 hover:bg-amber-400 text-[#052e16]'
           }`}
         >
           <Plus className="w-3.5 h-3.5" />

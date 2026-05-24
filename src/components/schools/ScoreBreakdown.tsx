@@ -88,12 +88,12 @@ export function ScoreBreakdown({ ps, defaultOpen = false }: Props) {
               <div className="flex gap-4 text-xs">
                 {ps.player_level_band && (
                   <span className="text-muted-foreground">
-                    Player Band: <span className="font-semibold text-foreground">{ps.player_level_band}</span>
+                    Player Band: <span className="font-medium text-foreground">{ps.player_level_band}</span>
                   </span>
                 )}
                 {ps.roster_level_band && (
                   <span className="text-muted-foreground">
-                    Roster Band: <span className="font-semibold text-foreground">{ps.roster_level_band}</span>
+                    Roster Band: <span className="font-medium text-foreground">{ps.roster_level_band}</span>
                   </span>
                 )}
               </div>

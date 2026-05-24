@@ -131,12 +131,12 @@ export function FeedbackClient({
               onClick={() => applyFilter('type', f)}
               className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-colors capitalize ${
                 active
-                  ? 'bg-[#4ADE80] border-[#4ADE80] text-[#0F1120]'
+                  ? 'bg-[#4ADE80] border-[#4ADE80] text-[#052e16]'
                   : 'bg-white/5 border-white/10 text-muted-foreground hover:text-white hover:border-white/20'
               }`}
             >
               {f}
-              <span className={`ml-1.5 text-[10px] ${active ? 'text-[#0F1120]/70' : 'text-muted-foreground/60'}`}>
+              <span className={`ml-1.5 text-[10px] ${active ? 'text-[#052e16]/70' : 'text-muted-foreground/60'}`}>
                 {typeCounts[f] ?? 0}
               </span>
             </button>
@@ -157,12 +157,12 @@ export function FeedbackClient({
               onClick={() => applyFilter('status', f)}
               className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-colors capitalize ${
                 active
-                  ? 'bg-[#4ADE80] border-[#4ADE80] text-[#0F1120]'
+                  ? 'bg-[#4ADE80] border-[#4ADE80] text-[#052e16]'
                   : 'bg-white/5 border-white/10 text-muted-foreground hover:text-white hover:border-white/20'
               }`}
             >
               {f}
-              <span className={`ml-1.5 text-[10px] ${active ? 'text-[#0F1120]/70' : 'text-muted-foreground/60'}`}>
+              <span className={`ml-1.5 text-[10px] ${active ? 'text-[#052e16]/70' : 'text-muted-foreground/60'}`}>
                 {statusCounts[f] ?? 0}
               </span>
             </button>
@@ -210,7 +210,7 @@ export function FeedbackClient({
                     </td>
                     <td className="px-3 py-3 text-xs whitespace-nowrap">
                       <span
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-semibold capitalize ${TYPE_STYLES[row.type]}`}
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-medium capitalize ${TYPE_STYLES[row.type]}`}
                       >
                         <TypeIcon className="w-3 h-3" />
                         {row.type}
@@ -253,7 +253,7 @@ export function FeedbackClient({
                     <td className="px-3 py-3 text-xs">
                       <div className="flex items-center gap-2">
                         <span
-                          className={`px-2 py-0.5 rounded-full border text-[10px] font-semibold capitalize ${STATUS_STYLES[row.status]}`}
+                          className={`px-2 py-0.5 rounded-full border text-[10px] font-medium capitalize ${STATUS_STYLES[row.status]}`}
                         >
                           {row.status}
                         </span>

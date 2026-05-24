@@ -43,7 +43,7 @@ export function StepForcedSchools() {
       </div>
 
       <div className="bg-muted rounded-lg p-4 text-sm space-y-1">
-        <p className="font-semibold">Ready to generate your Top 40?</p>
+        <p className="font-medium">Ready to generate your Top 40?</p>
         <p className="text-muted-foreground">
           The Match Engine will analyze 1,000+ programs across {data.target_levels.join(', ')} and rank the
           40 best fits for you. This takes about 30–45 seconds.

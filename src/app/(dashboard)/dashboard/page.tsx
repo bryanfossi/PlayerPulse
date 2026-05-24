@@ -157,7 +157,7 @@ export default async function DashboardPage() {
   if (hotSchools.length > 0) {
     actions.push({
       eyebrow: 'Heating up',
-      eyebrowColor: '#FB923C',
+      eyebrowColor: '#f59e0b',
       title: `${hotSchools.length} school${hotSchools.length > 1 ? 's are' : ' is'} trending`,
       body: 'Capitalize on the momentum — send a follow-up or schedule a visit.',
       href: '/schools',
@@ -169,7 +169,7 @@ export default async function DashboardPage() {
   if (coldSchools.length > 0 && actions.length < 3) {
     actions.push({
       eyebrow: 'Going cold',
-      eyebrowColor: '#38BDF8',
+      eyebrowColor: '#3b82f6',
       title: `${coldSchools.length} school${coldSchools.length > 1 ? 's are' : ' is'} cooling`,
       body: 'Re-engage with a thoughtful message — or move on.',
       href: '/schools',
@@ -247,7 +247,7 @@ export default async function DashboardPage() {
       {/* ───────────────────────────────────────────────────────── */}
       {primaryAction && (
         <section>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] mb-3" style={{ color: '#9CA3AF' }}>
+          <p className="text-[11px] font-medium uppercase tracking-[0.12em] mb-3" style={{ color: '#9CA3AF' }}>
             Today
           </p>
 
@@ -265,7 +265,7 @@ export default async function DashboardPage() {
                 <primaryAction.icon className="w-5 h-5" style={{ color: primaryAction.eyebrowColor }} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: primaryAction.eyebrowColor }}>
+                <p className="text-[11px] font-medium uppercase tracking-[0.08em]" style={{ color: primaryAction.eyebrowColor }}>
                   {primaryAction.eyebrow}
                 </p>
                 <h2 className="text-xl md:text-2xl font-bold tracking-tight mt-1">
@@ -274,7 +274,7 @@ export default async function DashboardPage() {
                 <p className="text-sm mt-2" style={{ color: '#9CA3AF' }}>
                   {primaryAction.body}
                 </p>
-                <div className="inline-flex items-center gap-1.5 mt-4 text-sm font-semibold transition-colors group-hover:gap-2" style={{ color: primaryAction.eyebrowColor }}>
+                <div className="inline-flex items-center gap-1.5 mt-4 text-sm font-medium transition-colors group-hover:gap-2" style={{ color: primaryAction.eyebrowColor }}>
                   {primaryAction.cta}
                   <ArrowRight className="w-4 h-4 transition-transform" />
                 </div>
@@ -299,10 +299,10 @@ export default async function DashboardPage() {
                     <a.icon className="w-4 h-4" style={{ color: a.eyebrowColor }} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.08em]" style={{ color: a.eyebrowColor }}>
+                    <p className="text-[10px] font-medium uppercase tracking-[0.08em]" style={{ color: a.eyebrowColor }}>
                       {a.eyebrow}
                     </p>
-                    <p className="text-sm font-semibold mt-0.5">{a.title}</p>
+                    <p className="text-sm font-medium mt-0.5">{a.title}</p>
                   </div>
                   <ArrowRight className="w-4 h-4 mt-1 flex-shrink-0 transition-transform group-hover:translate-x-0.5" style={{ color: '#9CA3AF' }} />
                 </Link>
@@ -332,7 +332,7 @@ export default async function DashboardPage() {
       <section>
         <div className="flex items-baseline justify-between mb-4">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: '#9CA3AF' }}>
+            <p className="text-[11px] font-medium uppercase tracking-[0.12em]" style={{ color: '#9CA3AF' }}>
               Your top 10
             </p>
             <h2 className="text-lg font-bold tracking-tight mt-1">Schools you&apos;re tracking most</h2>
@@ -363,7 +363,7 @@ export default async function DashboardPage() {
       {/* ───────────────────────────────────────────────────────── */}
       <section>
         <div className="flex items-baseline justify-between mb-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: '#9CA3AF' }}>
+          <p className="text-[11px] font-medium uppercase tracking-[0.12em]" style={{ color: '#9CA3AF' }}>
             Action history
           </p>
           <Link href="/actions" className="text-xs font-medium transition-colors hover:text-white inline-flex items-center gap-1" style={{ color: '#9CA3AF' }}>
@@ -379,7 +379,7 @@ export default async function DashboardPage() {
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Pipeline */}
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] mb-4" style={{ color: '#9CA3AF' }}>
+          <p className="text-[11px] font-medium uppercase tracking-[0.12em] mb-4" style={{ color: '#9CA3AF' }}>
             Pipeline
           </p>
           {totalSchools === 0 ? (
@@ -403,7 +403,7 @@ export default async function DashboardPage() {
                         }}
                       />
                     </div>
-                    <span className="text-xs font-semibold tabular-nums w-6 text-right" style={{ color: count === 0 ? '#9CA3AF' : '#FFFFFF' }}>
+                    <span className="text-xs font-medium tabular-nums w-6 text-right" style={{ color: count === 0 ? '#9CA3AF' : '#FFFFFF' }}>
                       {count}
                     </span>
                   </div>
@@ -416,7 +416,7 @@ export default async function DashboardPage() {
         {/* Activity */}
         <div>
           <div className="flex items-baseline justify-between mb-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: '#9CA3AF' }}>
+            <p className="text-[11px] font-medium uppercase tracking-[0.12em]" style={{ color: '#9CA3AF' }}>
               Recent activity
             </p>
             <Link href="/communications" className="text-xs transition-colors hover:text-white" style={{ color: '#9CA3AF' }}>
@@ -479,10 +479,10 @@ function InlineStat({ label, value, icon: Icon, accent }: {
   return (
     <div className="px-5 py-4 flex items-center justify-between">
       <div>
-        <p className="text-[10px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9CA3AF' }}>
+        <p className="text-[10px] font-medium uppercase tracking-[0.08em]" style={{ color: '#9CA3AF' }}>
           {label}
         </p>
-        <p className="text-2xl font-black tabular-nums mt-1" style={{ color: accent ? '#4ADE80' : '#FFFFFF' }}>
+        <p className="text-2xl font-bold tabular-nums mt-1" style={{ color: accent ? '#4ADE80' : '#FFFFFF' }}>
           {value}
         </p>
       </div>
@@ -504,8 +504,8 @@ function Top10Card({ ps, rank }: {
 }) {
   const tierColor =
     ps.tier === 'Lock' ? '#4ADE80' :
-    ps.tier === 'Realistic' ? '#60A5FA' :
-    ps.tier === 'Reach' ? '#FBBF24' :
+    ps.tier === 'Realistic' ? '#3b82f6' :
+    ps.tier === 'Reach' ? '#f59e0b' :
     '#9CA3AF'
 
   const momentumStyle =
@@ -521,12 +521,12 @@ function Top10Card({ ps, rank }: {
       className="flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-colors hover:bg-white/[0.03] group"
       style={momentumStyle}
     >
-      <span className="text-sm font-black tabular-nums w-6 text-center flex-shrink-0" style={{ color: '#9CA3AF' }}>
+      <span className="text-sm font-bold tabular-nums w-6 text-center flex-shrink-0" style={{ color: '#9CA3AF' }}>
         {rank}
       </span>
       <div className="w-1 h-9 rounded-full flex-shrink-0" style={{ backgroundColor: tierColor }} />
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold truncate group-hover:text-[#4ADE80] transition-colors">
+        <p className="text-sm font-medium truncate group-hover:text-[#4ADE80] transition-colors">
           {ps.school.name}
         </p>
         <div className="flex items-center gap-1.5 mt-0.5 text-[10px]" style={{ color: '#9CA3AF' }}>
@@ -539,10 +539,10 @@ function Top10Card({ ps, rank }: {
           )}
         </div>
       </div>
-      {ps.momentum === 'hot' && <Flame className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#FB923C' }} />}
-      {ps.momentum === 'cold' && <Snowflake className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#38BDF8' }} />}
+      {ps.momentum === 'hot' && <Flame className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#f59e0b' }} />}
+      {ps.momentum === 'cold' && <Snowflake className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#3b82f6' }} />}
       {ps.overall_score != null && (
-        <span className="text-base font-black tabular-nums flex-shrink-0" style={{ color: '#4ADE80' }}>
+        <span className="text-base font-bold tabular-nums flex-shrink-0" style={{ color: '#4ADE80' }}>
           {ps.overall_score}
         </span>
       )}

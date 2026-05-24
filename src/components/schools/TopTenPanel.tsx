@@ -51,7 +51,7 @@ function SortableRow({ item, rank, highlight }: { item: BoardItem; rank: number;
         <GripVertical className="w-4 h-4" />
       </button>
 
-      <span className="w-5 text-center text-xs font-black tabular-nums text-muted-foreground/50 flex-shrink-0">
+      <span className="w-5 text-center text-xs font-bold tabular-nums text-muted-foreground/50 flex-shrink-0">
         {rank}
       </span>
 
@@ -69,7 +69,7 @@ function SortableRow({ item, rank, highlight }: { item: BoardItem; rank: number;
       )}
 
       {item.tier && (
-        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${TIER_PILL[item.tier] ?? 'bg-muted text-muted-foreground'}`}>
+        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${TIER_PILL[item.tier] ?? 'bg-muted text-muted-foreground'}`}>
           {item.tier}
         </span>
       )}
@@ -143,7 +143,7 @@ export function TopTenPanel({ items, onItemsChange }: Props) {
           {visible.length > 10 && (
             <div className="flex items-center gap-3 px-4 py-2">
               <div className="flex-1 h-px bg-border" />
-              <span className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-widest">Below Top 10</span>
+              <span className="text-[10px] font-medium text-muted-foreground/50 uppercase tracking-widest">Below Top 10</span>
               <div className="flex-1 h-px bg-border" />
             </div>
           )}

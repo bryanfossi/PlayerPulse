@@ -83,15 +83,15 @@ export function SchoolsBoardClient({ initialItems, playerId }: Props) {
         {/* Tier summary */}
         <div className="flex items-center gap-3 text-sm">
           <span className="text-muted-foreground">
-            <span className="font-semibold text-green-600 dark:text-green-400">{lockCount}</span> Lock
+            <span className="font-medium text-green-600 dark:text-green-400">{lockCount}</span> Lock
           </span>
           <span className="text-muted-foreground">·</span>
           <span className="text-muted-foreground">
-            <span className="font-semibold text-blue-600 dark:text-blue-400">{realisticCount}</span> Realistic
+            <span className="font-medium text-blue-600 dark:text-blue-400">{realisticCount}</span> Realistic
           </span>
           <span className="text-muted-foreground">·</span>
           <span className="text-muted-foreground">
-            <span className="font-semibold text-amber-600 dark:text-amber-400">{reachCount}</span> Reach
+            <span className="font-medium text-amber-600 dark:text-amber-400">{reachCount}</span> Reach
           </span>
           <span className="text-muted-foreground">· {items.length} total</span>
         </div>

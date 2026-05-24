@@ -201,7 +201,7 @@ export function SchoolListView({ items, onStatusChange, onMomentumChange, onRemo
                       <DropdownMenuItem
                         key={s}
                         onClick={() => handleStatus(item.id, s)}
-                        className={cn('text-xs', item.status === s && 'font-semibold')}
+                        className={cn('text-xs', item.status === s && 'font-medium')}
                       >
                         {STATUS_LABELS[s]}
                       </DropdownMenuItem>

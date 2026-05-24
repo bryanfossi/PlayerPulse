@@ -4,12 +4,19 @@ import { useState, useEffect, useTransition } from 'react'
 import Image from 'next/image'
 import type { PlayerAward, PlayerEvent, ScheduleEntry, HighlightClip } from '@/types/app'
 
-// ─── Design tokens ────────────────────────────────────────────────────────────
-const GOLD = '#D4AF37'
-const GOLD_LIGHT = '#E8CC6E'
-const DARK = '#050505'
-const DARK_CARD = '#0A0A0A'
-const DARK_SOFT = '#141414'
+// ─── Design tokens (FUSE-ID brand kit) ────────────────────────────────────────
+// Public profile uses the standard FUSE-ID dark palette: green accent on
+// near-black backgrounds. No gold, no serif, no sub-brand carve-out.
+const ACCENT = '#4ade80'        // brand green-400 (primary accent, was GOLD)
+const ACCENT_BRIGHT = '#22c55e' // brand green-500 (was GOLD_LIGHT — used for hover/secondary)
+const DARK = '#0f1120'           // brand bg-base (was #0f1120)
+const DARK_CARD = '#1a1f35'      // brand bg-card (was #1a1f35)
+const DARK_SOFT = '#252b44'      // brand bg-raised (was #252b44)
+
+// Kept the old GOLD names as aliases so the rest of the file's references
+// don't need a sweep. They now resolve to brand green.
+const GOLD = ACCENT
+const GOLD_LIGHT = ACCENT_BRIGHT
 
 interface Player {
   id: string
@@ -121,7 +128,7 @@ function NavBar({ playerName }: { playerName: string }) {
       }}
     >
       <div style={{ maxWidth: 1152, margin: '0 auto', padding: '0 24px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <a href="#about" style={{ fontFamily: 'Cinzel, serif', fontSize: 18, letterSpacing: '0.1em', color: GOLD, textDecoration: 'none' }}>
+        <a href="#about" style={{ fontFamily: '"DM Sans", system-ui, sans-serif', fontSize: 18, letterSpacing: '0.1em', color: GOLD, textDecoration: 'none' }}>
           {playerName}
         </a>
         {/* Desktop nav */}
@@ -164,7 +171,7 @@ function SectionHeading({ title, subtitle }: { title: string; subtitle?: string 
   return (
     <div style={{ marginBottom: 40, textAlign: 'center' }}>
       <div style={{ width: 64, height: 1, background: GOLD, margin: '0 auto 24px' }} />
-      <h2 style={{ fontFamily: 'Cinzel, serif', fontSize: 28, fontWeight: 600, color: 'white', letterSpacing: '0.05em', margin: 0 }}>{title}</h2>
+      <h2 style={{ fontFamily: '"DM Sans", system-ui, sans-serif', fontSize: 28, fontWeight: 500, color: 'white', letterSpacing: '0.05em', margin: 0 }}>{title}</h2>
       {subtitle && <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, marginTop: 8 }}>{subtitle}</p>}
     </div>
   )
@@ -203,7 +210,7 @@ function CoachContactForm({ playerId }: { playerId: string }) {
   if (sent) {
     return (
       <div style={{ textAlign: 'center', padding: '32px 0' }}>
-        <p style={{ color: GOLD, fontFamily: 'Cinzel, serif', fontSize: 18 }}>Message sent!</p>
+        <p style={{ color: GOLD, fontFamily: '"DM Sans", system-ui, sans-serif', fontSize: 18 }}>Message sent!</p>
         <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, marginTop: 8 }}>The player and their family will be in touch.</p>
       </div>
     )
@@ -229,7 +236,7 @@ function CoachContactForm({ playerId }: { playerId: string }) {
         <label style={{ display: 'block', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Message *</label>
         <textarea style={{ ...inputStyle, resize: 'none', minHeight: 100 }} value={message} onChange={e => setMessage(e.target.value)} placeholder="I'm reaching out about your interest in our program..." />
       </div>
-      {error && <p style={{ color: '#f87171', fontSize: 13 }}>{error}</p>}
+      {error && <p style={{ color: '#ef4444', fontSize: 13 }}>{error}</p>}
       <button
         onClick={handleSubmit}
         disabled={pending}
@@ -269,7 +276,7 @@ export function PublicProfileClient({ player, topSchools, slug }: Props) {
   const hasAcademics = player.unweighted_gpa || player.sat_score || player.act_score || player.class_rank || player.intended_major || (player.academic_honors?.length ?? 0) > 0
 
   return (
-    <div style={{ background: DARK, minHeight: '100vh', color: 'white', fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <div style={{ background: DARK, minHeight: '100vh', color: 'white', fontFamily: 'DM Sans, system-ui, sans-serif' }}>
       <NavBar playerName={fullName} />
 
       {/* ── Hero ── */}
@@ -277,12 +284,12 @@ export function PublicProfileClient({ player, topSchools, slug }: Props) {
         {player.hero_image_url && (
           <div style={{ position: 'absolute', inset: 0 }}>
             <Image src={player.hero_image_url} alt={fullName} fill style={{ objectFit: 'cover', objectPosition: 'top', opacity: 0.5 }} priority />
-            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, #050505 0%, rgba(5,5,5,0.7) 50%, transparent 100%)' }} />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, #0f1120 0%, rgba(5,5,5,0.7) 50%, transparent 100%)' }} />
             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(5,5,5,0.6) 0%, transparent 60%)' }} />
           </div>
         )}
         {!player.hero_image_url && (
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #0A1628 0%, #050505 100%)' }} />
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #0f1120 0%, #0f1120 100%)' }} />
         )}
 
         <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: 1152, margin: '0 auto', padding: '0 24px 96px', paddingTop: 128 }}>
@@ -298,7 +305,7 @@ export function PublicProfileClient({ player, topSchools, slug }: Props) {
                 </p>
               </div>
 
-              <h1 style={{ fontFamily: 'Cinzel, serif', fontSize: 'clamp(40px, 8vw, 72px)', color: 'white', margin: '0 0 16px', lineHeight: 1.1 }}>
+              <h1 style={{ fontFamily: '"DM Sans", system-ui, sans-serif', fontSize: 'clamp(40px, 8vw, 72px)', color: 'white', margin: '0 0 16px', lineHeight: 1.1 }}>
                 {fullName}
               </h1>
 
@@ -336,10 +343,10 @@ export function PublicProfileClient({ player, topSchools, slug }: Props) {
                   <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.3em', color: `${GOLD}99`, marginBottom: 12 }}>Top Schools</p>
                   {topSchools.slice(0, 8).map((ps, i) => (
                     <div key={ps.id} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-                      <span style={{ fontSize: 9, fontWeight: 900, color: 'rgba(255,255,255,0.25)', width: 14, textAlign: 'center', flexShrink: 0 }}>
+                      <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', width: 14, textAlign: 'center', flexShrink: 0 }}>
                         {ps.rank_order ?? i + 1}
                       </span>
-                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: ps.tier === 'Lock' ? GOLD : ps.tier === 'Realistic' ? '#60a5fa' : '#fbbf24', flexShrink: 0 }} />
+                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: ps.tier === 'Lock' ? GOLD : ps.tier === 'Realistic' ? '#3b82f6' : '#f59e0b', flexShrink: 0 }} />
                       <div>
                         <p style={{ fontSize: 12, fontWeight: 500, margin: 0 }}>{ps.school.name}</p>
                         <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', margin: 0 }}>{ps.school.verified_division ?? '—'}</p>
@@ -359,7 +366,7 @@ export function PublicProfileClient({ player, topSchools, slug }: Props) {
           <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(statItems.length, 4)}, 1fr)`, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, overflow: 'hidden', gap: 1, background: 'rgba(255,255,255,0.1)' }}>
             {statItems.slice(0, 4).map((s, i) => (
               <div key={i} style={{ textAlign: 'center', padding: '24px 16px', background: DARK_CARD }}>
-                <div style={{ fontSize: 28, fontFamily: 'Cinzel, serif', background: `linear-gradient(135deg, ${GOLD}, ${GOLD_LIGHT}, ${GOLD})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: 4 }}>{s.value}</div>
+                <div style={{ fontSize: 28, fontFamily: '"DM Sans", system-ui, sans-serif', background: `linear-gradient(135deg, ${GOLD}, ${GOLD_LIGHT}, ${GOLD})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: 4 }}>{s.value}</div>
                 <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.3em', color: 'rgba(255,255,255,0.5)' }}>{s.label}</div>
               </div>
             ))}
@@ -376,11 +383,11 @@ export function PublicProfileClient({ player, topSchools, slug }: Props) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               {awards.map((award, i) => (
                 <div key={i} style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
-                  <div style={{ fontFamily: 'Cinzel, serif', fontSize: 17, color: GOLD, width: 56, textAlign: 'right', flexShrink: 0, paddingTop: 2 }}>{award.year}</div>
+                  <div style={{ fontFamily: '"DM Sans", system-ui, sans-serif', fontSize: 17, color: GOLD, width: 56, textAlign: 'right', flexShrink: 0, paddingTop: 2 }}>{award.year}</div>
                   <div style={{ width: 8, height: 8, borderRadius: '50%', background: `${GOLD}80`, flexShrink: 0, marginTop: 8, outline: `2px solid ${DARK}`, position: 'relative', zIndex: 1 }} />
                   <div style={{ flex: 1, background: DARK_CARD, border: '1px solid rgba(255,255,255,0.05)', borderRadius: 8, padding: 16 }}>
                     <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 4 }}>
-                      <span style={{ color: 'white', fontWeight: 600 }}>{award.title}</span>
+                      <span style={{ color: 'white', fontWeight: 500 }}>{award.title}</span>
                       <span style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.2em', padding: '2px 8px', borderRadius: 20, border: `1px solid ${award.type === 'academic' ? 'rgba(96,165,250,0.3)' : `${GOLD}30`}`, color: award.type === 'academic' ? 'rgba(96,165,250,0.8)' : `${GOLD}cc` }}>
                         {award.type === 'academic' ? 'Academic' : 'Athletic'}
                       </span>
@@ -400,15 +407,15 @@ export function PublicProfileClient({ player, topSchools, slug }: Props) {
           <SectionHeading title="Upcoming Events" subtitle="Tournaments, showcases, and camps" />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20 }}>
             {events.map((evt, i) => {
-              const typeColors: Record<string, string> = { tournament: '#fbbf24', showcase: '#34d399', camp: '#38bdf8' }
-              const c = typeColors[evt.type?.toLowerCase()] ?? '#a78bfa'
+              const typeColors: Record<string, string> = { tournament: '#f59e0b', showcase: '#4ade80', camp: '#3b82f6' }
+              const c = typeColors[evt.type?.toLowerCase()] ?? '#8b5cf6'
               return (
                 <div key={i} style={{ background: DARK_CARD, border: '1px solid rgba(255,255,255,0.05)', borderRadius: 8, padding: 20 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                     <span style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.2em', color: c, border: `1px solid ${c}40`, borderRadius: 20, padding: '2px 8px' }}>{evt.type}</span>
                     <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12 }}>{evt.date}</span>
                   </div>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>{evt.name}</div>
+                  <div style={{ fontWeight: 500, marginBottom: 4 }}>{evt.name}</div>
                   {evt.location && <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12, marginBottom: 8 }}>{evt.location}</div>}
                   {evt.description && <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, lineHeight: 1.5 }}>{evt.description}</div>}
                   {evt.url && <a href={evt.url} target="_blank" rel="noreferrer" style={{ display: 'inline-block', marginTop: 12, color: `${GOLD}bb`, fontSize: 12, textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Details →</a>}
@@ -440,7 +447,7 @@ export function PublicProfileClient({ player, topSchools, slug }: Props) {
                     <td style={{ padding: 12, color: 'rgba(255,255,255,0.6)' }}>{g.competition}</td>
                     <td style={{ padding: 12, color: g.location === 'Home' ? '#4ade8099' : 'rgba(255,255,255,0.5)' }}>{g.location}</td>
                     <td style={{ padding: 12, color: 'rgba(255,255,255,0.6)' }}>{g.time}</td>
-                    <td style={{ padding: 12, color: g.result?.startsWith('W') ? '#4ade80' : g.result?.startsWith('L') ? '#f87171' : 'rgba(255,255,255,0.4)' }}>{g.result || '—'}</td>
+                    <td style={{ padding: 12, color: g.result?.startsWith('W') ? '#4ade80' : g.result?.startsWith('L') ? '#ef4444' : 'rgba(255,255,255,0.4)' }}>{g.result || '—'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -464,7 +471,7 @@ export function PublicProfileClient({ player, topSchools, slug }: Props) {
                   { val: player.class_rank, label: 'Class Rank' },
                 ].filter(x => x.val).map(({ val, label }) => (
                   <div key={label}>
-                    <div style={{ fontFamily: 'Cinzel, serif', fontSize: 24, color: 'white' }}>{val}</div>
+                    <div style={{ fontFamily: '"DM Sans", system-ui, sans-serif', fontSize: 24, color: 'white' }}>{val}</div>
                     <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.4)' }}>{label}</div>
                   </div>
                 ))}

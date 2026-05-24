@@ -70,7 +70,7 @@ export default function ResetPasswordPage() {
             <CheckCircle2 className="w-6 h-6 text-green-400" />
           </div>
           <div>
-            <h2 className="font-semibold text-lg">Password updated!</h2>
+            <h2 className="font-medium text-lg">Password updated!</h2>
             <p className="text-green-200 text-sm mt-1">Redirecting you to the dashboard…</p>
           </div>
         </CardContent>
@@ -134,7 +134,7 @@ export default function ResetPasswordPage() {
         <CardFooter className="flex flex-col gap-3">
           <Button
             type="submit"
-            className="w-full bg-[#4ADE80] hover:bg-[#22C55E] text-green-950 font-semibold"
+            className="w-full bg-[#4ADE80] hover:bg-[#22C55E] text-green-950 font-medium"
             disabled={loading}
           >
             {loading ? 'Saving…' : 'Update Password'}

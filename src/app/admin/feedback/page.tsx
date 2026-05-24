@@ -81,7 +81,7 @@ export default async function AdminFeedbackPage({ searchParams }: PageProps) {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       <header className="space-y-1">
-        <h1 className="text-2xl font-black tracking-tight">Feedback</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Feedback</h1>
         <p className="text-sm text-muted-foreground">
           Every submission from the floating feedback button. Filter by type and status as you triage.
         </p>

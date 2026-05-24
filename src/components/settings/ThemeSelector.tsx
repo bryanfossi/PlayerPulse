@@ -38,7 +38,7 @@ export function ThemeSelector() {
               {/* Selected checkmark */}
               {isActive && (
                 <span className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#4ADE80] flex items-center justify-center">
-                  <Check className="w-3 h-3 text-[#0F1120]" />
+                  <Check className="w-3 h-3 text-[#052e16]" />
                 </span>
               )}
 
@@ -63,7 +63,7 @@ export function ThemeSelector() {
                 className="mt-3 rounded-md p-2 text-[10px]"
                 style={{ background: t.surface, color: t.textSecondary, border: `1px solid ${t.border}` }}
               >
-                <span style={{ color: t.textPrimary, fontWeight: 600 }}>FuseID</span>
+                <span style={{ color: t.textPrimary, fontWeight: 500 }}>FuseID</span>
                 {' · '}
                 <span style={{ color: t.accent }}>Match Engine</span>
               </div>

@@ -38,7 +38,7 @@ export function RerunButton({ onRerun, isLoading }: Props) {
           <Button
             size="sm"
             onClick={() => setUpgradeOpen(true)}
-            className="gap-1.5 bg-amber-500 hover:bg-amber-400 text-[#1a0f00] font-semibold"
+            className="gap-1.5 bg-amber-500 hover:bg-amber-400 text-[#052e16] font-medium"
           >
             <Plus className="w-3.5 h-3.5" />
             Get Tokens
@@ -78,7 +78,7 @@ export function RerunButton({ onRerun, isLoading }: Props) {
             <p className="text-sm text-muted-foreground leading-relaxed">
               This will update your scored school list based on your current profile. Manually added schools will be kept.
             </p>
-            <p className="text-sm font-semibold text-amber-400">
+            <p className="text-sm font-medium text-amber-400">
               This uses {cost} tokens. You have {tokenBalance} remaining.
             </p>
             <div className="flex gap-2 justify-end">

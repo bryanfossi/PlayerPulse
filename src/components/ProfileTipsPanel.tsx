@@ -139,7 +139,7 @@ export function ProfileTipsPanel() {
       <div className="flex items-start gap-3 rounded-md border px-4 py-4" style={{ borderColor: '#4ADE80', backgroundColor: 'rgba(74,222,128,0.08)' }}>
         <Zap className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#4ADE80' }} />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold" style={{ color: '#4ADE80' }}>Out of tokens</p>
+          <p className="text-sm font-medium" style={{ color: '#4ADE80' }}>Out of tokens</p>
           <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>
             Generating action tips costs {TOKEN_COSTS.AI_QUERY} token. Buy a 30-token pack to keep generating.
           </p>
@@ -220,7 +220,7 @@ export function ProfileTipsPanel() {
                 >
                   <div className="flex items-center gap-2">
                     <Icon className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-                    <p className="text-sm font-semibold leading-none">{tip.title}</p>
+                    <p className="text-sm font-medium leading-none">{tip.title}</p>
                     <span className={cn('ml-auto text-[10px] px-2 py-0.5 rounded-full border font-medium', cfg.badge)}>
                       {tip.category}
                     </span>
@@ -231,7 +231,7 @@ export function ProfileTipsPanel() {
                       onClick={() => !saved && handleSaveAsAction(tip, key)}
                       disabled={saved || saving}
                       className={cn(
-                        'inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border transition-colors',
+                        'inline-flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-md border transition-colors',
                         saved
                           ? 'border-green-500/30 bg-green-500/10 text-green-400 cursor-default'
                           : 'border-white/15 hover:border-[#4ADE80] hover:bg-[#4ADE80]/10 hover:text-[#4ADE80]',

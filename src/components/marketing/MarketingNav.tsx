@@ -64,7 +64,7 @@ export function MarketingNav() {
         </Link>
         <Link
           href="/register"
-          className="text-sm font-semibold px-4 py-1.5 rounded-md transition-colors"
+          className="text-sm font-medium px-4 py-1.5 rounded-md transition-colors"
           style={{ backgroundColor: '#4ADE80', color: '#0F1120' }}
         >
           Get started
@@ -110,7 +110,7 @@ export function MarketingNav() {
           <div className="border-t pt-4" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
             <Link
               href="/register"
-              className="block text-sm font-semibold px-4 py-2.5 rounded-md transition-colors text-center"
+              className="block text-sm font-medium px-4 py-2.5 rounded-md transition-colors text-center"
               style={{ backgroundColor: '#4ADE80', color: '#0F1120' }}
               onClick={() => setMenuOpen(false)}
             >

@@ -9,71 +9,96 @@ html {
 @custom-variant dark (&:is(.dark *));
 
 /*
- * FuseID brand system
- * - Background primary:  #0F1120 (deep navy)        → HSL 231 36% 9%
- * - Background secondary:#1A1F38 (navy mid)         → HSL 229 38% 16%
- * - Accent:              #4ADE80 (electric green)   → HSL 142 69% 58%
- * - Accent deep:         #22C55E                    → HSL 142 71% 45%
- * - Text primary:        #FFFFFF                    → HSL 0 0% 100%
- * - Text muted:          #9CA3AF                    → HSL 220 9% 65%
- * - Border:              rgba(255,255,255,0.1)      → HSL 0 0% 100% with alpha
- * Dark backgrounds only — light mode is no longer supported (vars left
- * for libraries that read them, but UI is always dark).
+ * FUSE-ID brand system — tokens aligned to the official brand kit.
+ *
+ * Dark mode:
+ *   bg-base #0f1120 (231 36% 9%) · bg-card #1a1f35 (229 36% 16%)
+ *   bg-raised #252b44 (228 31% 21%) · text-primary #ffffff
+ *   text-secondary #9ca3af · text-tertiary #555555
+ *   accent green-400 #4ade80 (142 71% 58%) · green-500 #22c55e (142 71% 45%)
+ *   primary-foreground #052e16 (142 76% 10%) — dark green for green-button text
+ *
+ * Light mode:
+ *   bg-base #ffffff · bg-card #f9fafb · border #e5e7eb
+ *   text-primary #0a0a0a · text-secondary #374151 · text-subtle #6b7280
+ *   accent green-400 #22c55e (142 71% 45%) · green-500 #16a34a (142 76% 36%)
+ *
+ * Semantic (mode-independent):
+ *   Lock #4ade80 · Realistic #3b82f6 · Reach #f59e0b
+ *   Deadline alert #ef4444 · Pro badge #8b5cf6
  */
 
 :root {
-  --background: 231 36% 9%;
-  --foreground: 0 0% 100%;
-  --card: 229 38% 16%;
-  --card-foreground: 0 0% 100%;
-  --popover: 229 38% 16%;
-  --popover-foreground: 0 0% 100%;
-  --primary: 142 69% 58%;
-  --primary-foreground: 231 36% 9%;
-  --secondary: 229 38% 16%;
-  --secondary-foreground: 0 0% 100%;
-  --muted: 229 38% 16%;
-  --muted-foreground: 220 9% 65%;
-  --accent: 142 69% 58%;
-  --accent-foreground: 231 36% 9%;
-  --destructive: 0 70% 55%;
+  /* Light mode is the default :root scope — see .dark below for dark overrides. */
+  --background: 0 0% 100%;
+  --foreground: 0 0% 4%;
+  --card: 210 17% 98%;
+  --card-foreground: 0 0% 4%;
+  --popover: 210 17% 98%;
+  --popover-foreground: 0 0% 4%;
+  --primary: 142 71% 45%;
+  --primary-foreground: 142 76% 10%;
+  --secondary: 220 14% 96%;
+  --secondary-foreground: 218 17% 26%;
+  --muted: 220 14% 96%;
+  --muted-foreground: 220 9% 46%;
+  --accent: 142 71% 45%;
+  --accent-foreground: 142 76% 10%;
+  --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
-  --border: 0 0% 100%;
-  --border-alpha: 0.1;
-  --input: 229 38% 16%;
-  --ring: 142 69% 58%;
+  --border: 220 13% 91%;
+  --border-alpha: 1;
+  --input: 220 13% 91%;
+  --ring: 142 71% 45%;
   --radius: 0.5rem;
-  --chart-1: 142 69% 58%;
+  --chart-1: 142 71% 45%;
   --chart-2: 217 91% 60%;
   --chart-3: 38 92% 50%;
-  --chart-4: 280 65% 60%;
+  --chart-4: 262 83% 67%;
   --chart-5: 340 75% 55%;
 }
 
 .dark {
   --background: 231 36% 9%;
   --foreground: 0 0% 100%;
-  --card: 229 38% 16%;
+  --card: 229 36% 16%;
   --card-foreground: 0 0% 100%;
-  --popover: 229 38% 16%;
+  --popover: 229 36% 16%;
   --popover-foreground: 0 0% 100%;
-  --primary: 142 69% 58%;
-  --primary-foreground: 231 36% 9%;
-  --secondary: 229 38% 16%;
-  --secondary-foreground: 0 0% 100%;
-  --muted: 229 38% 16%;
+  --primary: 142 71% 58%;
+  --primary-foreground: 142 76% 10%;
+  --secondary: 229 36% 16%;
+  --secondary-foreground: 220 9% 65%;
+  --muted: 229 36% 16%;
   --muted-foreground: 220 9% 65%;
-  --accent: 142 69% 58%;
-  --accent-foreground: 231 36% 9%;
-  --destructive: 0 70% 55%;
+  --accent: 142 71% 58%;
+  --accent-foreground: 142 76% 10%;
+  --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
-  --border: 0 0% 100%;
-  --input: 229 38% 16%;
-  --ring: 142 69% 58%;
+  --border: 228 31% 21%;
+  --border-alpha: 1;
+  --input: 229 36% 16%;
+  --ring: 142 71% 58%;
+  --chart-1: 142 71% 58%;
+  --chart-2: 217 91% 60%;
+  --chart-3: 38 92% 50%;
+  --chart-4: 262 83% 67%;
+  --chart-5: 340 75% 55%;
 }
 
 @theme inline {
-  --font-sans: Inter, "DM Sans", system-ui, sans-serif;
+  --font-sans: "DM Sans", system-ui, -apple-system, sans-serif;
+
+  /* Brand radius scale — derived from --radius so the cascade still works,
+     but mapped to the FUSE-ID kit values:
+       sm = 4px (badges), md = 6px (buttons), lg = 8px (inputs),
+       xl = 12px (cards), 2xl = 16px (modals), 3xl = 24px (pills) */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 16px);
 
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
@@ -99,10 +124,6 @@ html {
   --color-chart-3: hsl(var(--chart-3));
   --color-chart-4: hsl(var(--chart-4));
   --color-chart-5: hsl(var(--chart-5));
-  --radius-sm: calc(var(--radius) - 2px);
-  --radius-md: calc(var(--radius) - 0px);
-  --radius-lg: calc(var(--radius) + 4px);
-  --radius-xl: calc(var(--radius) + 8px);
 }
 
 * {
@@ -116,32 +137,30 @@ html {
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
-  font-family: Inter, "DM Sans", system-ui, sans-serif;
+  font-family: "DM Sans", system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
-  letter-spacing: -0.005em;
+  line-height: 1.6;
 }
 
-/* Display / heading default: tight tracking, heavy weight */
-h1, h2, h3, h4 {
-  letter-spacing: -0.02em;
+/* Display headlines (H1) per FUSE-ID brand kit — 24px / 700 / -0.03em */
+h1 {
+  letter-spacing: -0.03em;
   font-weight: 700;
+  line-height: 1.2;
 }
 
-/* UI label utility — per FuseID spec */
+/* Section headers (H2) per spec — 18px / 500 / -0.02em */
+h2, h3, h4 {
+  letter-spacing: -0.02em;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+/* UI label utility — per FUSE-ID brand kit (11px / 500 / 0.1em uppercase) */
 .fuse-label {
   font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #4ADE80;
-  font-weight: 600;
-}
-
-/* Brand theme semantic vars (used by ThemeProvider) — re-aligned to FuseID */
-:root {
-  --color-bg: #0F1120;
-  --color-surface: #1A1F38;
-  --color-text-primary: #FFFFFF;
-  --color-text-secondary: #9CA3AF;
-  --color-accent-brand: #4ADE80;
-  --color-border-brand: rgba(255,255,255,0.1);
+  letter-spacing: 0.1em;
+  color: hsl(var(--primary));
+  font-weight: 500;
 }

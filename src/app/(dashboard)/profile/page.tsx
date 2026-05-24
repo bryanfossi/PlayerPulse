@@ -66,14 +66,14 @@ export default async function ProfilePage() {
         <div className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/8 px-4 py-3">
           <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-amber-400">Complete your profile</p>
+            <p className="text-sm font-medium text-amber-400">Complete your profile</p>
             <p className="text-xs text-amber-400/80 mt-0.5">
               Missing: {missingFields.join(', ')}. A complete profile helps coaches find you and improves your match scores.
             </p>
           </div>
           <Link
             href="/profile/edit"
-            className="flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-[#1a0f00] transition-colors"
+            className="flex-shrink-0 text-xs font-medium px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-[#052e16] transition-colors"
           >
             Fill in
           </Link>
@@ -83,7 +83,7 @@ export default async function ProfilePage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-xl bg-[#4ADE80]/15 border border-[#4ADE80]/25 flex items-center justify-center text-[#4ADE80] font-black text-xl flex-shrink-0">
+          <div className="w-14 h-14 rounded-xl bg-[#4ADE80]/15 border border-[#4ADE80]/25 flex items-center justify-center text-[#4ADE80] font-bold text-xl flex-shrink-0">
             {player.first_name[0]}{player.last_name[0]}
           </div>
           <div>

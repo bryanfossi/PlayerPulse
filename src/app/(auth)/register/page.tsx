@@ -235,7 +235,7 @@ export default function RegisterPage() {
         <CardFooter className="flex flex-col gap-3">
           <Button
             type="submit"
-            className="w-full bg-[#4ADE80] hover:bg-[#22C55E] text-green-950 font-semibold"
+            className="w-full bg-[#4ADE80] hover:bg-[#22C55E] text-green-950 font-medium"
             disabled={loading}
           >
             {loading ? 'Creating account…' : 'Create Account'}

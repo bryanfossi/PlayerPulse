@@ -126,7 +126,7 @@ export function SchoolCard({ item, dragHandleProps, onStatusChange, onMomentumCh
           <div className="flex items-start justify-between gap-1">
             <Link
               href={`/schools/${item.id}`}
-              className="font-semibold text-sm leading-tight hover:text-primary transition-colors line-clamp-2 flex items-center gap-1"
+              className="font-medium text-sm leading-tight hover:text-primary transition-colors line-clamp-2 flex items-center gap-1"
             >
               {s.name}
               {item.status === 'offer_received' && (
@@ -189,7 +189,7 @@ export function SchoolCard({ item, dragHandleProps, onStatusChange, onMomentumCh
               <DropdownMenuItem
                 key={s}
                 onClick={() => handleStatus(s)}
-                className={cn('text-xs', item.status === s && 'font-semibold')}
+                className={cn('text-xs', item.status === s && 'font-medium')}
               >
                 {STATUS_LABELS[s]}
               </DropdownMenuItem>

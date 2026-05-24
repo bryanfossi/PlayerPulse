@@ -47,7 +47,7 @@ const SOURCE_LABEL: Record<ActionRow['source'], string> = {
 const SOURCE_COLOR: Record<ActionRow['source'], string> = {
   manual: '#9CA3AF',
   profile_tip: '#4ADE80',
-  follow_up: '#60A5FA',
+  follow_up: '#3b82f6',
   system: '#9CA3AF',
 }
 
@@ -92,7 +92,7 @@ export function ActionsClient({ initialActions, schools }: Props) {
                 onClick={() => setTab(t.value)}
                 className={cn(
                   'px-4 py-1.5 text-xs font-medium transition-colors',
-                  active ? 'bg-[#4ADE80] text-[#0F1120]' : 'hover:bg-white/5 text-muted-foreground',
+                  active ? 'bg-[#4ADE80] text-[#052e16]' : 'hover:bg-white/5 text-muted-foreground',
                 )}
               >
                 {t.label} <span className="opacity-60">({count})</span>
@@ -219,7 +219,7 @@ function ActionRow({ action, schools, onUpdated, onDeleted }: {
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <p className={cn('text-sm font-semibold leading-snug', isCompleted && 'line-through opacity-60')}>
+        <p className={cn('text-sm font-medium leading-snug', isCompleted && 'line-through opacity-60')}>
           {action.title}
         </p>
         {action.description && (

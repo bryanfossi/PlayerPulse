@@ -49,7 +49,7 @@ export default function ForgotPasswordPage() {
             <CheckCircle2 className="w-6 h-6 text-green-400" />
           </div>
           <div>
-            <h2 className="font-semibold text-lg">Check your email</h2>
+            <h2 className="font-medium text-lg">Check your email</h2>
             <p className="text-green-200 text-sm mt-1">
               We sent a password reset link to{' '}
               <span className="font-medium text-white">{getValues('email')}</span>.
@@ -104,7 +104,7 @@ export default function ForgotPasswordPage() {
         <CardFooter className="flex flex-col gap-3">
           <Button
             type="submit"
-            className="w-full bg-[#4ADE80] hover:bg-[#22C55E] text-green-950 font-semibold"
+            className="w-full bg-[#4ADE80] hover:bg-[#22C55E] text-green-950 font-medium"
             disabled={loading}
           >
             {loading ? 'Sending…' : 'Send Reset Link'}

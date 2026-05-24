@@ -37,7 +37,7 @@ export function StepComplete({ firstName, topSchools, totalCount }: StepComplete
 
       {/* Top 5 preview */}
       <div className="text-left space-y-2">
-        <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Top 5 Schools</p>
+        <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Top 5 Schools</p>
         {topSchools.map((ps) => (
           <div
             key={ps.rank_order}
@@ -48,7 +48,7 @@ export function StepComplete({ firstName, topSchools, totalCount }: StepComplete
                 {ps.rank_order}
               </span>
               <div>
-                <p className="font-semibold text-sm">{ps.school.name}</p>
+                <p className="font-medium text-sm">{ps.school.name}</p>
                 <p className="text-xs text-muted-foreground">
                   {ps.school.verified_division} · {ps.school.city}, {ps.school.state}
                 </p>

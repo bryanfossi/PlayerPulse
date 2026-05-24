@@ -96,7 +96,7 @@ export default async function BlogArticlePage({ params }: PageProps) {
       <article className="pt-32 pb-24 px-6 md:px-12 max-w-3xl mx-auto">
         <Link
           href="/blog"
-          className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-white transition-colors mb-6"
+          className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-white transition-colors mb-6"
         >
           <ArrowLeft className="w-3 h-3" />
           All articles
@@ -112,7 +112,7 @@ export default async function BlogArticlePage({ params }: PageProps) {
             )}
             <time dateTime={article.published_at}>{formatDate(article.published_at)}</time>
           </div>
-          <h1 className="text-3xl md:text-4xl font-black tracking-tight leading-tight">{article.title}</h1>
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight">{article.title}</h1>
           <p className="text-base leading-relaxed" style={{ color: '#9CA3AF' }}>
             {article.description}
           </p>
@@ -138,7 +138,7 @@ export default async function BlogArticlePage({ params }: PageProps) {
           </p>
           <Link
             href="/register"
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-md bg-[#4ADE80] text-[#0F1120] font-bold text-sm hover:bg-[#22C55E] transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-md bg-[#4ADE80] text-[#052e16] font-bold text-sm hover:bg-[#22C55E] transition-colors"
           >
             Get started — free
             <ArrowRight className="w-3.5 h-3.5" />

@@ -154,7 +154,7 @@ function OfferCard({
             </p>
           )}
         </div>
-        <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border flex-shrink-0 ${cfg.class}`}>
+        <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full border flex-shrink-0 ${cfg.class}`}>
           {cfg.label}
         </span>
       </div>
@@ -163,7 +163,7 @@ function OfferCard({
       <div className="px-5 pb-3 border-b border-border space-y-0.5">
         <div className="flex items-center justify-between py-1 border-b border-border/50 mb-1">
           <span className="text-xs text-muted-foreground">Tuition / Year</span>
-          <span className="text-sm font-semibold">{tuition > 0 ? fmt$(tuition) : '—'}</span>
+          <span className="text-sm font-medium">{tuition > 0 ? fmt$(tuition) : '—'}</span>
         </div>
         <AidRow label="Athletic Scholarship" value={offer.athletic_scholarship} highlight />
         <AidRow label="Merit / Academic" value={offer.merit_aid} highlight />
@@ -172,7 +172,7 @@ function OfferCard({
         {totalAid > 0 && (
           <div className="flex items-center justify-between py-1 border-t border-border/50 mt-1">
             <span className="text-xs text-muted-foreground">Total Aid</span>
-            <span className="text-xs font-semibold text-green-400">{fmt$(totalAid)}/yr</span>
+            <span className="text-xs font-medium text-green-400">{fmt$(totalAid)}/yr</span>
           </div>
         )}
       </div>
@@ -181,7 +181,7 @@ function OfferCard({
       <div className="px-5 py-4 flex items-center justify-between bg-muted/20">
         <div>
           <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Est. Net Cost</p>
-          <p className="text-3xl font-black text-foreground leading-none mt-0.5">
+          <p className="text-3xl font-bold text-foreground leading-none mt-0.5">
             {tuition > 0 ? fmt$(netCost) : '—'}
             {tuition > 0 && <span className="text-sm font-normal text-muted-foreground">/yr</span>}
           </p>
@@ -195,7 +195,7 @@ function OfferCard({
         {tuition > 0 && totalAid > 0 && (
           <div className="text-right">
             <p className="text-[11px] text-muted-foreground">Aid covers</p>
-            <p className="text-2xl font-black text-green-400">
+            <p className="text-2xl font-bold text-green-400">
               {Math.round((totalAid / tuition) * 100)}%
             </p>
           </div>
@@ -238,7 +238,7 @@ function OfferCard({
         {offer.status !== 'accepted' && (
           <Button
             size="sm"
-            className="h-7 text-xs gap-1 bg-[#4ADE80] hover:bg-[#22C55E] text-[#0F1120]"
+            className="h-7 text-xs gap-1 bg-[#4ADE80] hover:bg-[#22C55E] text-[#052e16]"
             onClick={() => handleStatus('accepted')}
             disabled={updating}
           >
@@ -388,7 +388,7 @@ export function OffersClient({ initialOffers, schools, offerSchools = [] }: Prop
           ].map(({ label, value, sub }) => (
             <div key={label} className="bg-card border border-border rounded-xl px-4 py-3">
               <p className="text-[11px] text-muted-foreground uppercase tracking-wide">{label}</p>
-              <p className="text-xl font-black mt-0.5">{value}</p>
+              <p className="text-xl font-bold mt-0.5">{value}</p>
               {sub && <p className="text-[11px] text-muted-foreground">{sub}</p>}
             </div>
           ))}
@@ -398,7 +398,7 @@ export function OffersClient({ initialOffers, schools, offerSchools = [] }: Prop
       {/* Recruited schools (from player_school status = offer_received) */}
       {offerSchools.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-sm font-semibold flex items-center gap-2 text-[#4ADE80]">
+          <h2 className="text-sm font-medium flex items-center gap-2 text-[#4ADE80]">
             <Trophy className="w-4 h-4" /> Schools That Have Offered
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -418,7 +418,7 @@ export function OffersClient({ initialOffers, schools, offerSchools = [] }: Prop
         </p>
         <Button
           size="sm"
-          className="gap-1.5 bg-[#4ADE80] hover:bg-[#22C55E] text-[#0F1120] font-semibold"
+          className="gap-1.5 bg-[#4ADE80] hover:bg-[#22C55E] text-[#052e16] font-medium"
           onClick={() => { setEditing(null); setDialogOpen(true) }}
         >
           <Plus className="w-4 h-4" />
@@ -432,13 +432,13 @@ export function OffersClient({ initialOffers, schools, offerSchools = [] }: Prop
           <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto">
             <Trophy className="w-6 h-6 text-amber-400" />
           </div>
-          <p className="font-semibold">No offers yet</p>
+          <p className="font-medium">No offers yet</p>
           <p className="text-sm text-muted-foreground max-w-xs mx-auto">
             When coaches extend offers, log them here to compare net costs and deadlines side-by-side.
           </p>
           <Button
             size="sm"
-            className="mt-2 gap-1.5 bg-[#4ADE80] hover:bg-[#22C55E] text-[#0F1120] font-semibold"
+            className="mt-2 gap-1.5 bg-[#4ADE80] hover:bg-[#22C55E] text-[#052e16] font-medium"
             onClick={() => { setEditing(null); setDialogOpen(true) }}
           >
             <Plus className="w-4 h-4" /> Log First Offer
@@ -449,7 +449,7 @@ export function OffersClient({ initialOffers, schools, offerSchools = [] }: Prop
       {/* Accepted */}
       {accepted.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-sm font-semibold flex items-center gap-2 text-green-400">
+          <h2 className="text-sm font-medium flex items-center gap-2 text-green-400">
             <CheckCircle2 className="w-4 h-4" /> Accepted
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -469,7 +469,7 @@ export function OffersClient({ initialOffers, schools, offerSchools = [] }: Prop
       {/* Evaluating */}
       {evaluating.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-sm font-semibold text-muted-foreground">Evaluating</h2>
+          <h2 className="text-sm font-medium text-muted-foreground">Evaluating</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {evaluating.map((o) => (
               <OfferCard
@@ -487,7 +487,7 @@ export function OffersClient({ initialOffers, schools, offerSchools = [] }: Prop
       {/* Declined */}
       {declined.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-sm font-semibold text-muted-foreground">Declined</h2>
+          <h2 className="text-sm font-medium text-muted-foreground">Declined</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {declined.map((o) => (
               <OfferCard

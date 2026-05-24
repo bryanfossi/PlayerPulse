@@ -43,8 +43,8 @@ interface Props {
 
 const INTEREST_BORDER: Record<AnalysisResult['interest_level'], string> = {
   High: '#4ADE80',
-  Medium: '#FBBF24',
-  Low: '#F87171',
+  Medium: '#f59e0b',
+  Low: '#ef4444',
   Unclear: 'rgba(255,255,255,0.15)',
 }
 const INTEREST_BG: Record<AnalysisResult['interest_level'], string> = {
@@ -59,8 +59,8 @@ const URGENCY_BG: Record<AnalysisResult['next_step_urgency'], string> = {
   Low: 'rgba(74,222,128,0.12)',
 }
 const URGENCY_TEXT: Record<AnalysisResult['next_step_urgency'], string> = {
-  High: '#F87171',
-  Medium: '#FBBF24',
+  High: '#ef4444',
+  Medium: '#f59e0b',
   Low: '#4ADE80',
 }
 
@@ -247,7 +247,7 @@ export function CoachAnalyzerClient({ schools }: Props) {
           <CardContent className="pt-5 space-y-5">
             {/* Mode toggle */}
             <div>
-              <Label className="text-xs font-semibold uppercase tracking-[0.08em]" style={{ color: '#9CA3AF' }}>
+              <Label className="text-xs font-medium uppercase tracking-[0.08em]" style={{ color: '#9CA3AF' }}>
                 Which school is the email from?
               </Label>
               <div className="mt-2 inline-flex rounded-md border overflow-hidden" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
@@ -256,8 +256,8 @@ export function CoachAnalyzerClient({ schools }: Props) {
                   onClick={() => setMode('existing')}
                   disabled={schools.length === 0}
                   className={cn(
-                    'px-4 py-1.5 text-xs font-semibold transition-colors disabled:opacity-40 disabled:cursor-not-allowed',
-                    mode === 'existing' ? 'bg-[#4ADE80] text-[#0F1120]' : 'hover:bg-white/5 text-muted-foreground',
+                    'px-4 py-1.5 text-xs font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed',
+                    mode === 'existing' ? 'bg-[#4ADE80] text-[#052e16]' : 'hover:bg-white/5 text-muted-foreground',
                   )}
                 >
                   <SchoolIcon className="inline w-3.5 h-3.5 mr-1.5" />
@@ -267,8 +267,8 @@ export function CoachAnalyzerClient({ schools }: Props) {
                   type="button"
                   onClick={() => setMode('new')}
                   className={cn(
-                    'px-4 py-1.5 text-xs font-semibold transition-colors border-l',
-                    mode === 'new' ? 'bg-[#4ADE80] text-[#0F1120]' : 'hover:bg-white/5 text-muted-foreground',
+                    'px-4 py-1.5 text-xs font-medium transition-colors border-l',
+                    mode === 'new' ? 'bg-[#4ADE80] text-[#052e16]' : 'hover:bg-white/5 text-muted-foreground',
                   )}
                   style={{ borderColor: 'rgba(255,255,255,0.1)' }}
                 >
@@ -351,7 +351,7 @@ export function CoachAnalyzerClient({ schools }: Props) {
                 {/* Save to list toggle */}
                 <div className="rounded-md border p-3 flex items-start gap-3" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold">Add this school to My Schools?</p>
+                    <p className="text-sm font-medium">Add this school to My Schools?</p>
                     <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>
                       We&apos;ll save it to your tracking board so you can log future contacts and analyze fit.
                     </p>
@@ -361,8 +361,8 @@ export function CoachAnalyzerClient({ schools }: Props) {
                       type="button"
                       onClick={() => setSaveToList(true)}
                       className={cn(
-                        'px-3 py-1 text-xs font-semibold transition-colors',
-                        saveToList ? 'bg-[#4ADE80] text-[#0F1120]' : 'hover:bg-white/5 text-muted-foreground',
+                        'px-3 py-1 text-xs font-medium transition-colors',
+                        saveToList ? 'bg-[#4ADE80] text-[#052e16]' : 'hover:bg-white/5 text-muted-foreground',
                       )}
                     >
                       Yes
@@ -371,8 +371,8 @@ export function CoachAnalyzerClient({ schools }: Props) {
                       type="button"
                       onClick={() => setSaveToList(false)}
                       className={cn(
-                        'px-3 py-1 text-xs font-semibold transition-colors border-l',
-                        !saveToList ? 'bg-white text-[#0F1120]' : 'hover:bg-white/5 text-muted-foreground',
+                        'px-3 py-1 text-xs font-medium transition-colors border-l',
+                        !saveToList ? 'bg-white text-[#052e16]' : 'hover:bg-white/5 text-muted-foreground',
                       )}
                       style={{ borderColor: 'rgba(255,255,255,0.1)' }}
                     >
@@ -400,9 +400,9 @@ export function CoachAnalyzerClient({ schools }: Props) {
             </div>
 
             {error && (
-              <div className="flex items-start gap-2 rounded-md border px-3 py-2" style={{ borderColor: '#F87171', backgroundColor: 'rgba(248,113,113,0.08)' }}>
-                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#F87171' }} />
-                <p className="text-sm" style={{ color: '#F87171' }}>{error}</p>
+              <div className="flex items-start gap-2 rounded-md border px-3 py-2" style={{ borderColor: '#ef4444', backgroundColor: 'rgba(248,113,113,0.08)' }}>
+                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#ef4444' }} />
+                <p className="text-sm" style={{ color: '#ef4444' }}>{error}</p>
               </div>
             )}
 
@@ -410,7 +410,7 @@ export function CoachAnalyzerClient({ schools }: Props) {
               <div className="flex items-start gap-3 rounded-md border px-4 py-3" style={{ borderColor: '#4ADE80', backgroundColor: 'rgba(74,222,128,0.08)' }}>
                 <Zap className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#4ADE80' }} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold" style={{ color: '#4ADE80' }}>Out of tokens</p>
+                  <p className="text-sm font-medium" style={{ color: '#4ADE80' }}>Out of tokens</p>
                   <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>
                     Coach email analysis costs {cost} token. Buy a 30-token pack to keep analyzing.
                   </p>
@@ -448,7 +448,7 @@ export function CoachAnalyzerClient({ schools }: Props) {
           {/* School + actions */}
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9CA3AF' }}>
+              <p className="text-[11px] font-medium uppercase tracking-[0.08em]" style={{ color: '#9CA3AF' }}>
                 Analysis for
               </p>
               <p className="text-lg font-bold mt-0.5">{schoolNameForResult}</p>
@@ -457,7 +457,7 @@ export function CoachAnalyzerClient({ schools }: Props) {
               {linkedPsId && (
                 contactSaved ? (
                   <span
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md border"
+                    className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md border"
                     style={{ borderColor: 'rgba(74,222,128,0.4)', backgroundColor: 'rgba(74,222,128,0.1)', color: '#4ADE80' }}
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" />
@@ -467,7 +467,7 @@ export function CoachAnalyzerClient({ schools }: Props) {
                   <button
                     onClick={handleSaveAsContact}
                     disabled={savingContact}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md border transition-colors hover:bg-white/5 disabled:opacity-60"
+                    className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md border transition-colors hover:bg-white/5 disabled:opacity-60"
                     style={{ borderColor: 'rgba(255,255,255,0.15)' }}
                   >
                     {savingContact ? (
@@ -481,7 +481,7 @@ export function CoachAnalyzerClient({ schools }: Props) {
               {result.created_player_school_id && (
                 <Link
                   href={`/schools/${result.created_player_school_id}`}
-                  className="text-xs font-semibold inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border transition-colors hover:bg-white/5"
+                  className="text-xs font-medium inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border transition-colors hover:bg-white/5"
                   style={{ borderColor: '#4ADE80', color: '#4ADE80' }}
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
@@ -504,10 +504,10 @@ export function CoachAnalyzerClient({ schools }: Props) {
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: INTEREST_BORDER[result.interest_level] }}>
+                <p className="text-[11px] font-medium uppercase tracking-[0.08em]" style={{ color: INTEREST_BORDER[result.interest_level] }}>
                   Coach interest level
                 </p>
-                <p className="text-3xl md:text-4xl font-black tracking-tight mt-1" style={{ color: INTEREST_BORDER[result.interest_level] }}>
+                <p className="text-3xl md:text-4xl font-bold tracking-tight mt-1" style={{ color: INTEREST_BORDER[result.interest_level] }}>
                   {result.interest_level}
                 </p>
               </div>
@@ -522,12 +522,12 @@ export function CoachAnalyzerClient({ schools }: Props) {
           <div className="rounded-xl border" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
             <div className="px-4 py-2.5 flex items-center gap-2 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
               <MessageSquareQuote className="w-3.5 h-3.5" style={{ color: '#9CA3AF' }} />
-              <span className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9CA3AF' }}>
+              <span className="text-[11px] font-medium uppercase tracking-[0.08em]" style={{ color: '#9CA3AF' }}>
                 Tone
               </span>
             </div>
             <div className="px-4 py-3">
-              <p className="text-sm font-semibold">{result.tone_label}</p>
+              <p className="text-sm font-medium">{result.tone_label}</p>
               <p className="text-sm leading-relaxed mt-1" style={{ color: '#9CA3AF' }}>
                 {result.tone_explanation}
               </p>
@@ -538,7 +538,7 @@ export function CoachAnalyzerClient({ schools }: Props) {
           <div className="rounded-xl border" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
             <div className="px-4 py-2.5 flex items-center gap-2 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
               <Sparkles className="w-3.5 h-3.5" style={{ color: '#9CA3AF' }} />
-              <span className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9CA3AF' }}>
+              <span className="text-[11px] font-medium uppercase tracking-[0.08em]" style={{ color: '#9CA3AF' }}>
                 Key signals
               </span>
               <span className="ml-auto text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: 'rgba(255,255,255,0.05)', color: '#9CA3AF' }}>
@@ -575,7 +575,7 @@ export function CoachAnalyzerClient({ schools }: Props) {
           >
             <div className="px-4 py-2.5 flex items-center gap-2 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
               <ArrowRight className="w-3.5 h-3.5" style={{ color: '#9CA3AF' }} />
-              <span className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#9CA3AF' }}>
+              <span className="text-[11px] font-medium uppercase tracking-[0.08em]" style={{ color: '#9CA3AF' }}>
                 Recommended next step
               </span>
               <span
@@ -591,7 +591,7 @@ export function CoachAnalyzerClient({ schools }: Props) {
               <div>
                 {actionSaved ? (
                   <span
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-md border"
+                    className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-md border"
                     style={{ borderColor: 'rgba(74,222,128,0.4)', backgroundColor: 'rgba(74,222,128,0.1)', color: '#4ADE80' }}
                   >
                     <CheckCircle2 className="w-3 h-3" />
@@ -601,7 +601,7 @@ export function CoachAnalyzerClient({ schools }: Props) {
                   <button
                     onClick={handleSaveNextStepAsAction}
                     disabled={savingAction}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-md border transition-colors hover:bg-[#4ADE80]/10 hover:border-[#4ADE80] hover:text-[#4ADE80] disabled:opacity-60"
+                    className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-md border transition-colors hover:bg-[#4ADE80]/10 hover:border-[#4ADE80] hover:text-[#4ADE80] disabled:opacity-60"
                     style={{ borderColor: 'rgba(255,255,255,0.15)' }}
                   >
                     {savingAction ? (

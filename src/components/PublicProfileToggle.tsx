@@ -54,7 +54,7 @@ export function PublicProfileToggle({ slug, enabled: initialEnabled }: Props) {
       <div className="rounded-xl border border-border bg-card p-4 space-y-3">
         <div className="flex items-center gap-2">
           <Globe className="w-4 h-4 text-muted-foreground" />
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Public Profile</p>
+          <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Public Profile</p>
         </div>
         <p className="text-xs text-muted-foreground">Create a shareable link you can send directly to college coaches.</p>
         <Button size="sm" className="w-full gap-1.5" onClick={handleGenerate} disabled={pending}>
@@ -70,7 +70,7 @@ export function PublicProfileToggle({ slug, enabled: initialEnabled }: Props) {
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Globe className="w-4 h-4 text-muted-foreground" />
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Public Profile</p>
+          <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Public Profile</p>
         </div>
         <button
           onClick={handleToggle}

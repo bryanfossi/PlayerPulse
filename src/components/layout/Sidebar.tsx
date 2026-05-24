@@ -53,7 +53,7 @@ export function Sidebar() {
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        <p className="px-2 mb-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+        <p className="px-2 mb-2 text-[10px] font-medium uppercase tracking-widest text-muted-foreground/60">
           Recruiting
         </p>
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
@@ -82,7 +82,7 @@ export function Sidebar() {
       {/* Token balance */}
       <div className="px-4 py-3 border-t border-border">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">Tokens</span>
+          <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">Tokens</span>
           <TokenBalance />
         </div>
       </div>

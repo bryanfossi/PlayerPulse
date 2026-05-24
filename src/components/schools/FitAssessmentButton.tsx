@@ -100,7 +100,7 @@ export function FitAssessmentButton({ schoolId, schoolName, hasExistingScores }:
                 </span>
               </div>
             ) : (
-              <p className="text-sm font-semibold text-amber-400">
+              <p className="text-sm font-medium text-amber-400">
                 This uses {cost} tokens. You have {tokens} remaining.
               </p>
             )}

@@ -49,7 +49,7 @@ function BuyTokensButton() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex-shrink-0 flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-md bg-[#4ADE80] hover:bg-[#22C55E] text-[#0F1120] transition-colors"
+        className="flex-shrink-0 flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-md bg-[#4ADE80] hover:bg-[#22C55E] text-[#052e16] transition-colors"
       >
         Get Tokens
       </button>
@@ -214,7 +214,7 @@ export function DraftEmailClient({ schools, preselectedPsId, preselectedType }: 
             <CheckCheck className="w-6 h-6 text-green-600 dark:text-green-400" />
           </div>
           <div>
-            <h3 className="font-semibold text-lg">Email Logged</h3>
+            <h3 className="font-medium text-lg">Email Logged</h3>
             <p className="text-muted-foreground text-sm mt-1">
               Contact record saved for <span className="font-medium">{selectedSchool?.school_name}</span>.
               {selectedSchool?.status === 'researching' && ' Status updated to Contacted.'}
@@ -257,7 +257,7 @@ export function DraftEmailClient({ schools, preselectedPsId, preselectedType }: 
         {/* School + type header */}
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold">{selectedSchool?.school_name}</span>
+            <span className="font-medium">{selectedSchool?.school_name}</span>
             {selectedSchool?.verified_division && (
               <Badge variant="outline" className="text-[10px]">{selectedSchool.verified_division}</Badge>
             )}
@@ -362,7 +362,7 @@ export function DraftEmailClient({ schools, preselectedPsId, preselectedType }: 
             <div className="flex items-start gap-3 rounded-lg border px-4 py-3" style={{ borderColor: '#4ADE80', backgroundColor: 'rgba(74, 222, 128, 0.08)' }}>
               <Zap className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#4ADE80' }} />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold" style={{ color: '#4ADE80' }}>Out of tokens</p>
+                <p className="text-sm font-medium" style={{ color: '#4ADE80' }}>Out of tokens</p>
                 <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>
                   Each email draft costs 1 token. Buy a 30-token pack to keep drafting.
                 </p>

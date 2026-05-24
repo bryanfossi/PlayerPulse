@@ -115,7 +115,7 @@ export function ContactCard({ contact, onDelete, onEdit }: Props) {
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 flex-wrap">
             <div>
-              <p className="font-semibold text-sm leading-tight">{contact.school.name}</p>
+              <p className="font-medium text-sm leading-tight">{contact.school.name}</p>
               <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                 <span className="text-xs text-muted-foreground">{TYPE_LABELS[contact.contact_type]}</span>
                 <span className="text-muted-foreground text-xs">·</span>

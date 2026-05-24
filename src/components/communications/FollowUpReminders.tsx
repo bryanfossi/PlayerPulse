@@ -41,7 +41,7 @@ export function FollowUpReminders({ contacts }: Props) {
     <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
       <div className="flex items-center gap-2">
         <CalendarClock className="w-4 h-4 text-muted-foreground" />
-        <h3 className="text-sm font-semibold">
+        <h3 className="text-sm font-medium">
           Follow-up Reminders
           <span className="ml-2 text-xs font-normal text-muted-foreground">
             ({reminders.length} due within 7 days)

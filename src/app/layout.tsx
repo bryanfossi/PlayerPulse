@@ -1,14 +1,20 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, DM_Sans } from 'next/font/google'
+import { DM_Sans } from 'next/font/google'
+import Script from 'next/script'
 import { Toaster } from 'sonner'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import './globals.css'
 
-const inter = Inter({ variable: '--font-inter', subsets: ['latin'], display: 'swap' })
-const dmSans = DM_Sans({ variable: '--font-dm-sans', subsets: ['latin'], display: 'swap' })
+// DM Sans is the only brand font. Inter was removed per FUSE-ID brand kit.
+const dmSans = DM_Sans({
+  variable: '--font-dm-sans',
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
-  title: 'FuseID | College Recruiting CRM',
+  title: 'FUSE-ID | College Recruiting CRM',
   description: 'AI-powered college recruiting CRM. Find your fit, organize your outreach, track every offer.',
   icons: {
     icon: [
@@ -25,10 +31,31 @@ export const viewport: Viewport = {
   themeColor: '#0F1120',
 }
 
+// Tiny pre-hydration script that sets the dark class before React mounts.
+// Prevents flash of light-mode content for users on dark. Reads the same
+// localStorage key ThemeProvider uses.
+const themeBootstrap = `
+(function() {
+  try {
+    var saved = localStorage.getItem('fuseid-theme');
+    var theme = saved === 'light' || saved === 'neutral' ? saved : 'dark';
+    var root = document.documentElement;
+    if (theme === 'dark') root.classList.add('dark');
+    else if (theme === 'light') root.classList.add('theme-light');
+    else if (theme === 'neutral') root.classList.add('theme-neutral');
+  } catch (e) {
+    document.documentElement.classList.add('dark');
+  }
+})();
+`
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className="dark">
-      <body className={`${inter.variable} ${dmSans.variable} antialiased`}>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <Script id="theme-bootstrap" strategy="beforeInteractive">{themeBootstrap}</Script>
+      </head>
+      <body className={`${dmSans.variable} antialiased`}>
         <ThemeProvider>
           {children}
         </ThemeProvider>

@@ -107,7 +107,7 @@ export function FeedbackButton() {
                 <CheckCircle2 className="w-6 h-6" style={{ color: '#4ADE80' }} />
               </div>
               <div>
-                <p className="font-semibold">Thanks — your feedback was sent.</p>
+                <p className="font-medium">Thanks — your feedback was sent.</p>
                 <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>
                   Bryan will read every one personally.
                 </p>
@@ -120,7 +120,7 @@ export function FeedbackButton() {
           ) : (
             <div className="space-y-4 pt-1">
               <div>
-                <p className="text-[10px] uppercase tracking-wider font-semibold mb-2" style={{ color: '#9CA3AF' }}>
+                <p className="text-[10px] uppercase tracking-wider font-medium mb-2" style={{ color: '#9CA3AF' }}>
                   Type
                 </p>
                 <div className="grid grid-cols-4 gap-1.5">

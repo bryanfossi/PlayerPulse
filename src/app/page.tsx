@@ -50,12 +50,12 @@ export default async function HomePage() {
 
       {/* ── Hero ────────────────────────────────────────────────── */}
       <section className="pt-40 pb-32 px-6 md:px-12 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md border border-white/10 bg-[#1A1F38] text-xs font-semibold mb-6" style={{ color: '#4ADE80' }}>
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md border border-white/10 bg-[#1A1F38] text-xs font-medium mb-6" style={{ color: '#4ADE80' }}>
           <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#4ADE80' }} />
           {activeSports.map((s) => s.name).join(' · ')} recruiting, organized
         </div>
 
-        <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-[1.05] max-w-4xl mx-auto">
+        <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-[1.05] max-w-4xl mx-auto">
           Your recruiting{' '}
           <span style={{ color: '#4ADE80' }}>command center.</span>
         </h1>
@@ -106,7 +106,7 @@ export default async function HomePage() {
                 <div key={tier} className="rounded-lg border p-3 space-y-2.5" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
                   <div className="flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#4ADE80' }} />
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: '#4ADE80' }}>{tier}</span>
+                    <span className="text-[11px] font-medium uppercase tracking-[0.08em]" style={{ color: '#4ADE80' }}>{tier}</span>
                   </div>
                   {schools.map((s) => (
                     <div key={s} className="rounded-md border px-2.5 py-2" style={{ borderColor: 'rgba(255,255,255,0.1)', backgroundColor: '#0F1120' }}>
@@ -133,7 +133,7 @@ export default async function HomePage() {
             { stat: 'Real-time', label: 'Coach reply analysis' },
           ].map(({ stat, label }) => (
             <div key={label}>
-              <p className="text-2xl font-black" style={{ color: '#4ADE80' }}>{stat}</p>
+              <p className="text-2xl font-bold" style={{ color: '#4ADE80' }}>{stat}</p>
               <p className="text-sm mt-1" style={{ color: '#9CA3AF' }}>{label}</p>
             </div>
           ))}
@@ -144,7 +144,7 @@ export default async function HomePage() {
       <section id="features" className="px-6 md:px-12 py-28 max-w-6xl mx-auto scroll-mt-16">
         <div className="text-center mb-16">
           <p className="fuse-label mb-3">Everything in one place</p>
-          <h2 className="text-3xl md:text-5xl font-black tracking-tight">
+          <h2 className="text-3xl md:text-5xl font-bold tracking-tight">
             Stop managing recruiting<br />
             <span style={{ color: '#9CA3AF' }}>in spreadsheets.</span>
           </h2>
@@ -179,7 +179,7 @@ export default async function HomePage() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <p className="fuse-label mb-3">Simple by design</p>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight">Up and running in minutes</h2>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight">Up and running in minutes</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -189,7 +189,7 @@ export default async function HomePage() {
               { step: '03', title: 'Manage your process', body: 'Log every call, email, and campus visit. Draft coach emails with AI. Track offers. Never miss a follow-up again.' },
             ].map(({ step, title, body }) => (
               <div key={step} className="relative pl-14">
-                <span className="absolute left-0 top-0 text-5xl font-black leading-none select-none" style={{ color: 'rgba(255,255,255,0.05)' }}>
+                <span className="absolute left-0 top-0 text-5xl font-bold leading-none select-none" style={{ color: 'rgba(255,255,255,0.05)' }}>
                   {step}
                 </span>
                 <div className="absolute left-0 top-1 w-8 h-8 rounded-md border flex items-center justify-center" style={{ borderColor: '#4ADE80', backgroundColor: '#1A1F38' }}>
@@ -208,7 +208,7 @@ export default async function HomePage() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <p className="fuse-label mb-3">Pricing</p>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight">Start free. Upgrade when you&apos;re ready.</h2>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight">Start free. Upgrade when you&apos;re ready.</h2>
             <p className="mt-4 max-w-xl mx-auto" style={{ color: '#9CA3AF' }}>
               Every plan includes the full recruiting toolkit. Subscriptions add monthly AI tokens that auto-refresh — token packs let you top up anytime.
             </p>
@@ -221,7 +221,7 @@ export default async function HomePage() {
               <div>
                 <p className="fuse-label mb-2">Free</p>
                 <div className="flex items-end gap-2">
-                  <span className="text-4xl font-black">$0</span>
+                  <span className="text-4xl font-bold">$0</span>
                   <span className="mb-1 text-sm" style={{ color: '#9CA3AF' }}>/forever</span>
                 </div>
                 <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>Get your bearings, then upgrade when you need AI tokens.</p>
@@ -257,7 +257,7 @@ export default async function HomePage() {
               <div>
                 <p className="fuse-label mb-2">{SUBSCRIPTION_TIERS.starter.label}</p>
                 <div className="flex items-end gap-2">
-                  <span className="text-4xl font-black">${(SUBSCRIPTION_TIERS.starter.priceCents / 100).toFixed(2)}</span>
+                  <span className="text-4xl font-bold">${(SUBSCRIPTION_TIERS.starter.priceCents / 100).toFixed(2)}</span>
                   <span className="mb-1 text-sm" style={{ color: '#9CA3AF' }}>/month</span>
                 </div>
                 <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>For athletes actively reaching out to coaches.</p>
@@ -296,7 +296,7 @@ export default async function HomePage() {
               <div>
                 <p className="fuse-label mb-2">{SUBSCRIPTION_TIERS.pro.label}</p>
                 <div className="flex items-end gap-2">
-                  <span className="text-4xl font-black">${(SUBSCRIPTION_TIERS.pro.priceCents / 100).toFixed(2)}</span>
+                  <span className="text-4xl font-bold">${(SUBSCRIPTION_TIERS.pro.priceCents / 100).toFixed(2)}</span>
                   <span className="mb-1 text-sm" style={{ color: '#9CA3AF' }}>/month</span>
                 </div>
                 <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>For athletes serious about their recruiting cycle.</p>
@@ -329,7 +329,7 @@ export default async function HomePage() {
 
           {/* Token packs note */}
           <div className="mt-10 max-w-3xl mx-auto rounded-lg border p-5 text-center" style={{ borderColor: 'rgba(255,255,255,0.1)', backgroundColor: '#1A1F38' }}>
-            <p className="text-sm font-semibold mb-2">Need more tokens? Top up anytime.</p>
+            <p className="text-sm font-medium mb-2">Need more tokens? Top up anytime.</p>
             <p className="text-xs leading-relaxed" style={{ color: '#9CA3AF' }}>
               One-time token packs — never expire. Available to every tier, including Free.
             </p>
@@ -342,7 +342,7 @@ export default async function HomePage() {
                     <span style={{ color: '#9CA3AF' }}>·</span>
                     <span>{pack.amount} tokens</span>
                     <span style={{ color: '#9CA3AF' }}>·</span>
-                    <span className="font-semibold">${(pack.priceCents / 100).toFixed(2)}</span>
+                    <span className="font-medium">${(pack.priceCents / 100).toFixed(2)}</span>
                   </span>
                 )
               })}
@@ -365,7 +365,7 @@ export default async function HomePage() {
               { stat: '6 mo', label: 'average time coaches start tracking a recruit actively' },
             ].map(({ stat, label }) => (
               <div key={stat} className="rounded-xl border p-6" style={{ borderColor: 'rgba(255,255,255,0.1)', backgroundColor: '#1A1F38' }}>
-                <p className="text-4xl font-black mb-2" style={{ color: '#4ADE80' }}>{stat}</p>
+                <p className="text-4xl font-bold mb-2" style={{ color: '#4ADE80' }}>{stat}</p>
                 <p className="text-sm leading-relaxed" style={{ color: '#9CA3AF' }}>{label}</p>
               </div>
             ))}
@@ -377,7 +377,7 @@ export default async function HomePage() {
       <section className="px-6 md:px-12 pb-32 pt-10">
         <div className="max-w-3xl mx-auto">
           <div className="rounded-xl border p-12 text-center space-y-6" style={{ borderColor: '#4ADE80', backgroundColor: '#1A1F38' }}>
-            <h2 className="text-3xl md:text-4xl font-black tracking-tight">
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
               Ready to take control<br />of your recruiting?
             </h2>
             <p className="max-w-md mx-auto" style={{ color: '#9CA3AF' }}>

@@ -23,7 +23,7 @@ export function PipelineProgressWidget({ statusCounts, total }: Props) {
         <div className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center">
           <BarChart3 className="w-3.5 h-3.5 text-muted-foreground" />
         </div>
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Pipeline</p>
+        <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Pipeline</p>
       </div>
 
       <div className="space-y-2">

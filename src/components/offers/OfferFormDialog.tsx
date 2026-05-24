@@ -208,7 +208,7 @@ export function OfferFormDialog({ open, onClose, onSaved, schools, editOffer }: 
               </div>
               <div className="text-right">
                 <p className="text-xs text-muted-foreground">Est. Net Cost</p>
-                <p className={`text-xl font-black ${netCost <= 0 ? 'text-green-400' : 'text-foreground'}`}>
+                <p className={`text-xl font-bold ${netCost <= 0 ? 'text-green-400' : 'text-foreground'}`}>
                   ${Math.max(0, netCost).toLocaleString()}<span className="text-xs font-normal text-muted-foreground">/yr</span>
                 </p>
                 <p className="text-[11px] text-muted-foreground">${(Math.max(0, netCost) * 4).toLocaleString()} over 4 years</p>

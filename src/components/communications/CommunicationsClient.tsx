@@ -159,7 +159,7 @@ export function CommunicationsClient({ initialContacts, schools, preselectedPsId
             <Button
               size="sm"
               onClick={() => setDraftModalOpen(true)}
-              className="gap-1.5 flex-shrink-0 h-9 bg-[#4ADE80] hover:bg-[#22C55E] text-[#0F1120] font-bold"
+              className="gap-1.5 flex-shrink-0 h-9 bg-[#4ADE80] hover:bg-[#22C55E] text-[#052e16] font-bold"
             >
               <Mail className="w-4 h-4" />
               <span className="hidden sm:inline">Draft Email</span>
@@ -243,7 +243,7 @@ export function CommunicationsClient({ initialContacts, schools, preselectedPsId
           <div className="space-y-6">
             {sortedDates.map((date) => (
               <div key={date}>
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
                   {formatGroupDate(date)}
                 </p>
                 <div className="space-y-2">

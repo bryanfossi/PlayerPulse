@@ -73,7 +73,7 @@ export function StepPreferences() {
                       )
                     }}
                     className={cn(
-                      'p-2.5 rounded-md border text-sm font-semibold transition-colors',
+                      'p-2.5 rounded-md border text-sm font-medium transition-colors',
                       selected
                         ? 'bg-primary text-primary-foreground border-primary'
                         : 'border-border hover:bg-muted'

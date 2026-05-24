@@ -77,7 +77,7 @@ export function StepGenerating() {
     return (
       <div className="text-center py-12 space-y-4">
         <div className="text-4xl">⚠️</div>
-        <p className="font-semibold text-lg">Something went wrong</p>
+        <p className="font-medium text-lg">Something went wrong</p>
         <p className="text-muted-foreground text-sm max-w-sm mx-auto">{error}</p>
         <button
           onClick={() => {
