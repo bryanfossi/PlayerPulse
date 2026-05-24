@@ -1,7 +1,7 @@
 import type { SportConfig } from './types'
 
 /**
- * Soccer — the launch sport for FuseID.
+ * Soccer — the launch sport for FUSE-ID.
  * All previously hard-coded soccer data has been consolidated here.
  */
 export const soccer: SportConfig = {

@@ -38,11 +38,9 @@ const themeBootstrap = `
 (function() {
   try {
     var saved = localStorage.getItem('fuseid-theme');
-    var theme = saved === 'light' || saved === 'neutral' ? saved : 'dark';
-    var root = document.documentElement;
-    if (theme === 'dark') root.classList.add('dark');
-    else if (theme === 'light') root.classList.add('theme-light');
-    else if (theme === 'neutral') root.classList.add('theme-neutral');
+    if (saved !== 'light') {
+      document.documentElement.classList.add('dark');
+    }
   } catch (e) {
     document.documentElement.classList.add('dark');
   }

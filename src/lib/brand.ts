@@ -25,6 +25,6 @@ export const brand = {
     icon: '/brand/logo-icon.svg',
     light: '/brand/logo-full-light.svg',
   },
-  appName: 'FuseID',
+  appName: 'FUSE-ID',
   tagline: 'Your recruiting process, fused.',
 } as const

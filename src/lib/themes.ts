@@ -1,4 +1,4 @@
-export type ThemeName = 'dark' | 'light' | 'neutral'
+export type ThemeName = 'dark' | 'light'
 
 export interface ThemeTokens {
   bg: string
@@ -9,38 +9,29 @@ export interface ThemeTokens {
   border: string
 }
 
-// FuseID brand-aligned tokens. The primary "dark" theme matches the
-// brand spec exactly — the other themes remain available for the theme
-// selector preview but should mostly route users to dark.
+// FUSE-ID brand-kit theme tokens — used by the ThemeSelector preview
+// component. The actual app styling is driven by CSS custom properties
+// in globals.css (:root for light, .dark for dark).
 export const THEMES: Record<ThemeName, ThemeTokens> = {
   dark: {
-    bg: '#0F1120',
-    surface: '#1A1F38',
-    textPrimary: '#FFFFFF',
-    textSecondary: '#9CA3AF',
-    accent: '#4ADE80',
-    border: 'rgba(255,255,255,0.1)',
+    bg: '#0f1120',
+    surface: '#1a1f35',
+    textPrimary: '#ffffff',
+    textSecondary: '#9ca3af',
+    accent: '#4ade80',
+    border: '#252b44',
   },
   light: {
-    bg: '#F5F7FA',
-    surface: '#FFFFFF',
-    textPrimary: '#0F1120',
-    textSecondary: '#4B5563',
-    accent: '#22C55E',
-    border: '#E5E7EB',
-  },
-  neutral: {
-    bg: '#F0EDE8',
-    surface: '#FFFFFF',
-    textPrimary: '#2C2C2C',
-    textSecondary: '#6B6B6B',
-    accent: '#22C55E',
-    border: '#D8D3CC',
+    bg: '#ffffff',
+    surface: '#f9fafb',
+    textPrimary: '#0a0a0a',
+    textSecondary: '#374151',
+    accent: '#22c55e',
+    border: '#e5e7eb',
   },
 }
 
 export const THEME_LABELS: Record<ThemeName, string> = {
   dark: 'Dark',
   light: 'Light',
-  neutral: 'Neutral',
 }

@@ -24,11 +24,11 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
   const article = await getArticleBySlug(slug)
-  if (!article) return { title: 'Article not found · FuseID Blog' }
+  if (!article) return { title: 'Article not found · FUSE-ID Blog' }
 
   const url = `https://fuse-id.online/blog/${article.slug}`
   return {
-    title: `${article.title} · FuseID`,
+    title: `${article.title} · FUSE-ID`,
     description: article.description,
     keywords: article.tags,
     alternates: { canonical: url },
@@ -36,10 +36,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: article.title,
       description: article.description,
       url,
-      siteName: 'FuseID',
+      siteName: 'FUSE-ID',
       type: 'article',
       publishedTime: article.published_at,
-      authors: ['FuseID'],
+      authors: ['FUSE-ID'],
       tags: article.tags,
     },
     twitter: {
@@ -72,10 +72,10 @@ export default async function BlogArticlePage({ params }: PageProps) {
     '@type': 'Article',
     headline: article.title,
     description: article.description,
-    author: { '@type': 'Organization', name: 'FuseID', url: 'https://fuse-id.online' },
+    author: { '@type': 'Organization', name: 'FUSE-ID', url: 'https://fuse-id.online' },
     publisher: {
       '@type': 'Organization',
-      name: 'FuseID',
+      name: 'FUSE-ID',
       logo: { '@type': 'ImageObject', url: 'https://fuse-id.online/brand/logo-full.svg' },
     },
     datePublished: article.published_at,
@@ -134,7 +134,7 @@ export default async function BlogArticlePage({ params }: PageProps) {
         <div className="mt-16 rounded-xl border border-[#4ADE80]/30 bg-[#4ADE80]/5 p-6 text-center">
           <h3 className="text-lg font-bold mb-2">Ready to take recruiting seriously?</h3>
           <p className="text-sm mb-4" style={{ color: '#9CA3AF' }}>
-            FuseID is a free tool that helps you organize your recruiting list, draft AI emails to coaches, and track every offer in one place.
+            FUSE-ID is a free tool that helps you organize your recruiting list, draft AI emails to coaches, and track every offer in one place.
           </p>
           <Link
             href="/register"

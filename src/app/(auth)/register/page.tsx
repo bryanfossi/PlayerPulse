@@ -38,7 +38,7 @@ const schema = z.object({
   const age = ageInYears(d.date_of_birth)
   return age !== null && age >= 13
 }, {
-  message: 'You must be at least 13 years old to use FuseID',
+  message: 'You must be at least 13 years old to use FUSE-ID',
   path: ['date_of_birth'],
 })
 type FormData = z.infer<typeof schema>
@@ -229,7 +229,7 @@ export default function RegisterPage() {
               {...register('date_of_birth')}
             />
             {errors.date_of_birth && <p className="text-red-300 text-xs">{errors.date_of_birth.message}</p>}
-            <p className="text-green-200/60 text-xs">FuseID is for athletes 13 and older.</p>
+            <p className="text-green-200/60 text-xs">FUSE-ID is for athletes 13 and older.</p>
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-3">

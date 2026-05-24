@@ -6,52 +6,16 @@ import { THEMES } from '@/lib/themes'
 
 const STORAGE_KEY = 'fuseid-theme'
 
-// Tailwind HSL overrides per theme (these values map to CSS vars used by Tailwind)
-const TAILWIND_OVERRIDES: Record<ThemeName, Record<string, string>> = {
-  dark: {},  // Dark uses the .dark class — no :root overrides needed
-  light: {
-    '--background': '220 33% 97%',
-    '--foreground': '214 62% 23%',
-    '--card': '0 0% 100%',
-    '--card-foreground': '214 62% 23%',
-    '--popover': '0 0% 100%',
-    '--popover-foreground': '214 62% 23%',
-    '--primary': '142 60% 35%',
-    '--primary-foreground': '0 0% 100%',
-    '--secondary': '214 30% 90%',
-    '--secondary-foreground': '214 62% 23%',
-    '--muted': '214 25% 92%',
-    '--muted-foreground': '214 35% 46%',
-    '--accent': '214 25% 90%',
-    '--accent-foreground': '214 62% 23%',
-    '--border': '214 35% 85%',
-    '--input': '214 35% 85%',
-    '--ring': '142 60% 35%',
-    '--destructive': '0 72% 51%',
-    '--destructive-foreground': '0 0% 98%',
-  },
-  neutral: {
-    '--background': '30 17% 91%',
-    '--foreground': '0 0% 17%',
-    '--card': '0 0% 100%',
-    '--card-foreground': '0 0% 17%',
-    '--popover': '0 0% 100%',
-    '--popover-foreground': '0 0% 17%',
-    '--primary': '142 60% 32%',
-    '--primary-foreground': '0 0% 100%',
-    '--secondary': '30 12% 86%',
-    '--secondary-foreground': '0 0% 17%',
-    '--muted': '30 12% 87%',
-    '--muted-foreground': '0 0% 42%',
-    '--accent': '30 12% 85%',
-    '--accent-foreground': '0 0% 17%',
-    '--border': '30 10% 82%',
-    '--input': '30 10% 82%',
-    '--ring': '142 60% 32%',
-    '--destructive': '0 72% 51%',
-    '--destructive-foreground': '0 0% 98%',
-  },
-}
+/**
+ * FUSE-ID theme system.
+ *
+ * Both modes' colors live in globals.css as CSS custom properties
+ * (`:root` = light, `.dark` = dark overrides). This provider just toggles
+ * the `dark` class on `documentElement` based on user preference.
+ *
+ * The pre-hydration script in layout.tsx applies the correct class
+ * before React mounts, so there's no flash of unstyled content.
+ */
 
 interface ThemeContextValue {
   theme: ThemeName
@@ -71,44 +35,21 @@ export function useTheme() {
 
 function applyTheme(theme: ThemeName) {
   const root = document.documentElement
-  const overrides = TAILWIND_OVERRIDES[theme]
-
-  // Reset any previously injected custom props
-  const allKeys = new Set([
-    ...Object.keys(TAILWIND_OVERRIDES.light),
-    ...Object.keys(TAILWIND_OVERRIDES.neutral),
-  ])
-  allKeys.forEach((k) => root.style.removeProperty(k))
-
   if (theme === 'dark') {
-    // Restore dark class, remove light/neutral classes
     root.classList.add('dark')
-    root.classList.remove('theme-light', 'theme-neutral')
   } else {
-    // Remove dark so dark: utilities don't apply
     root.classList.remove('dark')
-    root.classList.add(`theme-${theme}`)
-    root.classList.remove(theme === 'light' ? 'theme-neutral' : 'theme-light')
-    // Apply Tailwind var overrides directly on :root
-    Object.entries(overrides).forEach(([k, v]) => root.style.setProperty(k, v))
   }
-
-  // Always apply semantic color vars
-  const t = THEMES[theme]
-  root.style.setProperty('--color-bg', t.bg)
-  root.style.setProperty('--color-surface', t.surface)
-  root.style.setProperty('--color-text-primary', t.textPrimary)
-  root.style.setProperty('--color-text-secondary', t.textSecondary)
-  root.style.setProperty('--color-accent', t.accent)
-  root.style.setProperty('--color-border', t.border)
+  // Clean up legacy classes from the previous multi-theme implementation
+  root.classList.remove('theme-light', 'theme-neutral')
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<ThemeName>('dark')
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY) as ThemeName | null
-    const initial: ThemeName = saved && saved in THEMES ? saved : 'dark'
+    const saved = localStorage.getItem(STORAGE_KEY)
+    const initial: ThemeName = saved === 'light' ? 'light' : 'dark'
     setThemeState(initial)
     applyTheme(initial)
   }, [])

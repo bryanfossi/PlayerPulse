@@ -11,20 +11,20 @@ import { MarketingNav } from '@/components/marketing/MarketingNav'
 import { SUBSCRIPTION_TIERS, TOKEN_PACKS } from '@/lib/tokens/costs'
 
 export const metadata: Metadata = {
-  title: 'FuseID — Your College Recruiting Command Center',
+  title: 'FUSE-ID — Your College Recruiting Command Center',
   description:
     'AI-powered school matching, coach communication tracking, and real-time recruiting intelligence for serious college recruits. Organize your entire recruiting journey in one place.',
   openGraph: {
-    title: 'FuseID — Your College Recruiting Command Center',
+    title: 'FUSE-ID — Your College Recruiting Command Center',
     description:
       'AI-powered school matching, coach communication tracking, and real-time recruiting intelligence for serious college recruits.',
     url: 'https://fuse-id.online',
-    siteName: 'FuseID',
+    siteName: 'FUSE-ID',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'FuseID — College Recruiting, Fused.',
+    title: 'FUSE-ID — College Recruiting, Fused.',
     description: 'AI-powered school matching and recruiting management for serious college recruits.',
   },
 }
@@ -184,7 +184,7 @@ export default async function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { step: '01', title: 'Build your profile', body: 'Enter your stats, GPA, position, graduation year, and target regions. FuseID uses this to calibrate every recommendation.' },
+              { step: '01', title: 'Build your profile', body: 'Enter your stats, GPA, position, graduation year, and target regions. FUSE-ID uses this to calibrate every recommendation.' },
               { step: '02', title: 'Get your school list', body: 'Our AI ranks 2,400+ schools by fit score. Add any school to your board in one click and start tracking your progress.' },
               { step: '03', title: 'Manage your process', body: 'Log every call, email, and campus visit. Draft coach emails with AI. Track offers. Never miss a follow-up again.' },
             ].map(({ step, title, body }) => (
@@ -350,7 +350,7 @@ export default async function HomePage() {
           </div>
 
           <p className="mt-6 text-xs text-center" style={{ color: '#9CA3AF' }}>
-            FuseID is for athletes 13 and older. Cancel any subscription anytime — no contracts, no fees.
+            FUSE-ID is for athletes 13 and older. Cancel any subscription anytime — no contracts, no fees.
           </p>
         </div>
       </section>
@@ -381,7 +381,7 @@ export default async function HomePage() {
               Ready to take control<br />of your recruiting?
             </h2>
             <p className="max-w-md mx-auto" style={{ color: '#9CA3AF' }}>
-              Join players using FuseID to get more offers and make smarter decisions about their future.
+              Join players using FUSE-ID to get more offers and make smarter decisions about their future.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
@@ -410,7 +410,7 @@ export default async function HomePage() {
       <footer className="border-t px-6 md:px-12 py-10" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
           <div className="space-y-3">
-            <img src="/brand/logo-full.svg" alt="FuseID" style={{ height: '32px', width: 'auto' }} />
+            <img src="/brand/logo-full.svg" alt="FUSE-ID" style={{ height: '32px', width: 'auto' }} />
             <p className="text-xs leading-relaxed max-w-xs" style={{ color: '#9CA3AF' }}>
               The recruiting CRM for serious college athletes. AI-powered fit, organized outreach, every offer tracked.
             </p>
@@ -444,8 +444,8 @@ export default async function HomePage() {
         </div>
         <div className="border-t pt-6 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
           <div className="flex items-center gap-2">
-            <img src="/brand/logo-icon.svg" alt="FuseID" style={{ height: '18px', width: '18px' }} />
-            <span className="text-xs" style={{ color: '#9CA3AF' }}>© 2026 FuseID. All rights reserved.</span>
+            <img src="/brand/logo-icon.svg" alt="FUSE-ID" style={{ height: '18px', width: '18px' }} />
+            <span className="text-xs" style={{ color: '#9CA3AF' }}>© 2026 FUSE-ID. All rights reserved.</span>
           </div>
           <div className="flex items-center gap-6 text-xs" style={{ color: '#9CA3AF' }}>
             <Link href="/login" className="transition-colors hover:text-white">Sign in</Link>

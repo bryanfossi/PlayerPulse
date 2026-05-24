@@ -73,7 +73,7 @@ export default async function ProfilePage() {
           </div>
           <Link
             href="/profile/edit"
-            className="flex-shrink-0 text-xs font-medium px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-[#052e16] transition-colors"
+            className="flex-shrink-0 text-xs font-medium px-3 py-1.5 rounded-md border border-[#f59e0b] text-[#f59e0b] hover:bg-[#f59e0b]/10 transition-colors"
           >
             Fill in
           </Link>

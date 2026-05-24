@@ -38,7 +38,7 @@ export function RerunButton({ onRerun, isLoading }: Props) {
           <Button
             size="sm"
             onClick={() => setUpgradeOpen(true)}
-            className="gap-1.5 bg-amber-500 hover:bg-amber-400 text-[#052e16] font-medium"
+            className="gap-1.5"
           >
             <Plus className="w-3.5 h-3.5" />
             Get Tokens

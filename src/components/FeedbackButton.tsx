@@ -152,7 +152,7 @@ export function FeedbackButton() {
                   type === 'bug'
                     ? "What's broken? Steps to reproduce help a lot."
                     : type === 'feature'
-                    ? "What would make FuseID better for you?"
+                    ? "What would make FUSE-ID better for you?"
                     : type === 'question'
                     ? "What are you trying to figure out?"
                     : "What's on your mind?"

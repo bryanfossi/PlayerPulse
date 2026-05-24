@@ -1,7 +1,7 @@
 import type { SportConfig } from './types'
 
 /**
- * Football — fourth active sport for FuseID.
+ * Football — fourth active sport for FUSE-ID.
  * Distinct from soccer/basketball/volleyball:
  *  - FBS is headcount (85 full rides), FCS is equivalency (63), D2 equivalency (36), D3 = 0 athletic.
  *  - "Club" doesn't exist the way it does in soccer — recruiting flows through high school

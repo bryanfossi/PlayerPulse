@@ -73,9 +73,9 @@ export async function POST(request: Request) {
     if (resendKey) {
       try {
         const typeLabel = type[0].toUpperCase() + type.slice(1)
-        const subject = `[${typeLabel}] FuseID feedback from ${user.email ?? 'a user'}`
+        const subject = `[${typeLabel}] FUSE-ID feedback from ${user.email ?? 'a user'}`
         const html = `
-          <h2>New FuseID feedback</h2>
+          <h2>New FUSE-ID feedback</h2>
           <p><strong>Type:</strong> ${typeLabel}</p>
           <p><strong>From:</strong> ${user.email ?? '(no email)'}</p>
           <p><strong>User ID:</strong> ${user.id}</p>
@@ -95,7 +95,7 @@ export async function POST(request: Request) {
             Authorization: `Bearer ${resendKey}`,
           },
           body: JSON.stringify({
-            from: process.env.RESEND_FROM_EMAIL ?? 'FuseID <feedback@fuse-id.online>',
+            from: process.env.RESEND_FROM_EMAIL ?? 'FUSE-ID <feedback@fuse-id.online>',
             to: FEEDBACK_RECIPIENT,
             reply_to: user.email ?? undefined,
             subject,

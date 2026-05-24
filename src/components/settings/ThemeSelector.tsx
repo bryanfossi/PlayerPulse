@@ -4,7 +4,7 @@ import { Check } from 'lucide-react'
 import { useTheme } from '@/components/ThemeProvider'
 import { THEMES, THEME_LABELS, type ThemeName } from '@/lib/themes'
 
-const THEME_ORDER: ThemeName[] = ['dark', 'light', 'neutral']
+const THEME_ORDER: ThemeName[] = ['dark', 'light']
 
 function Swatch({ color }: { color: string }) {
   return (
@@ -20,7 +20,7 @@ export function ThemeSelector() {
 
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {THEME_ORDER.map((name) => {
           const t = THEMES[name]
           const isActive = active === name
@@ -63,7 +63,7 @@ export function ThemeSelector() {
                 className="mt-3 rounded-md p-2 text-[10px]"
                 style={{ background: t.surface, color: t.textSecondary, border: `1px solid ${t.border}` }}
               >
-                <span style={{ color: t.textPrimary, fontWeight: 500 }}>FuseID</span>
+                <span style={{ color: t.textPrimary, fontWeight: 500 }}>FUSE-ID</span>
                 {' · '}
                 <span style={{ color: t.accent }}>Match Engine</span>
               </div>

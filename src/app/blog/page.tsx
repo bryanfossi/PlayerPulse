@@ -5,16 +5,16 @@ import { MarketingNav } from '@/components/marketing/MarketingNav'
 import { listArticles } from '@/lib/blog/db'
 
 export const metadata: Metadata = {
-  title: 'FuseID Blog — College Recruiting Insights',
+  title: 'FUSE-ID Blog — College Recruiting Insights',
   description:
     'Practical advice on the college recruiting process for soccer, basketball, football, and volleyball athletes. Timelines, email templates, scholarship strategy.',
   alternates: { canonical: '/blog' },
   openGraph: {
-    title: 'FuseID Blog — College Recruiting Insights',
+    title: 'FUSE-ID Blog — College Recruiting Insights',
     description:
       'Practical advice on the college recruiting process for soccer, basketball, football, and volleyball athletes.',
     url: 'https://fuse-id.online/blog',
-    siteName: 'FuseID',
+    siteName: 'FUSE-ID',
     type: 'website',
   },
 }
@@ -42,7 +42,7 @@ export default async function BlogIndexPage() {
       <MarketingNav />
 
       <section className="pt-32 pb-12 px-6 md:px-12 text-center">
-        <p className="fuse-label mb-3">FuseID Blog</p>
+        <p className="fuse-label mb-3">FUSE-ID Blog</p>
         <h1 className="text-4xl md:text-5xl font-bold tracking-tight">College Recruiting, Explained</h1>
         <p className="mt-4 max-w-2xl mx-auto text-base" style={{ color: '#9CA3AF' }}>
           Practical advice on getting recruited — timelines, email templates, scholarship strategy — for soccer, basketball, football, and volleyball athletes.

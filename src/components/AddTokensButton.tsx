@@ -16,7 +16,7 @@ export function AddTokensButton() {
       <div className="flex items-center gap-2">
         <div
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-colors ${
-            empty ? 'bg-red-500/10 border-red-500/30' : 'bg-[#4ADE80]/10 border-[#4ADE80]/20'
+            empty ? 'bg-red-500/10 border-red-500/30' : 'bg-[#4ade80]/10 border-[#4ade80]/20'
           }`}
         >
           <TokenBalance showLabel />
@@ -24,11 +24,11 @@ export function AddTokensButton() {
 
         <button
           onClick={() => setOpen(true)}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+          className={
             empty
-              ? 'bg-red-500 hover:bg-red-400 text-white'
-              : 'bg-amber-500 hover:bg-amber-400 text-[#052e16]'
-          }`}
+              ? 'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors bg-[#ef4444] hover:bg-[#dc2626] text-white'
+              : 'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors border border-[#4ade80] text-[#4ade80] hover:bg-[#4ade80]/10'
+          }
         >
           <Plus className="w-3.5 h-3.5" />
           {empty ? 'Get tokens' : 'Buy more'}

@@ -53,7 +53,7 @@ export async function POST(request: Request) {
         console.error('[register-extras] failed to delete under-13 auth user:', err)
       }
       return NextResponse.json(
-        { error: 'You must be at least 13 years old to use FuseID.' },
+        { error: 'You must be at least 13 years old to use FUSE-ID.' },
         { status: 403 },
       )
     }
