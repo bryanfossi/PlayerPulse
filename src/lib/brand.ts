@@ -1,22 +1,16 @@
 export const brand = {
   colors: {
-    // Primary surfaces
-    bgPrimary: '#0F1120',
-    bgSecondary: '#1A1F38',
-    // Accent (electric green)
-    accent: '#4ADE80',
-    accentDeep: '#22C55E',
-    // Text
-    textPrimary: '#FFFFFF',
-    textMuted: '#9CA3AF',
-    // Borders
-    border: 'rgba(255,255,255,0.1)',
-
-    // Legacy aliases — kept for incremental migration
-    green: '#4ADE80',
-    dark: '#0F1120',
-    white: '#FFFFFF',
-    mintPop: '#E2F9EC',
+    // FUSE-ID brand-kit hexes (dark mode). Lowercase per spec.
+    bgPrimary: '#0f1120',
+    bgSecondary: '#1a1f35',
+    bgRaised: '#252b44',
+    accent: '#4ade80',        // green-400
+    accentDeep: '#22c55e',    // green-500
+    accentPressed: '#16a34a', // green-600
+    textPrimary: '#ffffff',
+    textMuted: '#9ca3af',
+    textTertiary: '#555555',
+    border: '#252b44',
   },
   logo: {
     full: '/brand/logo-full.svg',

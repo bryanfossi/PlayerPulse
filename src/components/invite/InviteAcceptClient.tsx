@@ -134,7 +134,7 @@ export function InviteAcceptClient({ token, inviteEmail, playerName }: Props) {
 
   if (mode === 'register') {
     return (
-      <div className="space-y-5">
+      <div className="space-y-6">
         <div>
           <button
             onClick={() => { setMode('choose'); setError('') }}
@@ -181,7 +181,7 @@ export function InviteAcceptClient({ token, inviteEmail, playerName }: Props) {
 
   // login mode
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div>
         <button
           onClick={() => { setMode('choose'); setError('') }}

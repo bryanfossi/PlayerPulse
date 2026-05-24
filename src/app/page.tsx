@@ -89,8 +89,8 @@ export default async function HomePage() {
 
         {/* Mock kanban dashboard */}
         <div className="mt-20 max-w-4xl mx-auto">
-          <div className="rounded-xl border p-5 text-left" style={{ borderColor: 'rgba(255,255,255,0.1)', backgroundColor: '#1A1F38' }}>
-            <div className="flex items-center gap-3 mb-5">
+          <div className="rounded-xl border p-6 text-left" style={{ borderColor: 'rgba(255,255,255,0.1)', backgroundColor: '#1A1F38' }}>
+            <div className="flex items-center gap-3 mb-6">
               <div className="w-2 h-2 rounded-full bg-red-400" />
               <div className="w-2 h-2 rounded-full bg-amber-400" />
               <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#4ADE80' }} />
@@ -106,7 +106,7 @@ export default async function HomePage() {
                 <div key={tier} className="rounded-lg border p-3 space-y-2.5" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
                   <div className="flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#4ADE80' }} />
-                    <span className="text-[11px] font-medium uppercase tracking-[0.08em]" style={{ color: '#4ADE80' }}>{tier}</span>
+                    <span className="text-[11px] font-medium uppercase tracking-widest" style={{ color: '#4ADE80' }}>{tier}</span>
                   </div>
                   {schools.map((s) => (
                     <div key={s} className="rounded-md border px-2.5 py-2" style={{ borderColor: 'rgba(255,255,255,0.1)', backgroundColor: '#0F1120' }}>
@@ -217,7 +217,7 @@ export default async function HomePage() {
           {/* 3-column plan grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
             {/* Free */}
-            <div className="rounded-xl border p-6 flex flex-col gap-5" style={{ borderColor: 'rgba(255,255,255,0.1)', backgroundColor: '#1A1F38' }}>
+            <div className="rounded-xl border p-6 flex flex-col gap-6" style={{ borderColor: 'rgba(255,255,255,0.1)', backgroundColor: '#1A1F38' }}>
               <div>
                 <p className="fuse-label mb-2">Free</p>
                 <div className="flex items-end gap-2">
@@ -245,7 +245,7 @@ export default async function HomePage() {
 
               <Link
                 href="/register"
-                className="block text-center px-5 py-2.5 rounded-md font-bold text-sm transition-colors border"
+                className="block text-center px-6 py-2.5 rounded-md font-bold text-sm transition-colors border"
                 style={{ borderColor: 'rgba(255,255,255,0.15)', color: '#FFFFFF' }}
               >
                 Start free
@@ -253,7 +253,7 @@ export default async function HomePage() {
             </div>
 
             {/* Starter */}
-            <div className="rounded-xl border p-6 flex flex-col gap-5" style={{ borderColor: 'rgba(255,255,255,0.1)', backgroundColor: '#1A1F38' }}>
+            <div className="rounded-xl border p-6 flex flex-col gap-6" style={{ borderColor: 'rgba(255,255,255,0.1)', backgroundColor: '#1A1F38' }}>
               <div>
                 <p className="fuse-label mb-2">{SUBSCRIPTION_TIERS.starter.label}</p>
                 <div className="flex items-end gap-2">
@@ -280,7 +280,7 @@ export default async function HomePage() {
 
               <Link
                 href="/register"
-                className="block text-center px-5 py-2.5 rounded-md font-bold text-sm transition-colors border"
+                className="block text-center px-6 py-2.5 rounded-md font-bold text-sm transition-colors border"
                 style={{ borderColor: 'rgba(255,255,255,0.15)', color: '#FFFFFF' }}
               >
                 Choose Starter
@@ -288,8 +288,8 @@ export default async function HomePage() {
             </div>
 
             {/* Pro — highlighted */}
-            <div className="relative rounded-xl border p-6 flex flex-col gap-5" style={{ borderColor: '#4ADE80', backgroundColor: '#1A1F38' }}>
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-md border text-[11px] font-bold uppercase tracking-[0.08em]" style={{ borderColor: '#4ADE80', backgroundColor: '#0F1120', color: '#4ADE80' }}>
+            <div className="relative rounded-xl border p-6 flex flex-col gap-6" style={{ borderColor: '#4ADE80', backgroundColor: '#1A1F38' }}>
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-md border text-[11px] font-bold uppercase tracking-widest" style={{ borderColor: '#4ADE80', backgroundColor: '#0F1120', color: '#4ADE80' }}>
                 Most popular
               </div>
 
@@ -319,7 +319,7 @@ export default async function HomePage() {
 
               <Link
                 href="/register"
-                className="block text-center px-5 py-2.5 rounded-md font-bold text-sm transition-colors"
+                className="block text-center px-6 py-2.5 rounded-md font-bold text-sm transition-colors"
                 style={{ backgroundColor: '#4ADE80', color: '#0F1120' }}
               >
                 Choose Pro
@@ -328,7 +328,7 @@ export default async function HomePage() {
           </div>
 
           {/* Token packs note */}
-          <div className="mt-10 max-w-3xl mx-auto rounded-lg border p-5 text-center" style={{ borderColor: 'rgba(255,255,255,0.1)', backgroundColor: '#1A1F38' }}>
+          <div className="mt-10 max-w-3xl mx-auto rounded-lg border p-6 text-center" style={{ borderColor: 'rgba(255,255,255,0.1)', backgroundColor: '#1A1F38' }}>
             <p className="text-sm font-medium mb-2">Need more tokens? Top up anytime.</p>
             <p className="text-xs leading-relaxed" style={{ color: '#9CA3AF' }}>
               One-time token packs — never expire. Available to every tier, including Free.

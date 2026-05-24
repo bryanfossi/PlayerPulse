@@ -50,7 +50,7 @@ export function StepPersonal() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {showSportSelector && (
         <div className="space-y-1.5">
           <Label>Sport <span className="text-destructive">*</span></Label>

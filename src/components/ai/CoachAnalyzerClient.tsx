@@ -247,7 +247,7 @@ export function CoachAnalyzerClient({ schools }: Props) {
           <CardContent className="pt-5 space-y-5">
             {/* Mode toggle */}
             <div>
-              <Label className="text-xs font-medium uppercase tracking-[0.08em]" style={{ color: '#9CA3AF' }}>
+              <Label className="text-xs font-medium uppercase tracking-widest" style={{ color: '#9CA3AF' }}>
                 Which school is the email from?
               </Label>
               <div className="mt-2 inline-flex rounded-md border overflow-hidden" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
@@ -448,7 +448,7 @@ export function CoachAnalyzerClient({ schools }: Props) {
           {/* School + actions */}
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div>
-              <p className="text-[11px] font-medium uppercase tracking-[0.08em]" style={{ color: '#9CA3AF' }}>
+              <p className="text-[11px] font-medium uppercase tracking-widest" style={{ color: '#9CA3AF' }}>
                 Analysis for
               </p>
               <p className="text-lg font-bold mt-0.5">{schoolNameForResult}</p>
@@ -504,7 +504,7 @@ export function CoachAnalyzerClient({ schools }: Props) {
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-[11px] font-medium uppercase tracking-[0.08em]" style={{ color: INTEREST_BORDER[result.interest_level] }}>
+                <p className="text-[11px] font-medium uppercase tracking-widest" style={{ color: INTEREST_BORDER[result.interest_level] }}>
                   Coach interest level
                 </p>
                 <p className="text-3xl md:text-4xl font-bold tracking-tight mt-1" style={{ color: INTEREST_BORDER[result.interest_level] }}>
@@ -522,7 +522,7 @@ export function CoachAnalyzerClient({ schools }: Props) {
           <div className="rounded-xl border" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
             <div className="px-4 py-2.5 flex items-center gap-2 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
               <MessageSquareQuote className="w-3.5 h-3.5" style={{ color: '#9CA3AF' }} />
-              <span className="text-[11px] font-medium uppercase tracking-[0.08em]" style={{ color: '#9CA3AF' }}>
+              <span className="text-[11px] font-medium uppercase tracking-widest" style={{ color: '#9CA3AF' }}>
                 Tone
               </span>
             </div>
@@ -538,7 +538,7 @@ export function CoachAnalyzerClient({ schools }: Props) {
           <div className="rounded-xl border" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
             <div className="px-4 py-2.5 flex items-center gap-2 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
               <Sparkles className="w-3.5 h-3.5" style={{ color: '#9CA3AF' }} />
-              <span className="text-[11px] font-medium uppercase tracking-[0.08em]" style={{ color: '#9CA3AF' }}>
+              <span className="text-[11px] font-medium uppercase tracking-widest" style={{ color: '#9CA3AF' }}>
                 Key signals
               </span>
               <span className="ml-auto text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: 'rgba(255,255,255,0.05)', color: '#9CA3AF' }}>
@@ -575,7 +575,7 @@ export function CoachAnalyzerClient({ schools }: Props) {
           >
             <div className="px-4 py-2.5 flex items-center gap-2 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
               <ArrowRight className="w-3.5 h-3.5" style={{ color: '#9CA3AF' }} />
-              <span className="text-[11px] font-medium uppercase tracking-[0.08em]" style={{ color: '#9CA3AF' }}>
+              <span className="text-[11px] font-medium uppercase tracking-widest" style={{ color: '#9CA3AF' }}>
                 Recommended next step
               </span>
               <span

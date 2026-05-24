@@ -145,7 +145,7 @@ function SubscribeContent() {
               }`}
             >
               <div
-                className={`px-6 py-5 text-center border-b ${
+                className={`px-6 py-6 text-center border-b ${
                   plan.highlight
                     ? 'bg-[#4ADE80]/10 border-[#4ADE80]/20'
                     : 'bg-white/[0.02] border-white/10'
@@ -166,7 +166,7 @@ function SubscribeContent() {
                 <p className="text-xs text-muted-foreground mt-1">{plan.tagline}</p>
               </div>
 
-              <div className="px-6 py-5 space-y-3 flex-1">
+              <div className="px-6 py-6 space-y-3 flex-1">
                 {plan.features.map((f) => (
                   <div key={f} className="flex items-start gap-3">
                     <CheckCircle2 className="w-4 h-4 text-[#4ADE80] flex-shrink-0 mt-0.5" />

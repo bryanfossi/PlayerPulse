@@ -93,7 +93,7 @@ export function MarketingNav() {
       {/* Mobile menu */}
       {menuOpen && (
         <div
-          className="absolute top-16 left-0 right-0 border-b px-6 py-5 flex flex-col gap-4 md:hidden"
+          className="absolute top-16 left-0 right-0 border-b px-6 py-6 flex flex-col gap-4 md:hidden"
           style={{ backgroundColor: '#0F1120', borderColor: 'rgba(255,255,255,0.1)' }}
         >
           {links.map((l) => (

@@ -247,7 +247,7 @@ export default async function DashboardPage() {
       {/* ───────────────────────────────────────────────────────── */}
       {primaryAction && (
         <section>
-          <p className="text-[11px] font-medium uppercase tracking-[0.12em] mb-3" style={{ color: '#9CA3AF' }}>
+          <p className="text-[11px] font-medium uppercase tracking-widest mb-3" style={{ color: '#9CA3AF' }}>
             Today
           </p>
 
@@ -265,7 +265,7 @@ export default async function DashboardPage() {
                 <primaryAction.icon className="w-5 h-5" style={{ color: primaryAction.eyebrowColor }} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[11px] font-medium uppercase tracking-[0.08em]" style={{ color: primaryAction.eyebrowColor }}>
+                <p className="text-[11px] font-medium uppercase tracking-widest" style={{ color: primaryAction.eyebrowColor }}>
                   {primaryAction.eyebrow}
                 </p>
                 <h2 className="text-xl md:text-2xl font-bold tracking-tight mt-1">
@@ -299,7 +299,7 @@ export default async function DashboardPage() {
                     <a.icon className="w-4 h-4" style={{ color: a.eyebrowColor }} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[10px] font-medium uppercase tracking-[0.08em]" style={{ color: a.eyebrowColor }}>
+                    <p className="text-[10px] font-medium uppercase tracking-widest" style={{ color: a.eyebrowColor }}>
                       {a.eyebrow}
                     </p>
                     <p className="text-sm font-medium mt-0.5">{a.title}</p>
@@ -332,7 +332,7 @@ export default async function DashboardPage() {
       <section>
         <div className="flex items-baseline justify-between mb-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.12em]" style={{ color: '#9CA3AF' }}>
+            <p className="text-[11px] font-medium uppercase tracking-widest" style={{ color: '#9CA3AF' }}>
               Your top 10
             </p>
             <h2 className="text-lg font-bold tracking-tight mt-1">Schools you&apos;re tracking most</h2>
@@ -363,7 +363,7 @@ export default async function DashboardPage() {
       {/* ───────────────────────────────────────────────────────── */}
       <section>
         <div className="flex items-baseline justify-between mb-4">
-          <p className="text-[11px] font-medium uppercase tracking-[0.12em]" style={{ color: '#9CA3AF' }}>
+          <p className="text-[11px] font-medium uppercase tracking-widest" style={{ color: '#9CA3AF' }}>
             Action history
           </p>
           <Link href="/actions" className="text-xs font-medium transition-colors hover:text-white inline-flex items-center gap-1" style={{ color: '#9CA3AF' }}>
@@ -379,7 +379,7 @@ export default async function DashboardPage() {
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Pipeline */}
         <div>
-          <p className="text-[11px] font-medium uppercase tracking-[0.12em] mb-4" style={{ color: '#9CA3AF' }}>
+          <p className="text-[11px] font-medium uppercase tracking-widest mb-4" style={{ color: '#9CA3AF' }}>
             Pipeline
           </p>
           {totalSchools === 0 ? (
@@ -416,7 +416,7 @@ export default async function DashboardPage() {
         {/* Activity */}
         <div>
           <div className="flex items-baseline justify-between mb-4">
-            <p className="text-[11px] font-medium uppercase tracking-[0.12em]" style={{ color: '#9CA3AF' }}>
+            <p className="text-[11px] font-medium uppercase tracking-widest" style={{ color: '#9CA3AF' }}>
               Recent activity
             </p>
             <Link href="/communications" className="text-xs transition-colors hover:text-white" style={{ color: '#9CA3AF' }}>
@@ -479,7 +479,7 @@ function InlineStat({ label, value, icon: Icon, accent }: {
   return (
     <div className="px-5 py-4 flex items-center justify-between">
       <div>
-        <p className="text-[10px] font-medium uppercase tracking-[0.08em]" style={{ color: '#9CA3AF' }}>
+        <p className="text-[10px] font-medium uppercase tracking-widest" style={{ color: '#9CA3AF' }}>
           {label}
         </p>
         <p className="text-2xl font-bold tabular-nums mt-1" style={{ color: accent ? '#4ADE80' : '#FFFFFF' }}>

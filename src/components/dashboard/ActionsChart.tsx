@@ -51,7 +51,7 @@ export function ActionsChart({ completedDates, days = 90 }: Props) {
       {/* Header */}
       <div className="flex items-baseline justify-between gap-3 px-4 pt-4 pb-3">
         <div>
-          <p className="text-[11px] font-medium uppercase tracking-[0.08em]" style={{ color: '#9CA3AF' }}>
+          <p className="text-[11px] font-medium uppercase tracking-widest" style={{ color: '#9CA3AF' }}>
             Actions completed
           </p>
           <div className="flex items-baseline gap-2 mt-1">
