@@ -7,7 +7,7 @@
  *
  * Reads from .env.local (loaded by tsx if present) — same env vars as
  * the prod API route: ANTHROPIC_API_KEY, SERPER_API_KEY (optional),
- * NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY.
+ * NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY.
  */
 
 import { generateNextArticle } from '../src/lib/blog/generator'

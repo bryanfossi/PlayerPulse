@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -H 127.0.0.1",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "test": "jest --runInBand",
-    "blog:generate": "tsx scripts/generate-article.ts"
+    "blog:generate": "tsx --env-file=.env.local scripts/generate-article.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
