@@ -448,6 +448,8 @@ export default async function HomePage() {
             <span className="text-xs" style={{ color: '#9CA3AF' }}>© 2026 FUSE-ID. All rights reserved.</span>
           </div>
           <div className="flex items-center gap-6 text-xs" style={{ color: '#9CA3AF' }}>
+            <Link href="/terms" className="transition-colors hover:text-white">Terms</Link>
+            <Link href="/privacy" className="transition-colors hover:text-white">Privacy</Link>
             <Link href="/login" className="transition-colors hover:text-white">Sign in</Link>
             <Link href="/register" className="transition-colors hover:text-white">Register</Link>
           </div>

@@ -31,6 +31,9 @@ const schema = z.object({
   confirmPassword: z.string(),
   role: z.enum(['player', 'parent']),
   date_of_birth: z.string().min(1, 'Date of birth is required'),
+  // Only required when role === 'parent' — see refinement below.
+  player_email: z.string().optional(),
+  terms_accepted: z.boolean(),
 }).refine((d) => d.password === d.confirmPassword, {
   message: 'Passwords do not match',
   path: ['confirmPassword'],
@@ -40,6 +43,23 @@ const schema = z.object({
 }, {
   message: 'You must be at least 13 years old to use FUSE-ID',
   path: ['date_of_birth'],
+}).refine((d) => d.terms_accepted === true, {
+  message: 'You must accept the Terms of Service and Privacy Policy to continue',
+  path: ['terms_accepted'],
+}).refine((d) => {
+  if (d.role !== 'parent') return true
+  const e = d.player_email?.trim()
+  if (!e) return false
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)
+}, {
+  message: "Enter your athlete's email so they can join the shared account",
+  path: ['player_email'],
+}).refine((d) => {
+  if (d.role !== 'parent') return true
+  return d.player_email?.trim().toLowerCase() !== d.email.trim().toLowerCase()
+}, {
+  message: "Athlete email must be different from your own",
+  path: ['player_email'],
 })
 type FormData = z.infer<typeof schema>
 
@@ -50,7 +70,7 @@ export default function RegisterPage() {
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { role: 'player' },
+    defaultValues: { role: 'player', terms_accepted: false },
   })
 
   const role = watch('role')
@@ -77,23 +97,25 @@ export default function RegisterPage() {
       return
     }
 
-    // Persist DOB to profiles (and run the server-side COPPA check). We only
-    // do this when we have a real session — if signUp returned no session
-    // (email-confirmation enabled), the user isn't authenticated yet, so we
-    // pass the DOB through user metadata above and the auth callback /
-    // server route will pick it up on first login.
+    // Persist DOB + terms acceptance + (if parent) co-owner invite to the
+    // player. We only do this when we have a real session — if signUp
+    // returned no session (email-confirmation enabled), the user isn't
+    // authenticated yet, so we pass everything through user metadata above
+    // and the auth callback / server route will pick it up on first login.
     if (signUpData.session) {
       try {
         const res = await fetch('/api/auth/register-extras', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ date_of_birth: data.date_of_birth }),
+          body: JSON.stringify({
+            date_of_birth: data.date_of_birth,
+            terms_accepted: data.terms_accepted,
+            player_email: data.role === 'parent' ? data.player_email?.trim() : undefined,
+          }),
         })
         if (!res.ok) {
           const json = await res.json().catch(() => ({}))
           setError(json.error ?? 'Could not complete registration.')
-          // Sign the half-registered user back out so they don't get stuck
-          // in a logged-in-but-not-onboarded state.
           await supabase.auth.signOut()
           setLoading(false)
           return
@@ -104,19 +126,12 @@ export default function RegisterPage() {
       }
     }
 
-    // If Supabase has email confirmation enabled, signUpData.session is null
-    // and the user needs to click the link in their inbox before being signed
-    // in. Show a "check your inbox" screen instead of redirecting them to a
-    // gated page that bounces back to /login.
     if (!signUpData.session) {
       setSubmittedEmail(data.email)
       setLoading(false)
       return
     }
 
-    // No email confirmation — user is logged in already. Use a full navigation
-    // so the auth cookie is included on the next request (router.push() races
-    // the cookie write and causes a blank first paint).
     window.location.href = data.role === 'player' ? '/onboarding' : '/dashboard'
   }
 
@@ -179,10 +194,17 @@ export default function RegisterPage() {
                 </label>
               ))}
             </div>
+            {role === 'parent' && (
+              <p className="text-green-200/60 text-xs">
+                You&apos;ll create a shared account. We&apos;ll email your athlete a link to join and you can both log in.
+              </p>
+            )}
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="email" className="text-green-100">Email</Label>
+            <Label htmlFor="email" className="text-green-100">
+              {role === 'parent' ? 'Your email' : 'Email'}
+            </Label>
             <Input
               id="email"
               type="email"
@@ -193,6 +215,24 @@ export default function RegisterPage() {
             />
             {errors.email && <p className="text-red-300 text-xs">{errors.email.message}</p>}
           </div>
+
+          {role === 'parent' && (
+            <div className="space-y-1.5">
+              <Label htmlFor="player_email" className="text-green-100">Athlete&apos;s email</Label>
+              <Input
+                id="player_email"
+                type="email"
+                placeholder="athlete@example.com"
+                autoComplete="off"
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/40 focus-visible:ring-green-400"
+                {...register('player_email')}
+              />
+              {errors.player_email && <p className="text-red-300 text-xs">{errors.player_email.message}</p>}
+              <p className="text-green-200/60 text-xs">
+                We&apos;ll send a link they can use to set their own password and access this account.
+              </p>
+            </div>
+          )}
 
           <div className="space-y-1.5">
             <Label htmlFor="password" className="text-green-100">Password</Label>
@@ -230,6 +270,29 @@ export default function RegisterPage() {
             />
             {errors.date_of_birth && <p className="text-red-300 text-xs">{errors.date_of_birth.message}</p>}
             <p className="text-green-200/60 text-xs">FUSE-ID is for athletes 13 and older.</p>
+          </div>
+
+          {/* Terms + Privacy acceptance */}
+          <div className="space-y-1.5 pt-2 border-t border-white/10">
+            <label className="flex items-start gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                {...register('terms_accepted')}
+                className="mt-0.5 w-4 h-4 rounded border-white/20 bg-white/10 accent-[#4ade80]"
+              />
+              <span className="text-xs text-green-100 leading-relaxed">
+                I&apos;ve read and agree to the{' '}
+                <Link href="/terms" target="_blank" className="text-green-300 hover:text-white underline">
+                  Terms of Service
+                </Link>
+                {' '}and{' '}
+                <Link href="/privacy" target="_blank" className="text-green-300 hover:text-white underline">
+                  Privacy Policy
+                </Link>
+                .
+              </span>
+            </label>
+            {errors.terms_accepted && <p className="text-red-300 text-xs">{errors.terms_accepted.message}</p>}
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-3">

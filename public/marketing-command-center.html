@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FuseID — Marketing Command Center</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      color-scheme: light;
+      --green:        #22c55e;
+      --green-dark:   #4ade80;
+      --green-bg:     #f0fdf4;
+      --green-border: #22c55e;
+      --green-text:   #15803d;
+      --bg-dark:      #0f1120;
+      --near-black:   #0a0a0a;
+      --bg-light:     #f9fafb;
+      --white:        #ffffff;
+      --border:       #e5e7eb;
+      --border-hover: #d1d5db;
+      --text-primary: #111827;
+      --text-muted:   #6b7280;
+      --text-light:   #9ca3af;
+      --radius-sm:    6px;
+      --radius:       8px;
+      --radius-lg:    12px;
+      --shadow-sm:    0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.05);
+      --shadow:       0 4px 12px rgba(0,0,0,.08);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-light);
+      color: var(--text-primary);
+      min-height: 100vh;
+      font-size: 15px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────────── */
+    .header {
+      background: var(--near-black);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .header-left { display: flex; align-items: center; gap: 14px; }
+    .logo {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--green);
+      letter-spacing: -0.5px;
+    }
+    .logo span { color: #fff; }
+    .header-badge {
+      background: rgba(34,197,94,.15);
+      color: var(--green-dark);
+      border: 1px solid rgba(34,197,94,.25);
+      border-radius: 100px;
+      padding: 3px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+    .settings-toggle {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius);
+      padding: 7px 14px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      color: #d1d5db;
+      transition: all .15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .settings-toggle:hover { background: rgba(255,255,255,.13); color: #fff; }
+
+    /* ── SETTINGS DRAWER ─────────────────────────────────────── */
+    .settings-drawer {
+      background: var(--near-black);
+      border-top: 1px solid rgba(255,255,255,.07);
+      border-bottom: 3px solid var(--green);
+      padding: 0 24px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .3s ease, padding .3s ease;
+    }
+    .settings-drawer.open {
+      max-height: 200px;
+      padding: 16px 24px;
+    }
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px 12px;
+    }
+    .settings-field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: #6b7280;
+      margin-bottom: 5px;
+    }
+    .settings-field input {
+      width: 100%;
+      padding: 8px 11px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: var(--radius-sm);
+      font-family: 'DM Mono', monospace, monospace;
+      font-size: 12px;
+      color: #e5e7eb;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .settings-field input::placeholder { color: #4b5563; }
+    .settings-field input:focus { border-color: var(--green); }
+
+    /* ── MAIN LAYOUT ─────────────────────────────────────────── */
+    .main {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 28px 16px 60px;
+    }
+
+    /* ── TAB BAR ─────────────────────────────────────────────── */
+    .tab-bar {
+      display: flex;
+      gap: 3px;
+      background: #fff;
+      padding: 5px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 24px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .tab-bar::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      flex: 1;
+      min-width: max-content;
+      padding: 9px 14px;
+      border: none;
+      background: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--text-muted);
+      white-space: nowrap;
+      transition: all .15s;
+    }
+    .tab-btn:hover { background: var(--bg-light); color: var(--text-primary); }
+    .tab-btn.active {
+      background: var(--green);
+      color: var(--near-black);
+      font-weight: 700;
+      box-shadow: 0 1px 4px rgba(34,197,94,.35);
+    }
+
+    /* ── PANELS ──────────────────────────────────────────────── */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── CARD ────────────────────────────────────────────────── */
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title-icon {
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    /* ── FORM ────────────────────────────────────────────────── */
+    .form-group { margin-bottom: 17px; }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-label {
+      display: block;
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 7px;
+    }
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--text-primary);
+      background: #fff;
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+      appearance: none;
+    }
+    .form-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
+      cursor: pointer;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(34,197,94,.12);
+    }
+    .form-textarea { resize: vertical; min-height: 82px; line-height: 1.5; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 560px) { .form-row { grid-template-columns: 1fr; } }
+
+    /* ── CHIPS ───────────────────────────────────────────────── */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+    .chip {
+      padding: 6px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--text-muted);
+      background: #fff;
+      transition: all .14s;
+      user-select: none;
+      line-height: 1.3;
+    }
+    .chip:hover {
+      border-color: var(--green);
+      color: var(--green-text);
+      background: var(--green-bg);
+    }
+    .chip.selected {
+      background: var(--green-bg);
+      border-color: var(--green-border);
+      color: var(--green-text);
+      font-weight: 600;
+    }
+
+    /* ── NUM SELECT ──────────────────────────────────────────── */
+    .num-select { display: flex; gap: 7px; flex-wrap: wrap; }
+    .num-btn {
+      padding: 8px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      background: #fff;
+      color: var(--text-muted);
+      transition: all .14s;
+      line-height: 1;
+    }
+    .num-btn:hover { border-color: var(--green); color: var(--green-text); }
+    .num-btn.selected {
+      background: var(--green-bg);
+      border-color: var(--green-border);
+      color: var(--green-text);
+      font-weight: 700;
+    }
+
+    /* ── GENERATE BUTTON ─────────────────────────────────────── */
+    .btn-generate {
+      width: 100%;
+      padding: 13px;
+      background: var(--green);
+      color: var(--near-black);
+      border: none;
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s, transform .1s, box-shadow .15s;
+      letter-spacing: 0.01em;
+      margin-top: 4px;
+      box-shadow: 0 2px 8px rgba(34,197,94,.3);
+    }
+    .btn-generate:hover { background: #16a34a; box-shadow: 0 4px 14px rgba(34,197,94,.4); }
+    .btn-generate:active { transform: translateY(1px); }
+    .btn-generate:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+
+    /* ── OUTPUT CARD ─────────────────────────────────────────── */
+    .output-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-sm);
+      display: none;
+    }
+    .output-card.visible { display: block; }
+    .output-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      gap: 12px;
+    }
+    .output-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .btn-copy {
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #fff;
+      color: var(--text-muted);
+      transition: all .14s;
+      white-space: nowrap;
+    }
+    .btn-copy:hover { border-color: var(--green); color: var(--green-text); }
+    .btn-copy.copied {
+      background: var(--green-bg);
+      border-color: var(--green-border);
+      color: var(--green-text);
+    }
+    .output-content {
+      white-space: pre-wrap;
+      font-size: 13.5px;
+      line-height: 1.7;
+      color: var(--text-primary);
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    /* ── CANVA CARD ──────────────────────────────────────────── */
+    .canva-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--green);
+      border-radius: var(--radius-lg);
+      padding: 22px 24px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-sm);
+      display: none;
+    }
+    .canva-card.visible { display: block; }
+    .canva-header { margin-bottom: 14px; }
+    .canva-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .canva-subtitle { font-size: 13px; color: var(--text-muted); }
+    .canva-formats {
+      margin-bottom: 16px;
+    }
+    .btn-canva {
+      width: 100%;
+      padding: 12px;
+      background: var(--near-black);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s;
+      letter-spacing: 0.01em;
+    }
+    .btn-canva:hover { background: #1e1e30; }
+    .btn-canva:disabled { opacity: .55; cursor: not-allowed; }
+
+    /* ── DESIGN GRID ─────────────────────────────────────────── */
+    .design-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    @media (max-width: 480px) { .design-grid { grid-template-columns: 1fr; } }
+    .design-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: box-shadow .15s;
+    }
+    .design-card:hover { box-shadow: var(--shadow); }
+    .design-thumb {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      display: block;
+    }
+    .design-placeholder {
+      width: 100%;
+      aspect-ratio: 1;
+      background: linear-gradient(135deg, var(--green-bg) 0%, #dcfce7 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: var(--green-text);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .design-placeholder-icon { font-size: 28px; }
+    .design-footer {
+      padding: 10px 13px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border);
+      background: #fff;
+    }
+    .design-num {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .design-open {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--green-text);
+      text-decoration: none;
+    }
+    .design-open:hover { text-decoration: underline; }
+
+    /* ── SPINNER ─────────────────────────────────────────────── */
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(0,0,0,.18);
+      border-top-color: var(--near-black);
+      border-radius: 50%;
+      animation: spin .65s linear infinite;
+      vertical-align: middle;
+      margin-right: 7px;
+    }
+    .spinner-white {
+      border-color: rgba(255,255,255,.25);
+      border-top-color: #fff;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── DEBUG ───────────────────────────────────────────────── */
+    .debug-wrap { margin-top: 14px; }
+    .debug-label { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+    .debug-textarea {
+      width: 100%;
+      min-height: 110px;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      line-height: 1.5;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg-light);
+      resize: vertical;
+      color: var(--text-muted);
+    }
+
+    /* ── ERROR ───────────────────────────────────────────────── */
+    .error-msg { color: #ef4444; font-size: 13px; margin-top: 10px; font-weight: 500; }
+    .error-hint { color: var(--text-muted); font-size: 12px; margin-top: 3px; }
+
+    /* ── SECTION DIVIDER ─────────────────────────────────────── */
+    .divider { height: 1px; background: var(--border); margin: 4px 0 20px; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo">Fuse<span>ID</span></div>
+    <div class="header-badge">Marketing Command Center</div>
+  </div>
+  <button class="settings-toggle" onclick="toggleSettings()" id="settingsBtn">
+    ⚙️ API Keys
+  </button>
+</div>
+
+<!-- SETTINGS DRAWER -->
+<div class="settings-drawer" id="settingsDrawer">
+  <div class="settings-grid">
+    <div class="settings-field">
+      <label>Anthropic API Key</label>
+      <input type="password" id="anthropicKey" placeholder="sk-ant-api03-..." />
+    </div>
+    <div class="settings-field">
+      <label>Canva Brand Kit ID <span style="font-weight:400;letter-spacing:0;text-transform:none">(optional)</span></label>
+      <input type="text" id="canvaBrandKit" placeholder="BAF..." />
+    </div>
+    <div class="settings-field" style="display:flex;flex-direction:column;justify-content:flex-end;">
+      <label>Canva</label>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button onclick="window.location='/api/auth/canva'" style="padding:7px 16px;background:var(--green);color:var(--near-black);border:none;border-radius:6px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">
+          Authorize with Canva →
+        </button>
+        <span id="canvaStatus" style="font-size:12px;color:#9ca3af;">checking…</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TAB BAR -->
+  <div class="tab-bar" id="tabBar">
+    <button class="tab-btn active" onclick="switchTab('ads', this)">📣 Ad Creatives</button>
+    <button class="tab-btn" onclick="switchTab('social', this)">📅 Social Calendar</button>
+    <button class="tab-btn" onclick="switchTab('email', this)">✉️ Email Sequence</button>
+    <button class="tab-btn" onclick="switchTab('landing', this)">🖥️ Landing Page</button>
+    <button class="tab-btn" onclick="switchTab('video', this)">🎬 Video Script</button>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       TAB 1: AD CREATIVES
+  ════════════════════════════════════════════════════════════ -->
+  <div class="tab-panel active" id="tab-ads">
+    <div class="card">
+      <div class="card-title"><span class="card-title-icon">📣</span> Ad Creative Generator</div>
+
+      <div class="form-group">
+        <label class="form-label">Target Audience</label>
+        <input type="text" class="form-input" id="ads-audience"
+          placeholder="e.g. High school soccer players, age 14–18, dreaming of a D1 scholarship" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Campaign Goal</label>
+        <div class="chips" id="ads-goal" data-mode="single">
+          <div class="chip" data-value="Awareness">Awareness</div>
+          <div class="chip selected" data-value="Signups">Signups</div>
+          <div class="chip" data-value="Trial / Demo">Trial / Demo</div>
+          <div class="chip" data-value="Paid Conversion">Paid Conversion</div>
+          <div class="chip" data-value="Retargeting">Retargeting</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Platforms</label>
+        <div class="chips" id="ads-platforms" data-mode="multi">
+          <div class="chip selected" data-value="Meta">Meta</div>
+          <div class="chip selected" data-value="TikTok">TikTok</div>
+          <div class="chip" data-value="LinkedIn">LinkedIn</div>
+          <div class="chip" data-value="Google">Google</div>
+          <div class="chip" data-value="X">X</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tone</label>
+          <select class="form-select" id="ads-tone">
+            <option>Motivational</option>
+            <option>Urgent</option>
+            <option>Friendly</option>
+            <option>Bold</option>
+            <option>Conversational</option>
+            <option>Professional</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Variants</label>
+          <div class="num-select" id="ads-variants" data-mode="single">
+            <div class="num-btn" data-value="1">1</div>
+            <div class="num-btn selected" data-value="2">2</div>
+            <div class="num-btn" data-value="3">3</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-generate" id="btn-ads" onclick="generateAds()">✨ Generate Ad Creatives</button>
+    </div>
+
+    <div class="output-card" id="output-ads">
+      <div class="output-header">
+        <div class="output-title">Generated Ad Copy</div>
+        <button class="btn-copy" onclick="copyOutput('output-ads-content', this)">Copy All</button>
+      </div>
+      <div class="output-content" id="output-ads-content"></div>
+    </div>
+
+    <div class="canva-card" id="canva-ads">
+      <div class="canva-header">
+        <div class="canva-title">🎨 Create in Canva</div>
+        <div class="canva-subtitle">Auto-generate visual designs from your ad copy using Canva AI</div>
+      </div>
+      <div class="form-label">Choose format</div>
+      <div class="canva-formats chips" id="canva-ads-formats" data-mode="single">
+        <div class="chip selected" data-value="instagram_post" data-label="Instagram Post">Instagram Post</div>
+        <div class="chip" data-value="facebook_post" data-label="Facebook Post">Facebook Post</div>
+        <div class="chip" data-value="facebook_post" data-label="LinkedIn Post">LinkedIn Post</div>
+        <div class="chip" data-value="twitter_post" data-label="X / Twitter Post">X / Twitter Post</div>
+        <div class="chip" data-value="instagram_story" data-label="Story">Story</div>
+        <div class="chip" data-value="poster" data-label="Poster">Poster</div>
+      </div>
+      <button class="btn-canva" id="btn-canva-ads" onclick="generateCanva('ads')">Generate Designs in Canva →</button>
+      <div id="canva-ads-result"></div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       TAB 2: SOCIAL CALENDAR
+  ════════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-social">
+    <div class="card">
+      <div class="card-title"><span class="card-title-icon">📅</span> Social Media Calendar Generator</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Duration</label>
+          <div class="num-select" id="social-duration" data-mode="single">
+            <div class="num-btn" data-value="1">1 week</div>
+            <div class="num-btn selected" data-value="2">2 weeks</div>
+            <div class="num-btn" data-value="4">4 weeks</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Posts / Week</label>
+          <div class="num-select" id="social-freq" data-mode="single">
+            <div class="num-btn" data-value="3">3×</div>
+            <div class="num-btn selected" data-value="5">5×</div>
+            <div class="num-btn" data-value="7">7×</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Platforms</label>
+        <div class="chips" id="social-platforms" data-mode="multi">
+          <div class="chip selected" data-value="Instagram">Instagram</div>
+          <div class="chip selected" data-value="TikTok">TikTok</div>
+          <div class="chip" data-value="LinkedIn">LinkedIn</div>
+          <div class="chip" data-value="Facebook">Facebook</div>
+          <div class="chip" data-value="X">X</div>
+          <div class="chip" data-value="Pinterest">Pinterest</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Content Mix</label>
+        <div class="chips" id="social-mix" data-mode="multi">
+          <div class="chip selected" data-value="Product features">Product features</div>
+          <div class="chip selected" data-value="Pain point hooks">Pain point hooks</div>
+          <div class="chip" data-value="Social proof">Social proof</div>
+          <div class="chip" data-value="Thought leadership">Thought leadership</div>
+          <div class="chip" data-value="Behind the scenes">Behind the scenes</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Additional Context <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+        <textarea class="form-textarea" id="social-context"
+          placeholder="e.g. We just launched AI match scoring — make that the focus this week"></textarea>
+      </div>
+
+      <button class="btn-generate" id="btn-social" onclick="generateSocial()">✨ Generate Social Calendar</button>
+    </div>
+
+    <div class="output-card" id="output-social">
+      <div class="output-header">
+        <div class="output-title">Social Media Calendar</div>
+        <button class="btn-copy" onclick="copyOutput('output-social-content', this)">Copy All</button>
+      </div>
+      <div class="output-content" id="output-social-content"></div>
+    </div>
+
+    <div class="canva-card" id="canva-social">
+      <div class="canva-header">
+        <div class="canva-title">🎨 Create in Canva</div>
+        <div class="canva-subtitle">Turn your social posts into ready-to-publish visuals</div>
+      </div>
+      <div class="form-label">Choose format</div>
+      <div class="canva-formats chips" id="canva-social-formats" data-mode="single">
+        <div class="chip selected" data-value="instagram_post" data-label="Instagram Post">Instagram Post</div>
+        <div class="chip" data-value="facebook_post" data-label="Facebook Post">Facebook Post</div>
+        <div class="chip" data-value="facebook_post" data-label="LinkedIn Post">LinkedIn Post</div>
+        <div class="chip" data-value="twitter_post" data-label="X / Twitter Post">X / Twitter Post</div>
+        <div class="chip" data-value="instagram_story" data-label="Story">Story</div>
+        <div class="chip" data-value="pinterest_pin" data-label="Pinterest">Pinterest</div>
+      </div>
+      <button class="btn-canva" id="btn-canva-social" onclick="generateCanva('social')">Generate Designs in Canva →</button>
+      <div id="canva-social-result"></div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       TAB 3: EMAIL SEQUENCE
+  ════════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-email">
+    <div class="card">
+      <div class="card-title"><span class="card-title-icon">✉️</span> Email Sequence Builder</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Sequence Type</label>
+          <select class="form-select" id="email-type">
+            <option>Cold outreach</option>
+            <option>Welcome / onboarding</option>
+            <option>Trial nurture</option>
+            <option>Re-engagement</option>
+            <option>Upgrade push</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Number of Emails</label>
+          <div class="num-select" id="email-count" data-mode="single">
+            <div class="num-btn" data-value="3">3</div>
+            <div class="num-btn selected" data-value="5">5</div>
+            <div class="num-btn" data-value="7">7</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Persona / Recipient</label>
+          <input type="text" class="form-input" id="email-persona"
+            placeholder="e.g. Junior soccer player, 16, targeting D2 programs" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Primary CTA</label>
+          <input type="text" class="form-input" id="email-cta"
+            placeholder="e.g. Start free trial, Upgrade to Pro" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Key Pain Points</label>
+        <textarea class="form-textarea" id="email-pain"
+          placeholder="e.g. Don't know which schools are realistic, overwhelmed by emails, don't know what to say to coaches, fear of missing the recruiting window"></textarea>
+      </div>
+
+      <button class="btn-generate" id="btn-email" onclick="generateEmail()">✨ Generate Email Sequence</button>
+    </div>
+
+    <div class="output-card" id="output-email">
+      <div class="output-header">
+        <div class="output-title">Email Sequence — Ready to Send</div>
+        <button class="btn-copy" onclick="copyOutput('output-email-content', this)">Copy All</button>
+      </div>
+      <div class="output-content" id="output-email-content"></div>
+    </div>
+
+    <div class="canva-card" id="canva-email">
+      <div class="canva-header">
+        <div class="canva-title">🎨 Create in Canva</div>
+        <div class="canva-subtitle">Design email headers and companion visuals for your sequence</div>
+      </div>
+      <div class="form-label">Choose format</div>
+      <div class="canva-formats chips" id="canva-email-formats" data-mode="single">
+        <div class="chip selected" data-value="email_newsletter" data-label="Email Newsletter">Email Newsletter</div>
+        <div class="chip" data-value="flyer" data-label="Flyer">Flyer</div>
+      </div>
+      <button class="btn-canva" id="btn-canva-email" onclick="generateCanva('email')">Generate Designs in Canva →</button>
+      <div id="canva-email-result"></div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       TAB 4: LANDING PAGE COPY
+  ════════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-landing">
+    <div class="card">
+      <div class="card-title"><span class="card-title-icon">🖥️</span> Landing Page Copy Generator</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Page Focus</label>
+          <input type="text" class="form-input" id="landing-focus"
+            placeholder="e.g. Free plan signup, Pro upgrade, Parent-focused landing" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Target Visitor</label>
+          <input type="text" class="form-input" id="landing-visitor"
+            placeholder="e.g. Parents of junior athletes, high school juniors" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Sections to Include</label>
+        <div class="chips" id="landing-sections" data-mode="multi">
+          <div class="chip selected" data-value="Hero + tagline">Hero + tagline</div>
+          <div class="chip selected" data-value="Problem / pain">Problem / pain</div>
+          <div class="chip selected" data-value="Features">Features</div>
+          <div class="chip" data-value="Social proof">Social proof</div>
+          <div class="chip selected" data-value="Pricing CTA">Pricing CTA</div>
+          <div class="chip" data-value="FAQ">FAQ</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tone</label>
+          <select class="form-select" id="landing-tone">
+            <option>Empowering</option>
+            <option>Motivational</option>
+            <option>Professional</option>
+            <option>Friendly</option>
+            <option>Bold</option>
+            <option>Urgent</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">CTA Button Text</label>
+          <input type="text" class="form-input" id="landing-cta"
+            placeholder="e.g. Get Started Free, Unlock My Matches" />
+        </div>
+      </div>
+
+      <button class="btn-generate" id="btn-landing" onclick="generateLanding()">✨ Generate Landing Page Copy</button>
+    </div>
+
+    <div class="output-card" id="output-landing">
+      <div class="output-header">
+        <div class="output-title">Landing Page Copy</div>
+        <button class="btn-copy" onclick="copyOutput('output-landing-content', this)">Copy All</button>
+      </div>
+      <div class="output-content" id="output-landing-content"></div>
+    </div>
+
+    <div class="canva-card" id="canva-landing">
+      <div class="canva-header">
+        <div class="canva-title">🎨 Create in Canva</div>
+        <div class="canva-subtitle">Design hero sections, pricing tables, and supporting visuals</div>
+      </div>
+      <div class="form-label">Choose format</div>
+      <div class="canva-formats chips" id="canva-landing-formats" data-mode="single">
+        <div class="chip selected" data-value="poster" data-label="Poster">Poster</div>
+        <div class="chip" data-value="flyer" data-label="Flyer">Flyer</div>
+        <div class="chip" data-value="infographic" data-label="Infographic">Infographic</div>
+      </div>
+      <button class="btn-canva" id="btn-canva-landing" onclick="generateCanva('landing')">Generate Designs in Canva →</button>
+      <div id="canva-landing-result"></div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       TAB 5: VIDEO SCRIPT
+  ════════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-video">
+    <div class="card">
+      <div class="card-title"><span class="card-title-icon">🎬</span> Video Script Generator</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Format</label>
+          <select class="form-select" id="video-format">
+            <option>UGC / Talking head</option>
+            <option>Product walkthrough</option>
+            <option>Problem / solution story</option>
+            <option>Testimonial-style</option>
+            <option>Founder story</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Duration</label>
+          <div class="num-select" id="video-duration" data-mode="single">
+            <div class="num-btn" data-value="15">15s</div>
+            <div class="num-btn selected" data-value="30">30s</div>
+            <div class="num-btn" data-value="60">60s</div>
+            <div class="num-btn" data-value="90">90s</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Platform</label>
+        <div class="chips" id="video-platform" data-mode="single">
+          <div class="chip selected" data-value="TikTok">TikTok</div>
+          <div class="chip" data-value="Instagram Reels">Instagram Reels</div>
+          <div class="chip" data-value="YouTube Shorts">YouTube Shorts</div>
+          <div class="chip" data-value="LinkedIn">LinkedIn</div>
+          <div class="chip" data-value="YouTube">YouTube</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Hook Style</label>
+        <div class="chips" id="video-hook" data-mode="single">
+          <div class="chip selected" data-value="Bold stat or fact">Bold stat / fact</div>
+          <div class="chip" data-value="Controversial opinion">Controversial opinion</div>
+          <div class="chip" data-value="Direct address">Direct address</div>
+          <div class="chip" data-value="Story open">Story open</div>
+          <div class="chip" data-value="Question hook">Question hook</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Key Angle / Message</label>
+        <textarea class="form-textarea" id="video-angle"
+          placeholder="e.g. Most athletes never hear back from coaches — FuseID's AI writes the perfect outreach email in 30 seconds"></textarea>
+      </div>
+
+      <button class="btn-generate" id="btn-video" onclick="generateVideo()">✨ Generate Video Script</button>
+    </div>
+
+    <div class="output-card" id="output-video">
+      <div class="output-header">
+        <div class="output-title">Video Script — Teleprompter Ready</div>
+        <button class="btn-copy" onclick="copyOutput('output-video-content', this)">Copy All</button>
+      </div>
+      <div class="output-content" id="output-video-content"></div>
+    </div>
+
+    <div class="canva-card" id="canva-video">
+      <div class="canva-header">
+        <div class="canva-title">🎨 Create in Canva</div>
+        <div class="canva-subtitle">Design thumbnails, title cards, and text overlays for your video</div>
+      </div>
+      <div class="form-label">Choose format</div>
+      <div class="canva-formats chips" id="canva-video-formats" data-mode="single">
+        <div class="chip selected" data-value="instagram_story" data-label="Story">Story</div>
+        <div class="chip" data-value="instagram_post" data-label="Instagram Post">Instagram Post</div>
+        <div class="chip" data-value="youtube_thumbnail" data-label="YouTube Thumbnail">YouTube Thumbnail</div>
+      </div>
+      <button class="btn-canva" id="btn-canva-video" onclick="generateCanva('video')">Generate Designs in Canva →</button>
+      <div id="canva-video-result"></div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// PRODUCT CONTEXT — injected into every AI prompt
+// ═══════════════════════════════════════════════════════════════
+const FUSEID = `
+FuseID is an AI-powered college recruiting command center built exclusively for high school athletes.
+
+PRODUCT FEATURES:
+• Kanban School Board — visually track 2,400+ college programs across D1, D2, D3, NAIA, and NJCAA
+• AI School Matching — personalized match scoring across every school based on academics, athletics, and fit
+• AI Coach Outreach — one-click AI email drafting for initial coach contact, tailored to each program
+• Coach Reply Analysis — sentiment scoring and intent analysis on every coach email received
+• Offer Tracker — manage, compare, and track scholarship offers and visit invitations
+
+SPORTS SUPPORTED: Soccer, Basketball, Football, Volleyball
+
+PRICING:
+• Free — core features, limited matches
+• Starter — $9.99/month — unlimited matches, AI outreach (limited)
+• Pro — $14.99/month — full AI suite, priority matching, reply analysis, offer tracker
+
+TARGET AUDIENCE: High school athletes ages 13–18 who feel overwhelmed by the college recruiting process. Secondary: their parents.
+
+BRAND VOICE: Direct, empowering, no-fluff. Speaks to athletes, not admissions offices. Feels like a coach, not a corporate tool.
+
+KEY DIFFERENTIATOR: The only AI platform built specifically for high school athletes that handles the full recruiting funnel — from school discovery to offer management — in one place.
+`.trim();
+
+// ═══════════════════════════════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════════════════════════════
+let settingsOpen = false;
+function toggleSettings() {
+  settingsOpen = !settingsOpen;
+  document.getElementById('settingsDrawer').classList.toggle('open', settingsOpen);
+  document.getElementById('settingsBtn').textContent = settingsOpen ? '✕ Close' : '⚙️ API Keys';
+}
+const getKey  = () => document.getElementById('anthropicKey').value.trim();
+const getBKit = () => document.getElementById('canvaBrandKit').value.trim();
+
+// ── Canva auth status ─────────────────────────────────────────
+async function checkCanvaStatus() {
+  const el = document.getElementById('canvaStatus');
+  try {
+    const res  = await fetch('/api/auth/status');
+    const data = await res.json();
+    if (data.connected) {
+      const mins = Math.floor(data.expires_in / 60);
+      el.textContent = `✅ Connected (token expires in ${mins}m)`;
+      el.style.color = '#4ade80';
+    } else {
+      el.textContent = 'Not connected';
+      el.style.color = '#9ca3af';
+    }
+  } catch {
+    el.textContent = 'Backend not running';
+    el.style.color = '#f87171';
+  }
+}
+
+// ── Handle OAuth redirect back ────────────────────────────────
+(function handleOAuthReturn() {
+  const p = new URLSearchParams(location.search);
+  if (p.get('canva_connected')) {
+    history.replaceState({}, '', location.pathname);
+    settingsOpen = true;
+    document.getElementById('settingsDrawer').classList.add('open');
+    document.getElementById('settingsBtn').textContent = '✕ Close';
+    checkCanvaStatus();
+  }
+  if (p.get('canva_error')) {
+    history.replaceState({}, '', location.pathname);
+    const el = document.getElementById('canvaStatus');
+    el.textContent = '⚠️ ' + decodeURIComponent(p.get('canva_error'));
+    el.style.color = '#f87171';
+    settingsOpen = true;
+    document.getElementById('settingsDrawer').classList.add('open');
+    document.getElementById('settingsBtn').textContent = '✕ Close';
+  }
+})();
+
+checkCanvaStatus();
+
+// ═══════════════════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════════════════
+function switchTab(tabId, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tabId).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CHIPS & NUM SELECTS — event delegation
+// ═══════════════════════════════════════════════════════════════
+document.addEventListener('click', e => {
+  // Chips
+  const chip = e.target.closest('.chip');
+  if (chip) {
+    const container = chip.closest('.chips, .canva-formats');
+    if (!container) return;
+    const mode = container.dataset.mode || 'multi';
+    if (mode === 'single') {
+      container.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+    } else {
+      chip.classList.toggle('selected');
+    }
+    return;
+  }
+  // Num buttons
+  const numBtn = e.target.closest('.num-btn');
+  if (numBtn) {
+    const container = numBtn.closest('.num-select');
+    if (!container) return;
+    container.querySelectorAll('.num-btn').forEach(b => b.classList.remove('selected'));
+    numBtn.classList.add('selected');
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════
+function chips(id) {
+  return [...document.querySelectorAll(`#${id} .chip.selected`)]
+    .map(c => c.dataset.value).filter(Boolean).join(', ');
+}
+function num(id) {
+  const el = document.querySelector(`#${id} .num-btn.selected`);
+  return el ? el.dataset.value : '';
+}
+function val(id)  { return document.getElementById(id)?.value?.trim() || ''; }
+
+function showOutput(tab, text) {
+  document.getElementById('output-' + tab + '-content').textContent = text;
+  document.getElementById('output-' + tab).classList.add('visible');
+  document.getElementById('canva-' + tab).classList.add('visible');
+}
+
+function copyOutput(elId, btn) {
+  const text = document.getElementById(elId)?.textContent || '';
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy All'; btn.classList.remove('copied'); }, 2200);
+  });
+}
+
+function setGenerating(id, on, defaultLabel) {
+  const btn = document.getElementById(id);
+  if (on) {
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner"></span>Generating…`;
+  } else {
+    btn.disabled = false;
+    btn.textContent = defaultLabel;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CLAUDE API CALL
+// ═══════════════════════════════════════════════════════════════
+async function callClaude(system, user) {
+  const key = getKey();
+  if (!key) throw new Error('Add your Anthropic API key in ⚙️ API Keys first.');
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1500,
+      system,
+      messages: [{ role: 'user', content: user }]
+    })
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.error?.message || `Anthropic API error ${res.status}`);
+  }
+  const data = await res.json();
+  return data.content[0].text;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TAB 1 — AD CREATIVES
+// ═══════════════════════════════════════════════════════════════
+async function generateAds() {
+  const audience  = val('ads-audience') || 'High school athletes aged 13–18';
+  const goal      = chips('ads-goal')   || 'Signups';
+  const platforms = chips('ads-platforms') || 'Meta, TikTok';
+  const tone      = val('ads-tone');
+  const variants  = num('ads-variants') || '2';
+
+  const system = `You are an elite performance marketing copywriter who specialises in B2C SaaS growth.
+${FUSEID}`;
+
+  const prompt = `Write ${variants} ad creative variant(s) for FuseID targeting: ${audience}.
+
+CAMPAIGN GOAL: ${goal}
+PLATFORMS: ${platforms}
+TONE: ${tone}
+
+For EACH variant, write a separate block for each platform listed. Structure every block exactly like this:
+
+━━━ VARIANT [N] — [PLATFORM] ━━━
+HEADLINE: (≤30 chars for Meta/TikTok/X; ≤60 for Google/LinkedIn)
+BODY: (platform-optimal length — 1–3 punchy sentences)
+VISUAL DIRECTION: (what the creative should show; be specific)
+CTA: (button text)
+
+Use real athlete pain points. Be punchy and specific. No fluff, no placeholder text.`;
+
+  setGenerating('btn-ads', true);
+  try {
+    showOutput('ads', await callClaude(system, prompt));
+  } catch(e) { alert(e.message); }
+  finally { setGenerating('btn-ads', false, '✨ Generate Ad Creatives'); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TAB 2 — SOCIAL CALENDAR
+// ═══════════════════════════════════════════════════════════════
+async function generateSocial() {
+  const duration  = num('social-duration') || '2';
+  const freq      = num('social-freq')     || '5';
+  const platforms = chips('social-platforms') || 'Instagram, TikTok';
+  const mix       = chips('social-mix') || 'Product features, Pain point hooks';
+  const context   = val('social-context');
+
+  const system = `You are a social media strategist for sports-tech and consumer SaaS brands.
+${FUSEID}`;
+
+  const prompt = `Build a ${duration}-week social media content calendar for FuseID.
+
+POSTING FREQUENCY: ${freq}× per week
+PLATFORMS: ${platforms}
+CONTENT MIX: ${mix}
+${context ? `SPECIAL CONTEXT: ${context}` : ''}
+
+Format each post exactly like this:
+
+📅 WEEK [N] · [DAY]
+📱 Platform: [platform]
+🏷 Type: [content type from mix]
+
+CAPTION:
+[Full caption ready to post — include line breaks, emojis where natural]
+
+HASHTAGS: #hashtag1 #hashtag2 ... (5–8 tags)
+🎨 Visual note: [what image or video to pair with this post]
+
+---
+
+Space posts across the week. Vary content types. Make every caption feel native to that platform.`;
+
+  setGenerating('btn-social', true);
+  try {
+    showOutput('social', await callClaude(system, prompt));
+  } catch(e) { alert(e.message); }
+  finally { setGenerating('btn-social', false, '✨ Generate Social Calendar'); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TAB 3 — EMAIL SEQUENCE
+// ═══════════════════════════════════════════════════════════════
+async function generateEmail() {
+  const type    = val('email-type') || 'Welcome / onboarding';
+  const count   = num('email-count') || '5';
+  const persona = val('email-persona') || 'High school athlete';
+  const cta     = val('email-cta') || 'Start free trial';
+  const pain    = val('email-pain') || 'Overwhelmed by recruiting process';
+
+  const system = `You are an email marketing expert who writes high-converting sequences for consumer SaaS.
+${FUSEID}`;
+
+  const prompt = `Write a ${count}-email ${type} sequence for FuseID.
+
+PERSONA: ${persona}
+PRIMARY CTA: ${cta}
+PAIN POINTS: ${pain}
+
+For each email, use this exact format:
+
+╔══ EMAIL [N] of ${count} — [Short title] ══╗
+⏰ Send: [e.g. Immediately / Day 3 / Day 7]
+Subject: [subject line — conversational, no spam words]
+Preview: [preview text, ≤90 chars]
+──────────────────────────────
+[Full email body — written to send as-is. Personal, direct tone. Use line breaks naturally.]
+──────────────────────────────
+CTA Button: [text] → [destination e.g. app.fuseid.com/signup]
+╚══════════════════════════════╝
+
+Build momentum across the sequence. Each email should feel natural, not salesy. Address real athlete fears.`;
+
+  setGenerating('btn-email', true);
+  try {
+    showOutput('email', await callClaude(system, prompt));
+  } catch(e) { alert(e.message); }
+  finally { setGenerating('btn-email', false, '✨ Generate Email Sequence'); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TAB 4 — LANDING PAGE COPY
+// ═══════════════════════════════════════════════════════════════
+async function generateLanding() {
+  const focus    = val('landing-focus')   || 'Free plan signup';
+  const visitor  = val('landing-visitor') || 'High school athletes and their parents';
+  const sections = chips('landing-sections') || 'Hero + tagline, Features, Pricing CTA';
+  const tone     = val('landing-tone');
+  const cta      = val('landing-cta') || 'Get Started Free';
+
+  const system = `You are a conversion copywriter who specialises in landing pages for sports-tech products.
+${FUSEID}`;
+
+  const prompt = `Write complete landing page copy for FuseID.
+
+PAGE FOCUS: ${focus}
+TARGET VISITOR: ${visitor}
+SECTIONS NEEDED: ${sections}
+TONE: ${tone}
+CTA BUTTON TEXT: "${cta}"
+
+IMPORTANT RULES:
+• Start with THREE headline (H1) alternatives — label them H1 Option A, B, C
+• Then write each requested section fully — no placeholders
+• For Features: use FuseID's real features (kanban board, AI matching, AI email drafting, coach reply analysis with sentiment scoring, offer tracker)
+• For Pricing CTA: use the real tiers — Free / Starter $9.99mo / Pro $14.99mo
+• For FAQ: write 5 questions athletes or parents would actually ask
+
+Format each section with a clear label like:
+═══ SECTION: HERO ═══
+[copy]
+
+Write actual conversion copy. Make it feel real, not templated.`;
+
+  setGenerating('btn-landing', true);
+  try {
+    showOutput('landing', await callClaude(system, prompt));
+  } catch(e) { alert(e.message); }
+  finally { setGenerating('btn-landing', false, '✨ Generate Landing Page Copy'); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TAB 5 — VIDEO SCRIPT
+// ═══════════════════════════════════════════════════════════════
+async function generateVideo() {
+  const format   = val('video-format');
+  const duration = num('video-duration') || '30';
+  const platform = chips('video-platform') || 'TikTok';
+  const hook     = chips('video-hook') || 'Bold stat or fact';
+  const angle    = val('video-angle') || 'FuseID helps athletes get recruited faster with AI';
+
+  const wordTarget = Math.round(parseInt(duration) * 2.4);
+
+  const system = `You are a viral short-form video scriptwriter who deeply understands how Gen Z athletes communicate.
+${FUSEID}`;
+
+  const prompt = `Write a teleprompter-ready ${duration}-second video script for FuseID.
+
+FORMAT: ${format}
+PLATFORM: ${platform}
+HOOK STYLE: ${hook}
+KEY ANGLE: ${angle}
+TARGET WORD COUNT: ~${wordTarget} words (for a ${duration}s talking-head delivery)
+
+Use EXACTLY these labeled sections in order:
+
+[HOOK] — First 3 seconds. Must stop the scroll. (${hook} style)
+[TEXT OVERLAY] — On-screen text for the hook moment
+[VISUAL] — What camera/screen shows during hook
+
+[PROBLEM] — Relatable pain point (don't rush this)
+[TEXT OVERLAY] — Key phrase to flash on screen
+[VISUAL] — What to show
+
+[SOLUTION] — Introduce FuseID naturally
+[TEXT OVERLAY] — Product name + one-liner
+[VISUAL] — App demo, phone screen, or reaction
+
+[PROOF / DEMO] — Specific feature detail or social proof stat
+[TEXT OVERLAY] — Stat or quote
+[VISUAL] — What to show
+
+[CTA] — Single clear action. No "like and subscribe".
+[TEXT OVERLAY] — CTA text overlay
+[VISUAL] — Final frame direction
+
+[NOTE] — Director notes: pacing, energy level, any b-roll suggestions
+
+Write exactly what the creator says in [HOOK], [PROBLEM], [SOLUTION], [PROOF/DEMO], and [CTA] sections — no stage direction mixed in, just the spoken words. Feel native to ${platform}.`;
+
+  setGenerating('btn-video', true);
+  try {
+    showOutput('video', await callClaude(system, prompt));
+  } catch(e) { alert(e.message); }
+  finally { setGenerating('btn-video', false, '✨ Generate Video Script'); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CANVA INTEGRATION
+// ═══════════════════════════════════════════════════════════════
+const CANVA_QUERIES = {
+  ads:     f => `FuseID college recruiting app advertisement. Format: ${f}. Brand: dark navy (#0f1120) with vibrant green (#22c55e) accents. Athletic, energetic, for high school athletes.`,
+  social:  f => `FuseID recruiting platform social media post. Format: ${f}. Modern sports-tech brand, green accent color, empowering young athletes message.`,
+  email:   f => `FuseID email ${f}. College recruiting platform branding. Clean layout, green (#22c55e) accents on dark navy, professional yet energetic.`,
+  landing: f => `FuseID landing page design. Format: ${f}. AI-powered recruiting platform for high school athletes. Hero section. Brand green + dark navy palette.`,
+  video:   f => `FuseID video ${f}. College recruiting platform thumbnail/title card. Bold typography, athletic energy, brand green (#22c55e).`
+};
+
+async function generateCanva(tab) {
+  const bKit = getBKit();
+
+  const fmtChip = document.querySelector(`#canva-${tab}-formats .chip.selected`);
+  const fmtType = fmtChip ? fmtChip.dataset.value : 'instagram_post';
+  const fmtLabel = fmtChip ? (fmtChip.dataset.label || fmtChip.textContent.trim()) : 'Instagram Post';
+
+  const query = (CANVA_QUERIES[tab] || (() => `FuseID ${tab} design`))(fmtLabel);
+  const resultEl = document.getElementById('canva-' + tab + '-result');
+  const btnId    = 'btn-canva-' + tab;
+  const origText = document.getElementById(btnId).textContent;
+
+  document.getElementById(btnId).disabled = true;
+  document.getElementById(btnId).innerHTML = `<span class="spinner spinner-white"></span>Generating in Canva…`;
+  resultEl.innerHTML = '';
+
+  try {
+    const body = {
+      query,
+      design_type: fmtType
+    };
+    if (bKit) body.brand_kit_id = bKit;
+
+    const res = await fetch('/api/canva/designs/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.message || data?.error?.message || `Canva API error ${res.status}`);
+    }
+
+    // Normalise candidates from various response shapes
+    const candidates =
+      data.candidates   ||
+      data.designs      ||
+      data.items        ||
+      data.results      ||
+      (data.design ? [data.design] : []);
+
+    if (!candidates || candidates.length === 0) {
+      resultEl.innerHTML = `
+        <div class="debug-wrap">
+          <p class="debug-label">No designs returned. Raw Canva response (copy for debugging):</p>
+          <textarea class="debug-textarea" readonly>${JSON.stringify(data, null, 2)}</textarea>
+        </div>`;
+    } else {
+      renderDesignGrid(resultEl, candidates.slice(0, 4));
+    }
+
+  } catch(e) {
+    resultEl.innerHTML = `
+      <p class="error-msg">⚠️ ${e.message}</p>
+      <p class="error-hint">Check your Canva API key and brand kit ID, then try again.</p>`;
+  } finally {
+    document.getElementById(btnId).disabled = false;
+    document.getElementById(btnId).textContent = origText;
+  }
+}
+
+function renderDesignGrid(container, candidates) {
+  const html = candidates.map((c, i) => {
+    const thumb   = c?.thumbnail?.url || c?.preview?.url || c?.image_url || c?.thumbnail || '';
+    const editUrl = c?.edit_url || c?.urls?.edit_url || c?.view_url || c?.url || '#';
+
+    const imgHtml = thumb
+      ? `<img class="design-thumb" src="${thumb}"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+            alt="Design ${i+1}" />
+         <div class="design-placeholder" style="display:none">
+           <div class="design-placeholder-icon">🎨</div>
+           <div>Design ${i+1}</div>
+         </div>`
+      : `<div class="design-placeholder">
+           <div class="design-placeholder-icon">🎨</div>
+           <div>Design ${i+1}</div>
+         </div>`;
+
+    return `
+      <div class="design-card">
+        ${imgHtml}
+        <div class="design-footer">
+          <span class="design-num">Design ${i+1}</span>
+          <a href="${editUrl}" target="_blank" rel="noopener" class="design-open">Open in Canva →</a>
+        </div>
+      </div>`;
+  }).join('');
+
+  container.innerHTML = `<div class="design-grid">${html}</div>`;
+}
+</script>
+
+</body>
+</html>

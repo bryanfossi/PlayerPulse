@@ -1,13 +1,17 @@
 import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { TERMS_VERSION, PRIVACY_VERSION } from '@/lib/legal'
 
 /**
  * Called from the client immediately after supabase.auth.signUp succeeds.
- * Persists registration extras (currently just DOB for COPPA) to the
- * profile row that handle_new_user() created via the auth trigger.
+ * Persists registration extras to the profile row that handle_new_user()
+ * created via the auth trigger:
+ *   - date_of_birth (COPPA enforced server-side)
+ *   - accepted_terms_at / accepted_terms_version
+ *   - accepted_privacy_at / accepted_privacy_version
  *
- * Server-side enforces the COPPA age >= 13 check. The client also enforces
- * it for UX, but never trust the client.
+ * Server-side enforces the COPPA age >= 13 check and the ToS acceptance.
+ * The client also enforces both for UX, but never trust the client.
  */
 
 export async function POST(request: Request) {
@@ -16,8 +20,19 @@ export async function POST(request: Request) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const body: { date_of_birth?: string } = await request.json()
+    const body: {
+      date_of_birth?: string
+      terms_accepted?: boolean
+      player_email?: string
+    } = await request.json()
     const dob = body.date_of_birth?.trim()
+
+    if (body.terms_accepted !== true) {
+      return NextResponse.json(
+        { error: 'You must accept the Terms of Service and Privacy Policy to register.' },
+        { status: 400 },
+      )
+    }
 
     if (!dob) {
       return NextResponse.json({ error: 'Date of birth is required' }, { status: 400 })
@@ -59,6 +74,7 @@ export async function POST(request: Request) {
     }
 
     const service = createServiceClient()
+    const acceptedAt = new Date().toISOString()
     const { error } = await (service as unknown as {
       from: (t: string) => {
         update: (row: Record<string, unknown>) => {
@@ -67,7 +83,13 @@ export async function POST(request: Request) {
       }
     })
       .from('profiles')
-      .update({ date_of_birth: dob })
+      .update({
+        date_of_birth: dob,
+        accepted_terms_at: acceptedAt,
+        accepted_terms_version: TERMS_VERSION,
+        accepted_privacy_at: acceptedAt,
+        accepted_privacy_version: PRIVACY_VERSION,
+      })
       .eq('id', user.id)
 
     if (error) {

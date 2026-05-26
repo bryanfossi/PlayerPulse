@@ -14,6 +14,8 @@ const PUBLIC_PATHS = [
   '/player/',
   '/brand/',
   '/blog',
+  '/terms',
+  '/privacy',
   '/sitemap.xml',
   '/robots.txt',
 ]

@@ -1,0 +1,148 @@
+{
+  "board_members": [
+    {
+      "id": 1,
+      "first_name": "Margaret",
+      "last_name": "Calloway",
+      "title": "Board Chair",
+      "email": "m.calloway@example.com",
+      "phone": "555-201-4782",
+      "organization": "Calloway Capital Group",
+      "term_start": "2023-01-15",
+      "term_end": "2026-01-14",
+      "status": "active"
+    },
+    {
+      "id": 2,
+      "first_name": "Derek",
+      "last_name": "Okonkwo",
+      "title": "Vice Chair",
+      "email": "d.okonkwo@example.com",
+      "phone": "555-348-9021",
+      "organization": "Okonkwo & Partners LLC",
+      "term_start": "2022-06-01",
+      "term_end": "2025-05-31",
+      "status": "active"
+    },
+    {
+      "id": 3,
+      "first_name": "Sandra",
+      "last_name": "Whitfield",
+      "title": "Treasurer",
+      "email": "s.whitfield@example.com",
+      "phone": "555-419-6630",
+      "organization": "Whitfield Financial Advisors",
+      "term_start": "2024-03-10",
+      "term_end": "2027-03-09",
+      "status": "active"
+    },
+    {
+      "id": 4,
+      "first_name": "James",
+      "last_name": "Moreno",
+      "title": "Secretary",
+      "email": "j.moreno@example.com",
+      "phone": "555-527-3344",
+      "organization": "Moreno Law Group",
+      "term_start": "2023-09-01",
+      "term_end": "2026-08-31",
+      "status": "active"
+    },
+    {
+      "id": 5,
+      "first_name": "Patricia",
+      "last_name": "Nguyen",
+      "title": "Board Member",
+      "email": "p.nguyen@example.com",
+      "phone": "555-603-7715",
+      "organization": "Nguyen Tech Solutions",
+      "term_start": "2021-11-15",
+      "term_end": "2024-11-14",
+      "status": "active"
+    },
+    {
+      "id": 6,
+      "first_name": "Thomas",
+      "last_name": "Ashford",
+      "title": "Board Member",
+      "email": "t.ashford@example.com",
+      "phone": "555-784-2290",
+      "organization": "Ashford Development Corp",
+      "term_start": "2024-01-01",
+      "term_end": "2026-12-31",
+      "status": "active"
+    },
+    {
+      "id": 7,
+      "first_name": "Renee",
+      "last_name": "Castellano",
+      "title": "Board Member",
+      "email": "r.castellano@example.com",
+      "phone": "555-862-5508",
+      "organization": "Castellano Marketing Group",
+      "term_start": "2022-04-20",
+      "term_end": "2025-04-19",
+      "status": "active"
+    },
+    {
+      "id": 8,
+      "first_name": "Marcus",
+      "last_name": "Jennings",
+      "title": "Board Member",
+      "email": "m.jennings@example.com",
+      "phone": "555-931-1147",
+      "organization": "Jennings & Associates",
+      "term_start": "2023-07-01",
+      "term_end": "2026-06-30",
+      "status": "active"
+    },
+    {
+      "id": 9,
+      "first_name": "Linda",
+      "last_name": "Ostrowski",
+      "title": "Board Member",
+      "email": "l.ostrowski@example.com",
+      "phone": "555-145-8823",
+      "organization": "Ostrowski Healthcare Consulting",
+      "term_start": "2020-09-15",
+      "term_end": "2024-09-14",
+      "status": "inactive"
+    },
+    {
+      "id": 10,
+      "first_name": "Carlos",
+      "last_name": "Reyes",
+      "title": "Board Member",
+      "email": "c.reyes@example.com",
+      "phone": "555-276-6602",
+      "organization": "Reyes Construction Inc.",
+      "term_start": "2025-02-01",
+      "term_end": "2028-01-31",
+      "status": "active"
+    },
+    {
+      "id": 11,
+      "first_name": "Yvonne",
+      "last_name": "Baptiste",
+      "title": "Board Member",
+      "email": "y.baptiste@example.com",
+      "phone": "555-398-4419",
+      "organization": "Baptiste Education Foundation",
+      "term_start": "2024-08-01",
+      "term_end": "2027-07-31",
+      "status": "active"
+    },
+    {
+      "id": 12,
+      "first_name": "Gerald",
+      "last_name": "Harrington",
+      "title": "Board Member",
+      "email": "g.harrington@example.com",
+      "phone": "555-467-0035",
+      "organization": "Harrington Real Estate",
+      "term_start": "2019-05-01",
+      "term_end": "2023-04-30",
+      "status": "inactive"
+    }
+  ]
+}
