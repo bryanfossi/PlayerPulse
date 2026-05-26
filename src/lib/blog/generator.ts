@@ -192,33 +192,50 @@ export async function generateNextArticle(): Promise<GenerationResult> {
         .join('\n')}`
     : ''
 
-  // 3. Claude generation
-  let claudeRaw = ''
-  try {
-    const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 8192,
-      system: SYSTEM_PROMPT,
-      messages: [
-        {
-          role: 'user',
-          content: `KEYWORD: ${kw.keyword}\nSPORT: ${kw.sport ?? 'general'}${serpContext}`,
-        },
-      ],
-    })
-    claudeRaw = message.content
-      .filter((b) => b.type === 'text')
-      .map((b) => (b as { type: 'text'; text: string }).text)
-      .join('')
-      .trim()
-  } catch (err) {
-    return { status: 'error', reason: `Claude call failed: ${err instanceof Error ? err.message : String(err)}` }
+  // 3. Claude generation — retry once on JSON-parse failure. Claude
+  // occasionally wraps the response in markdown fences or adds a brief
+  // preamble despite the system prompt; a second attempt almost always
+  // produces clean JSON. Each attempt is a fresh ~30-60s call, so cap
+  // at 2 attempts to stay well under the 300s function ceiling.
+  const MAX_ATTEMPTS = 2
+  let parsed: ClaudeArticle | null = null
+  let lastRaw = ''
+  let lastErr = ''
+
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS && !parsed; attempt++) {
+    const userContent = attempt === 1
+      ? `KEYWORD: ${kw.keyword}\nSPORT: ${kw.sport ?? 'general'}${serpContext}`
+      : `KEYWORD: ${kw.keyword}\nSPORT: ${kw.sport ?? 'general'}${serpContext}\n\nRETRY: your previous response could not be parsed as JSON. Return ONLY the raw JSON object with no markdown fences, no preamble, no commentary.`
+
+    try {
+      const message = await anthropic.messages.create({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 8192,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: userContent }],
+      })
+      lastRaw = message.content
+        .filter((b) => b.type === 'text')
+        .map((b) => (b as { type: 'text'; text: string }).text)
+        .join('')
+        .trim()
+      parsed = parseClaudeJson(lastRaw)
+      if (!parsed) {
+        lastErr = 'unparseable JSON'
+        console.warn(`[generator] attempt ${attempt}/${MAX_ATTEMPTS} parse failed for "${kw.keyword}". First 200 chars: ${lastRaw.slice(0, 200)}`)
+      }
+    } catch (err) {
+      lastErr = err instanceof Error ? err.message : String(err)
+      console.warn(`[generator] attempt ${attempt}/${MAX_ATTEMPTS} threw for "${kw.keyword}": ${lastErr}`)
+      // Don't break — retry on transient API errors too
+    }
   }
 
-  // 4. Parse JSON
-  const parsed = parseClaudeJson(claudeRaw)
   if (!parsed) {
-    return { status: 'error', reason: 'Could not parse Claude response as JSON' }
+    return {
+      status: 'error',
+      reason: `Could not parse Claude response after ${MAX_ATTEMPTS} attempts (${lastErr}). Last sample: ${lastRaw.slice(0, 120)}`,
+    }
   }
   if (!parsed.title || !parsed.body) {
     return { status: 'error', reason: 'Claude response missing title or body' }
