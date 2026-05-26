@@ -20,7 +20,7 @@ async function verifyOwnership(actionId: string, userId: string) {
     .from('players')
     .select('id')
     .eq('id', (action as Pick<ActionRow, 'player_id'>).player_id)
-    .eq('user_id', userId)
+    .or(`user_id.eq.${userId},co_owner_user_id.eq.${userId}`)
     .maybeSingle()
   if (!player) return null
 

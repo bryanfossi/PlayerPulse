@@ -8,6 +8,7 @@ const PUBLIC_PATHS = [
   '/reset-password',
   '/auth/callback',
   '/api/invites/accept',
+  '/api/auth/accept-co-ownership',
   '/api/stripe/webhook',
   '/api/contacts/inbound',
   '/api/admin/generate-article', // Vercel cron + admin-only — gated inside the route handler
@@ -16,6 +17,7 @@ const PUBLIC_PATHS = [
   '/blog',
   '/terms',
   '/privacy',
+  '/auth/accept-co-ownership',
   '/sitemap.xml',
   '/robots.txt',
 ]

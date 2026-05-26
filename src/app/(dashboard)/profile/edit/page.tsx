@@ -26,7 +26,7 @@ export default async function ProfileEditPage() {
       'class_rank, intended_major, academic_honors, ' +
       'stats_json, awards_json, upcoming_events_json, match_schedule_json, highlight_clips_json'
     )
-    .eq('user_id', user.id)
+    .or(`user_id.eq.${user.id},co_owner_user_id.eq.${user.id}`)
     .maybeSingle()
 
   const player = playerRaw as Pick<

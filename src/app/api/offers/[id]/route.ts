@@ -7,7 +7,7 @@ async function resolveOwnership(userId: string, offerId: string) {
   const { data: player } = await service
     .from('players')
     .select('id')
-    .eq('user_id', userId)
+    .or(`user_id.eq.${userId},co_owner_user_id.eq.${userId}`)
     .maybeSingle()
   if (!player) return { error: 'Player not found', status: 404, service: null, playerId: null }
 

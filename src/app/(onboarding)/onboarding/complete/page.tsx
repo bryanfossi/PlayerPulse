@@ -18,7 +18,7 @@ export default async function OnboardingComplete() {
   const { data: playerRaw } = await service
     .from('players')
     .select('id, first_name, onboarding_complete')
-    .eq('user_id', user.id)
+    .or(`user_id.eq.${user.id},co_owner_user_id.eq.${user.id}`)
     .maybeSingle()
   const player = playerRaw as Pick<PlayerRow, 'id' | 'first_name' | 'onboarding_complete'> | null
 

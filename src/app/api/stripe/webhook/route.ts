@@ -28,17 +28,44 @@ async function setUserTier(userId: string, tier: DbTier): Promise<void> {
     from: (t: string) => {
       update: (row: Record<string, unknown>) => {
         eq: (k: string, v: string) => Promise<{ error: unknown }>
+        or: (filter: string) => Promise<{ error: unknown }>
+        in: (k: string, vals: string[]) => Promise<{ error: unknown }>
+      }
+      select: (c: string) => {
+        or: (filter: string) => {
+          maybeSingle: () => Promise<{ data: { user_id: string; co_owner_user_id: string | null } | null }>
+        }
       }
     }
   }
-  const { error: profileErr } = await untyped.from('profiles').update({ tier }).eq('id', userId)
+
+  // Resolve both owner ids on the shared player row so the subscription
+  // benefits both auth identities. If no player row exists yet (subscription
+  // purchased before the wizard finished), we fall back to just the buyer.
+  const { data: ownerRow } = await untyped
+    .from('players')
+    .select('user_id, co_owner_user_id')
+    .or(`user_id.eq.${userId},co_owner_user_id.eq.${userId}`)
+    .maybeSingle()
+
+  const ownerIds: string[] = []
+  if (ownerRow) {
+    ownerIds.push(ownerRow.user_id)
+    if (ownerRow.co_owner_user_id) ownerIds.push(ownerRow.co_owner_user_id)
+  } else {
+    ownerIds.push(userId)
+  }
+
+  // Mirror the tier onto every owner's profile so both can read their tier
+  // from their own profile row without needing the player join at every gate.
+  const { error: profileErr } = await untyped.from('profiles').update({ tier }).in('id', ownerIds)
   if (profileErr) {
     console.error('[webhook] profiles.tier update failed:', profileErr)
   }
-  const { error: playerErr } = await untyped.from('players').update({ tier }).eq('user_id', userId)
+
+  // And onto the player record (single row, scoped by either owner).
+  const { error: playerErr } = await untyped.from('players').update({ tier }).or(`user_id.eq.${userId},co_owner_user_id.eq.${userId}`)
   if (playerErr) {
-    // It's normal for there to be no player row yet (subscription bought
-    // before wizard finished) — supabase update with no match is not an error.
     console.error('[webhook] players.tier update failed:', playerErr)
   }
 }

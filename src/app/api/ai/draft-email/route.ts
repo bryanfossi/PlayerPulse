@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     const { data: playerRaw } = await service
       .from('players')
       .select('id, first_name, last_name, grad_year, gender, primary_position, secondary_position, club_team, highest_club_level, high_school, home_city, home_state, unweighted_gpa, sat_score, act_score, highlight_url, sport_id')
-      .eq('user_id', user.id)
+      .or(`user_id.eq.${user.id},co_owner_user_id.eq.${user.id}`)
       .maybeSingle()
     const player = playerRaw as (Pick<PlayerRow,
       'id' | 'first_name' | 'last_name' | 'grad_year' | 'gender' | 'primary_position' | 'secondary_position' | 'club_team' | 'highest_club_level' | 'high_school' | 'home_city' | 'home_state' | 'unweighted_gpa' | 'sat_score' | 'act_score' | 'highlight_url'

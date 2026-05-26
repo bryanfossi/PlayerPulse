@@ -176,10 +176,30 @@ export default function RegisterPage() {
             </div>
           )}
 
-          {/* Role selector — parent option hidden until the shared-account
-              flow (Phase B) is wired server-side. Keeping the form fields
-              behind the picker so re-enabling is a one-line change. */}
-          <input type="hidden" value="player" {...register('role')} />
+          {/* Role selector */}
+          <div className="space-y-2">
+            <Label className="text-green-100">I am a…</Label>
+            <div className="grid grid-cols-2 gap-2">
+              {(['player', 'parent'] as const).map((r) => (
+                <label
+                  key={r}
+                  className={`flex items-center justify-center gap-2 p-3 rounded-md border cursor-pointer transition-colors ${
+                    role === r
+                      ? 'bg-green-500/30 border-green-400 text-white'
+                      : 'bg-white/5 border-white/20 text-green-200 hover:bg-white/10'
+                  }`}
+                >
+                  <input type="radio" value={r} {...register('role')} className="sr-only" />
+                  <span className="capitalize font-medium text-sm">{r}</span>
+                </label>
+              ))}
+            </div>
+            {role === 'parent' && (
+              <p className="text-green-200/60 text-xs">
+                You&apos;ll create a shared account. We&apos;ll email your athlete a link to join — you can both log in and edit.
+              </p>
+            )}
+          </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="email" className="text-green-100">

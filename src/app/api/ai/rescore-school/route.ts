@@ -67,7 +67,7 @@ export async function POST(request: Request) {
     const service = createServiceClient()
 
     const [playerResult, schoolResult] = await Promise.all([
-      service.from('players').select('*').eq('user_id', user.id).maybeSingle(),
+      service.from('players').select('*').or(`user_id.eq.${user.id},co_owner_user_id.eq.${user.id}`).maybeSingle(),
       service.from('schools').select('*').eq('id', school_id).maybeSingle(),
     ])
 

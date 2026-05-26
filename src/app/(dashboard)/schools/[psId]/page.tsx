@@ -35,7 +35,7 @@ export default async function SchoolDetailPage({
   const { data: playerRaw } = await service
     .from('players')
     .select('id, sport_id')
-    .eq('user_id', user.id)
+    .or(`user_id.eq.${user.id},co_owner_user_id.eq.${user.id}`)
     .maybeSingle()
   const player = playerRaw as Pick<PlayerRow, 'id'> & { sport_id?: string } | null
   if (!player) redirect('/onboarding')

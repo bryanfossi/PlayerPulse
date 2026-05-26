@@ -46,7 +46,7 @@ export async function PATCH(
       .from('players')
       .select('id')
       .eq('id', psRow.player_id)
-      .eq('user_id', user.id)
+      .or(`user_id.eq.${user.id},co_owner_user_id.eq.${user.id}`)
       .maybeSingle()
     if (!playerRaw) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
@@ -98,7 +98,7 @@ export async function DELETE(
       .from('players')
       .select('id')
       .eq('id', psRow.player_id)
-      .eq('user_id', user.id)
+      .or(`user_id.eq.${user.id},co_owner_user_id.eq.${user.id}`)
       .maybeSingle()
     if (!playerRaw) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 

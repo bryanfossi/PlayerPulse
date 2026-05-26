@@ -15,7 +15,7 @@ export async function GET() {
     const { data: player } = await service
       .from('players')
       .select('id')
-      .eq('user_id', user.id)
+      .or(`user_id.eq.${user.id},co_owner_user_id.eq.${user.id}`)
       .maybeSingle()
     if (!player) return NextResponse.json({ offers: [] })
 
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     const { data: player } = await service
       .from('players')
       .select('id')
-      .eq('user_id', user.id)
+      .or(`user_id.eq.${user.id},co_owner_user_id.eq.${user.id}`)
       .maybeSingle()
     if (!player) return NextResponse.json({ error: 'Player not found' }, { status: 404 })
 

@@ -22,7 +22,7 @@ export async function POST() {
     const { data: playerRaw } = await service
       .from('players')
       .select('id, first_name, last_name, grad_year, public_profile_slug')
-      .eq('user_id', user.id)
+      .or(`user_id.eq.${user.id},co_owner_user_id.eq.${user.id}`)
       .maybeSingle()
     const player = playerRaw as Pick<PlayerRow,
       'id' | 'first_name' | 'last_name' | 'grad_year' | 'public_profile_slug'

@@ -16,7 +16,7 @@ export default async function CoachAnalyzerPage() {
   const { data: player } = await service
     .from('players')
     .select('id')
-    .eq('user_id', user.id)
+    .or(`user_id.eq.${user.id},co_owner_user_id.eq.${user.id}`)
     .maybeSingle()
   if (!player) redirect('/onboarding')
 

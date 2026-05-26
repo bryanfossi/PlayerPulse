@@ -22,7 +22,7 @@ export async function PATCH(request: Request) {
     const { data: playerRaw } = await service
       .from('players')
       .select('id')
-      .eq('user_id', user.id)
+      .or(`user_id.eq.${user.id},co_owner_user_id.eq.${user.id}`)
       .maybeSingle()
     if (!playerRaw) return NextResponse.json({ error: 'Player not found' }, { status: 404 })
     const player_id = playerRaw.id

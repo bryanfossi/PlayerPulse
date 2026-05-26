@@ -39,7 +39,7 @@ export default async function HomePage() {
     const { data: player } = await service
       .from('players')
       .select('onboarding_complete')
-      .eq('user_id', user.id)
+      .or(`user_id.eq.${user.id},co_owner_user_id.eq.${user.id}`)
       .maybeSingle()
     if (player?.onboarding_complete) redirect('/dashboard')
   }

@@ -45,7 +45,7 @@ export async function POST(request: Request) {
       .from('players')
       .select('*')
       .eq('id', player_id)
-      .eq('user_id', user.id) // security: verify ownership
+      .or(`user_id.eq.${user.id},co_owner_user_id.eq.${user.id}`) // security: verify ownership
       .single()
 
     if (playerErr || !playerRaw) {

@@ -45,7 +45,7 @@ export async function PATCH(request: Request) {
     const { error } = await service
       .from('players')
       .update(update)
-      .eq('user_id', user.id)
+      .or(`user_id.eq.${user.id},co_owner_user_id.eq.${user.id}`)
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 

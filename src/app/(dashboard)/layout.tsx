@@ -24,7 +24,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const { data: playerRaw } = await service
     .from('players')
     .select('onboarding_complete, allowance_tokens, pack_tokens')
-    .eq('user_id', user.id)
+    .or(`user_id.eq.${user.id},co_owner_user_id.eq.${user.id}`)
     .maybeSingle()
   const player = playerRaw as Pick<PlayerRow, 'onboarding_complete' | 'allowance_tokens' | 'pack_tokens'> | null
 

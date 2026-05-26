@@ -58,7 +58,7 @@ export async function recordTokenTransaction({
       const { data: row } = await service
         .from('players')
         .select('id')
-        .eq('user_id', userId)
+        .or(`user_id.eq.${userId},co_owner_user_id.eq.${userId}`)
         .maybeSingle()
       const pid = (row as { id?: string } | null)?.id
       if (!pid) {

@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     const { data: playerRaw } = await service
       .from('players')
       .select('id')
-      .eq('user_id', user.id)
+      .or(`user_id.eq.${user.id},co_owner_user_id.eq.${user.id}`)
       .maybeSingle()
     const player = playerRaw as Pick<PlayerRow, 'id'> | null
     if (!player) return NextResponse.json({ error: 'Player not found' }, { status: 404 })
@@ -70,7 +70,7 @@ export async function GET(request: Request) {
     const { data: playerRaw } = await service
       .from('players')
       .select('id')
-      .eq('user_id', user.id)
+      .or(`user_id.eq.${user.id},co_owner_user_id.eq.${user.id}`)
       .maybeSingle()
     const player = playerRaw as Pick<PlayerRow, 'id'> | null
     if (!player) return NextResponse.json({ invites: [] })

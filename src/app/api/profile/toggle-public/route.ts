@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     await service
       .from('players')
       .update({ public_profile_enabled: enabled, updated_at: new Date().toISOString() })
-      .eq('user_id', user.id)
+      .or(`user_id.eq.${user.id},co_owner_user_id.eq.${user.id}`)
 
     return NextResponse.json({ success: true })
   } catch (err) {
