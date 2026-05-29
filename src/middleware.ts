@@ -64,7 +64,11 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
+  // Exclude static asset extensions from middleware so files served out of
+  // /public (Google Search Console verification, robots.txt overrides,
+  // ads.txt, well-known files, etc.) reach the browser directly without
+  // being treated as protected app routes.
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|html|txt|xml|json|webmanifest|woff|woff2|ttf|otf|map)$).*)',
   ],
 }
