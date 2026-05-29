@@ -1,11 +1,11 @@
 import type { MetadataRoute } from 'next'
-import { listArticleSlugs } from '@/lib/blog/db'
+import { listAllSlugs } from '@/lib/blog/posts'
 
 const BASE = 'https://fuse-id.online'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const articles = await listArticleSlugs().catch((e) => {
-    console.error('[sitemap] listArticleSlugs failed:', e)
+  const posts = await listAllSlugs().catch((e) => {
+    console.error('[sitemap] listAllSlugs failed:', e)
     return []
   })
 
@@ -14,6 +14,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${BASE}/`,
       changeFrequency: 'weekly',
       priority: 1.0,
+      lastModified: new Date(),
+    },
+    {
+      url: `${BASE}/soccer-recruiting`,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+      lastModified: new Date(),
+    },
+    {
+      url: `${BASE}/volleyball-recruiting`,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+      lastModified: new Date(),
+    },
+    {
+      url: `${BASE}/football-recruiting`,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+      lastModified: new Date(),
+    },
+    {
+      url: `${BASE}/basketball-recruiting`,
+      changeFrequency: 'weekly',
+      priority: 0.9,
       lastModified: new Date(),
     },
     {
@@ -36,12 +60,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
-  const articleUrls: MetadataRoute.Sitemap = articles.map((a) => ({
-    url: `${BASE}/blog/${a.slug}`,
+  const postUrls: MetadataRoute.Sitemap = posts.map((p) => ({
+    url: `${BASE}/blog/${p.slug}`,
     changeFrequency: 'monthly' as const,
     priority: 0.7,
-    lastModified: new Date(a.published_at),
+    lastModified: new Date(p.published_at),
   }))
 
-  return [...staticUrls, ...articleUrls]
+  return [...staticUrls, ...postUrls]
 }
