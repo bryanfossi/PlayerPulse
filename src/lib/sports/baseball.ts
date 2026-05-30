@@ -106,5 +106,5 @@ export const baseball: SportConfig = {
   aiPromptContext:
     'College baseball recruiting in the United States operates under NCAA, NAIA, and NJCAA rules. NCAA D1 baseball is an equivalency sport with a roster cap and a 27-player aid limit (minimum 25% scholarship), so most players are on partial aid. JUCO is a major pipeline — players who do not commit out of high school often spend two years at NJCAA programs to develop. Showcase events (Perfect Game, Prep Baseball Report) and travel-ball tournaments drive most evaluations. Velocity (pitchers), exit velocity, 60-yard dash, and pop time (catchers) are the headline measurables.',
 
-  active: false,
+  active: true,
 }

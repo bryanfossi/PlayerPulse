@@ -11,10 +11,12 @@
 
 import { createServiceClient } from '@/lib/supabase/server'
 
-export type SportSlug = 'soccer' | 'football' | 'basketball' | 'volleyball'
-export type PostType = 'college_specific' | 'tips_guide'
+export type SportSlug = 'soccer' | 'football' | 'basketball' | 'volleyball' | 'baseball' | 'lacrosse'
+// Only one post type now — the college-spotlight pool was retired in
+// migration 023. The column persists so legacy rows keep their label.
+export type PostType = 'tips_guide'
 
-export const ACTIVE_SPORTS: SportSlug[] = ['soccer', 'football', 'basketball', 'volleyball']
+export const ACTIVE_SPORTS: SportSlug[] = ['soccer', 'football', 'basketball', 'volleyball', 'baseball', 'lacrosse']
 
 export interface BlogPost {
   id: string

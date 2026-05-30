@@ -3,15 +3,20 @@
  *
  * Runs once per day via the Vercel cron at /api/blog/generate. On each run
  * it produces one post per active sport (soccer, football, basketball,
- * volleyball) using Claude. Calendar day determines the post type:
- *   - even day-of-month → college_specific
- *   - odd day-of-month  → tips_guide
+ * volleyball) using Claude. Calendar day determines which topic pool the
+ * day's posts come from:
+ *   - even day-of-month → Pool A (recruiting-process topics)
+ *   - odd  day-of-month → Pool B (recruiting-tips topics)
  *
- * Rotation state lives in the cron_state table (migration 022):
- *   - college_queue_index  → cycles through SCHOOLS[sport] per sport
- *   - tips_topic_index     → cycles through TIPS_TOPICS per sport (with a
- *                            sport-offset so sports don't all share the same
- *                            topic on the same day)
+ * Both pools persist as post_type = 'tips_guide' (the column is a single-
+ * valued holdover from when school-spotlight posts were a separate type).
+ *
+ * Rotation state lives in the cron_state table (migration 022 + 023):
+ *   - pool_a_topic_index → cycles through POOL_A_TOPICS per sport
+ *   - pool_b_topic_index → cycles through POOL_B_TOPICS per sport
+ *
+ * For variety, the per-sport index is offset by the sport's position so
+ * the four sports don't all share the same topic on a given day.
  *
  * All 4 sport generations run in parallel via Promise.allSettled so a single
  * sport failure doesn't kill the run.
@@ -20,7 +25,6 @@
 import type { Tool } from '@anthropic-ai/sdk/resources/messages'
 import { anthropic } from '@/lib/anthropic'
 import { createServiceClient } from '@/lib/supabase/server'
-import { getCollegeForSport } from '@/lib/colleges'
 import { ACTIVE_SPORTS, type PostType, type SportSlug } from '@/lib/blog/posts'
 
 // ----------------------------- Types -----------------------------
@@ -42,16 +46,33 @@ interface PerSportResult {
   reason?: string
 }
 
+export type TopicPool = 'A' | 'B'
+
 export interface DailyGenerationResult {
   status: 'ok' | 'partial' | 'error'
   post_type: PostType
+  pool: TopicPool
   day_number: number
   results: PerSportResult[]
 }
 
-// --------------------------- Tips topics --------------------------
+// --------------------------- Topic pools --------------------------
+//
+// Pool A — Recruiting-process topics (replaces the retired college-spotlight
+// pool). Even-numbered days draw from this pool.
+export const POOL_A_TOPICS = [
+  'The Complete {Sport} Recruiting Guide for High School Athletes in {Year}',
+  'How Early Should You Start {Sport} Recruiting? A Year-by-Year Timeline',
+  'What College {Sport} Coaches Actually Look for in a Recruit',
+  "How to Stand Out in {Sport} Recruiting: What Works and What Doesn't",
+  'The {Sport} Recruiting Email Guide: How to Write to Coaches at Every Stage',
+  'D1 vs D2 vs D3 vs NAIA vs NJCAA {Sport}: Choosing the Right Division',
+  'How to Build a {Sport} Recruiting Profile That Gets Coach Responses',
+  'College {Sport} Scholarships Explained: What Athletes and Parents Need to Know',
+]
 
-export const TIPS_TOPICS = [
+// Pool B — Recruiting-tips topics. Odd-numbered days draw from this pool.
+export const POOL_B_TOPICS = [
   'Top 10 {Sport} Recruiting Tips for High School Athletes in {Year}',
   'How to Email a College {Sport} Coach: Templates That Actually Work',
   'D1 vs D2 vs D3 {Sport}: Which Division Is Right for You?',
@@ -65,6 +86,8 @@ const SPORT_LABEL: Record<SportSlug, string> = {
   football: 'Football',
   basketball: 'Basketball',
   volleyball: 'Volleyball',
+  baseball: 'Baseball',
+  lacrosse: 'Lacrosse',
 }
 
 // --------------------------- Helpers ------------------------------
@@ -224,31 +247,6 @@ Critical rules:
 
 Output: Call the submit_blog_post tool with the completed post. Do not respond with text — only the tool call. The tool's input schema describes each field; the content field is plain markdown (raw newlines are fine — the tool wraps them safely).`
 
-export function buildCollegePrompt(sport: SportSlug, school: string): string {
-  const sportLabel = SPORT_LABEL[sport]
-  return `Write a 1,200–1,500 word SEO-optimized blog post.
-
-Title: How to Get Recruited by ${school} for ${sportLabel}: What Coaches Look For
-Sport: ${sportLabel}
-School: ${school}
-
-Structure (use ## H2 headings — no H1):
-1. Intro: what makes the ${sportLabel.toLowerCase()} program at ${school} a notable destination (conference level, recruiting profile, style of play if known in patterns). Set realistic stakes.
-2. What the coaching staff looks for in recruits — position-specific where relevant, plus intangibles (work rate, coachability, character).
-3. Academic requirements at ${school} — discuss in patterns appropriate to the school's tier; encourage the reader to verify on the school's admissions site.
-4. How to reach out: a concrete approach for emailing ${school} ${sportLabel.toLowerCase()} coaches. Include what to put in the first email and what to put in a follow-up.
-5. Timeline: when to start outreach for ${school}, key milestones (camps, official visits, signing windows where relevant).
-6. Closing section ("How FUSE-ID fits in" or similar): 2-3 short paragraphs covering — in this order — (a) how FUSE-ID helps a ${school} recruit specifically (school matching, coach email drafting, offer tracking), (b) a matter-of-fact aside on what serious recruiting tools cost: FUSE-ID is free to start, with paid tiers at $9.99/month (Starter) and $19.99/month (Pro), while NCSA charges $99-$200+/month and SportsRecruits is priced similarly — write this conversationally, like one teammate telling another the real numbers, no bullets, no marketing language, and (c) a soft CTA inviting the reader to start their free FUSE-ID profile at https://fuse-id.online/register.
-
-Naturally weave in these exact phrases at least once each somewhere in the post body:
-- "${school} ${sportLabel.toLowerCase()} recruiting"
-- "${school} ${sportLabel.toLowerCase()} scholarships"
-- "how to get recruited by ${school}"
-- "college ${sportLabel.toLowerCase()} recruiting"
-
-Slug should be kebab-case from the title (e.g., "how-to-get-recruited-by-${slugify(school)}-for-${sport}").`
-}
-
 export function buildTipsPrompt(sport: SportSlug, topic: string): string {
   const sportLabel = SPORT_LABEL[sport]
   return `Write a 1,200–1,500 word SEO-optimized blog post.
@@ -295,11 +293,9 @@ async function callClaudeStructured(systemPrompt: string, userPrompt: string): P
 
 export async function generateOnePost(args: {
   sport: SportSlug
-  postType: PostType
   prompt: string
-  schoolName: string | null
 }): Promise<PerSportResult> {
-  const { sport, postType, prompt, schoolName } = args
+  const { sport, prompt } = args
   try {
     // Tool-call output — the SDK gives us a structured object directly, so
     // we no longer need a JSON-parse step or a parse-failure retry. If
@@ -321,7 +317,7 @@ export async function generateOnePost(args: {
     if (!baseSlug) return { sport, status: 'error', reason: 'Empty slug' }
     const slug = await ensureUniqueSlug(baseSlug)
 
-    // Insert
+    // Insert — post_type is the only value the column allows now.
     const service = createServiceClient()
     const { error } = await untypedPosts(service)
       .from('blog_posts')
@@ -329,8 +325,7 @@ export async function generateOnePost(args: {
         title: parsed.title.slice(0, 300),
         slug,
         sport,
-        post_type: postType,
-        school_name: schoolName,
+        post_type: 'tips_guide' as PostType,
         content: parsed.content,
         excerpt: parsed.excerpt.slice(0, 200),
         meta_description: parsed.meta_description.slice(0, 160),
@@ -354,35 +349,30 @@ export async function generateOnePost(args: {
 // --------------------------- Public entry -------------------------
 
 export async function generateDailyBlogPosts(): Promise<DailyGenerationResult> {
+  const day = dayOfMonthUTC()
+  const pool: TopicPool = day % 2 === 0 ? 'A' : 'B'
+
   if (!process.env.ANTHROPIC_API_KEY) {
     return {
       status: 'error',
       post_type: 'tips_guide',
-      day_number: dayOfMonthUTC(),
+      pool,
+      day_number: day,
       results: ACTIVE_SPORTS.map((s) => ({ sport: s, status: 'error', reason: 'ANTHROPIC_API_KEY not set' })),
     }
   }
 
-  const day = dayOfMonthUTC()
-  const postType: PostType = day % 2 === 0 ? 'college_specific' : 'tips_guide'
+  // Read the index for whichever pool this day consumes.
+  const stateKey = pool === 'A' ? 'pool_a_topic_index' : 'pool_b_topic_index'
+  const baseIdx = await getCronInt(stateKey, 0)
+  const topics = pool === 'A' ? POOL_A_TOPICS : POOL_B_TOPICS
 
-  // Read rotation indices
-  const [collegeIdx, tipsIdx] = await Promise.all([
-    getCronInt('college_queue_index', 0),
-    getCronInt('tips_topic_index', 0),
-  ])
-
-  // Build per-sport jobs
+  // Build per-sport jobs. Offset the topic index by sport position so the
+  // four sports don't all draw the same topic on a given day.
   const jobs = ACTIVE_SPORTS.map((sport, sportIdx) => {
-    if (postType === 'college_specific') {
-      const school = getCollegeForSport(sport, collegeIdx)
-      return { sport, postType, schoolName: school, prompt: buildCollegePrompt(sport, school) }
-    }
-    // Tips: offset by sport index so the 4 sports don't all use the same
-    // topic on the same day (gives feed variety).
-    const topicIdx = (tipsIdx + sportIdx) % TIPS_TOPICS.length
-    const topic = fillTopicTemplate(TIPS_TOPICS[topicIdx], sport)
-    return { sport, postType, schoolName: null as string | null, prompt: buildTipsPrompt(sport, topic) }
+    const topicIdx = (baseIdx + sportIdx) % topics.length
+    const topic = fillTopicTemplate(topics[topicIdx], sport)
+    return { sport, prompt: buildTipsPrompt(sport, topic) }
   })
 
   // Generate in parallel — one failure shouldn't kill the others.
@@ -396,18 +386,13 @@ export async function generateDailyBlogPosts(): Promise<DailyGenerationResult> {
     }
   })
 
-  // Advance the rotation counter that this run consumed, even on partial
-  // failure — failed sports get the next school/topic next time rather
-  // than retrying the same one.
-  if (postType === 'college_specific') {
-    await setCronInt('college_queue_index', collegeIdx + 1)
-  } else {
-    await setCronInt('tips_topic_index', tipsIdx + 1)
-  }
+  // Advance the consumed pool's counter even on partial failure so the next
+  // day rolls forward rather than retrying the same topic for failed sports.
+  await setCronInt(stateKey, baseIdx + 1)
 
   const okCount = results.filter((r) => r.status === 'ok').length
   const status: DailyGenerationResult['status'] =
     okCount === results.length ? 'ok' : okCount === 0 ? 'error' : 'partial'
 
-  return { status, post_type: postType, day_number: day, results }
+  return { status, post_type: 'tips_guide', pool, day_number: day, results }
 }

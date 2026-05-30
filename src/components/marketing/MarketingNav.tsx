@@ -15,6 +15,8 @@ const sportLinks: { label: string; href: string; status: 'live' | 'soon' }[] = [
   { label: 'Volleyball', href: '/volleyball-recruiting', status: 'live' },
   { label: 'Football', href: '/football-recruiting', status: 'live' },
   { label: 'Basketball', href: '/basketball-recruiting', status: 'live' },
+  { label: 'Baseball', href: '/baseball-recruiting', status: 'live' },
+  { label: 'Lacrosse', href: '/lacrosse-recruiting', status: 'live' },
 ]
 
 const trailingLinks = [

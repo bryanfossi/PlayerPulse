@@ -56,6 +56,8 @@ const SPORT_LABEL: Record<SportSlug, string> = {
   football: 'Football',
   basketball: 'Basketball',
   volleyball: 'Volleyball',
+  baseball: 'Baseball',
+  lacrosse: 'Lacrosse',
 }
 
 const SPORT_COLOR: Record<SportSlug, string> = {
@@ -63,6 +65,8 @@ const SPORT_COLOR: Record<SportSlug, string> = {
   football: 'text-red-300',
   basketball: 'text-amber-300',
   volleyball: 'text-purple-300',
+  baseball: 'text-blue-300',
+  lacrosse: 'text-cyan-300',
 }
 
 function formatDate(iso: string): string {

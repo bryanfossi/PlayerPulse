@@ -103,5 +103,5 @@ export const lacrosse: SportConfig = {
   aiPromptContext:
     'College lacrosse recruiting in the United States operates under NCAA, NAIA, and NJCAA rules. Lacrosse is an equivalency sport at every scholarship-offering level, so partial aid is the norm. The Northeast and Mid-Atlantic remain the strongest recruiting hotbeds, though the sport is rapidly growing nationally. Coaches evaluate stick skills, lacrosse IQ, athleticism, and position-specific traits, with film from club tournaments (e.g. summer travel circuits) heavily weighted.',
 
-  active: false,
+  active: true,
 }

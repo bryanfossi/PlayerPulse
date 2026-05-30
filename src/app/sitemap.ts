@@ -41,6 +41,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
     },
     {
+      url: `${BASE}/baseball-recruiting`,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+      lastModified: new Date(),
+    },
+    {
+      url: `${BASE}/lacrosse-recruiting`,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+      lastModified: new Date(),
+    },
+    {
       url: `${BASE}/blog`,
       changeFrequency: 'daily',
       priority: 0.8,

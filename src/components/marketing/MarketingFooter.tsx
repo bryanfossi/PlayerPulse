@@ -30,6 +30,8 @@ export function MarketingFooter() {
             <Link href="/volleyball-recruiting" className="text-sm transition-colors hover:text-white" style={{ color: '#9CA3AF' }}>Volleyball Recruiting</Link>
             <Link href="/football-recruiting" className="text-sm transition-colors hover:text-white" style={{ color: '#9CA3AF' }}>Football Recruiting</Link>
             <Link href="/basketball-recruiting" className="text-sm transition-colors hover:text-white" style={{ color: '#9CA3AF' }}>Basketball Recruiting</Link>
+            <Link href="/baseball-recruiting" className="text-sm transition-colors hover:text-white" style={{ color: '#9CA3AF' }}>Baseball Recruiting</Link>
+            <Link href="/lacrosse-recruiting" className="text-sm transition-colors hover:text-white" style={{ color: '#9CA3AF' }}>Lacrosse Recruiting</Link>
             <Link href="/login" className="text-sm transition-colors hover:text-white" style={{ color: '#9CA3AF' }}>Sign in</Link>
             <a
               href="https://calendar.app.google/96Z4Kgp9mLh35sMj9"
