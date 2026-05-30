@@ -18,6 +18,12 @@ const PUBLIC_PATHS = [
   '/terms',
   '/privacy',
   '/auth/accept-co-ownership',
+  '/soccer-recruiting',
+  '/football-recruiting',
+  '/basketball-recruiting',
+  '/volleyball-recruiting',
+  '/baseball-recruiting',
+  '/lacrosse-recruiting',
   '/sitemap.xml',
   '/robots.txt',
 ]
