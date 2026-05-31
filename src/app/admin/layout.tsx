@@ -36,6 +36,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               Dashboard
             </Link>
             <Link
+              href="/admin/growth"
+              className="text-muted-foreground hover:text-white transition-colors"
+            >
+              Growth
+            </Link>
+            <Link
               href="/admin/feedback"
               className="text-muted-foreground hover:text-white transition-colors"
             >
