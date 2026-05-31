@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next'
 import { DM_Sans } from 'next/font/google'
 import Script from 'next/script'
+import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Toaster } from 'sonner'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import './globals.css'
@@ -162,6 +164,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
         </ThemeProvider>
         <Toaster richColors position="bottom-right" />
+        {/* Vercel Web Analytics — visitor and page-view tracking. Free on
+            our plan, no cookies, GDPR-friendly. Dashboard lives at
+            vercel.com/<team>/<project>/analytics. */}
+        <Analytics />
+        {/* Speed Insights — measures Core Web Vitals (LCP, INP, CLS) from
+            real visitors. Free quota. Same dashboard, separate tab. */}
+        <SpeedInsights />
       </body>
     </html>
   )
