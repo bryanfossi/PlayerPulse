@@ -101,6 +101,27 @@ export async function POST(request: Request) {
         return NextResponse.json({ received: true })
       }
 
+      // Capture the Stripe customer id on the user's profile so the
+      // Billing Portal can be opened in one query later. Idempotent — if
+      // the user already has one, we leave it alone.
+      const customerId = session.customer as string | null
+      if (customerId) {
+        const untypedUpd = supabaseAdmin as unknown as {
+          from: (t: string) => {
+            update: (row: Record<string, unknown>) => {
+              eq: (k: string, v: string) => Promise<{ error: unknown }>
+            }
+          }
+        }
+        const { error: custErr } = await untypedUpd
+          .from('profiles')
+          .update({ stripe_customer_id: customerId })
+          .eq('id', userId)
+        if (custErr) {
+          console.error('[webhook] stripe_customer_id update failed:', custErr)
+        }
+      }
+
       if (type === 'subscription') {
         const planMeta = session.metadata?.plan as SubscriptionTierId | undefined
         const planId: SubscriptionTierId =

@@ -3,11 +3,18 @@ import { Settings, Palette } from 'lucide-react'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { ParentInviteWidget } from '@/components/dashboard/ParentInviteWidget'
 import { ThemeSelector } from '@/components/settings/ThemeSelector'
+import { BillingSection } from '@/components/settings/BillingSection'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { Database } from '@/types/database'
 
 type InviteRow = Database['public']['Tables']['parent_invites']['Row']
 type PlayerRow = Database['public']['Tables']['players']['Row']
+
+type Tier = 'free' | 'starter' | 'pro' | 'legacy'
+function asTier(v: unknown): Tier {
+  if (v === 'starter' || v === 'pro' || v === 'legacy') return v
+  return 'free'
+}
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -30,6 +37,24 @@ export default async function SettingsPage() {
     .order('created_at', { ascending: false })
   const invites = (inviteData ?? []) as Pick<InviteRow, 'email' | 'token' | 'accepted' | 'expires_at'>[]
 
+  // Pull billing/subscription state from the user's profile.
+  const untypedProfile = service as unknown as {
+    from: (t: string) => {
+      select: (c: string) => {
+        eq: (k: string, v: string) => {
+          maybeSingle: () => Promise<{ data: { tier?: string; stripe_customer_id?: string | null; subscription_id?: string | null } | null }>
+        }
+      }
+    }
+  }
+  const { data: profileRow } = await untypedProfile
+    .from('profiles')
+    .select('tier, stripe_customer_id, subscription_id')
+    .eq('id', user.id)
+    .maybeSingle()
+  const tier = asTier(profileRow?.tier)
+  const hasBillingHistory = !!(profileRow?.stripe_customer_id || profileRow?.subscription_id)
+
   return (
     <div className="p-6 md:p-8 max-w-2xl mx-auto space-y-6">
       <div className="flex items-center gap-3">
@@ -41,6 +66,9 @@ export default async function SettingsPage() {
           <p className="text-muted-foreground text-sm mt-0.5">Manage access and preferences</p>
         </div>
       </div>
+
+      {/* Billing & subscription */}
+      <BillingSection tier={tier} hasBillingHistory={hasBillingHistory} />
 
       {/* Visual Theme */}
       <Card>
