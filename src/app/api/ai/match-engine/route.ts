@@ -18,6 +18,11 @@ export const maxDuration = 300
 type PlayerRow = Database['public']['Tables']['players']['Row']
 
 export async function POST(request: Request) {
+  // Set once a rerun has been charged; cleared once the charge is either
+  // refunded or earned (the AI produced a usable list). If anything throws
+  // while this is set, the catch block refunds it.
+  let pendingCharge: { service: ReturnType<typeof createServiceClient>; userId: string } | null = null
+
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -73,6 +78,7 @@ export async function POST(request: Request) {
           { status: 402 },
         )
       }
+      pendingCharge = { service, userId: user.id }
     }
 
     // Build prompt and call Claude. Sonnet 4.6 is used here rather than
@@ -96,7 +102,14 @@ export async function POST(request: Request) {
       .trim()
 
     if (!rawTSV) {
-      return NextResponse.json({ error: 'Empty response from AI' }, { status: 500 })
+      if (pendingCharge) {
+        await refundRerun(pendingCharge.service, pendingCharge.userId)
+        pendingCharge = null
+      }
+      return NextResponse.json(
+        { error: isFirstRun ? 'Empty response from AI' : 'Empty response from AI. Your tokens have been refunded — please try again.' },
+        { status: 500 },
+      )
     }
 
     // Parse TSV
@@ -111,11 +124,9 @@ export async function POST(request: Request) {
       )
 
       // Refund the tokens — Claude failed, not the user
-      if (!isFirstRun) {
-        await service.rpc('refund_tokens', {
-          p_user_id: user.id,
-          p_amount: TOKEN_COSTS.FULL_MATCH_RERUN,
-        })
+      if (pendingCharge) {
+        await refundRerun(pendingCharge.service, pendingCharge.userId)
+        pendingCharge = null
       }
 
       return NextResponse.json(
@@ -123,6 +134,9 @@ export async function POST(request: Request) {
         { status: 500 },
       )
     }
+
+    // The AI produced a usable list, so the rerun charge is earned.
+    pendingCharge = null
 
     if (rows.length < 40) {
       console.warn(`[match-engine] expected 40 rows, got ${rows.length} — proceeding`)
@@ -280,9 +294,32 @@ export async function POST(request: Request) {
   } catch (err) {
     console.error('[match-engine] unexpected error:', err)
     Sentry.captureException(err, { tags: { feature: 'match-engine' } })
+    if (pendingCharge) {
+      await refundRerun(pendingCharge.service, pendingCharge.userId)
+    }
     return NextResponse.json(
       { error: err instanceof Error ? err.message : 'Internal server error' },
       { status: 500 }
     )
+  }
+}
+
+/**
+ * Return a rerun charge to the user. Never throws: a failed refund is
+ * reported to Sentry rather than masking the original error response.
+ */
+async function refundRerun(
+  service: ReturnType<typeof createServiceClient>,
+  userId: string,
+): Promise<void> {
+  try {
+    const { error } = await service.rpc('refund_tokens', {
+      p_user_id: userId,
+      p_amount: TOKEN_COSTS.FULL_MATCH_RERUN,
+    })
+    if (error) throw error
+  } catch (refundErr) {
+    console.error('[match-engine] refund failed:', refundErr)
+    Sentry.captureException(refundErr, { tags: { feature: 'match-engine', stage: 'refund' } })
   }
 }
