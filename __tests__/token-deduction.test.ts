@@ -3,7 +3,9 @@
  *
  * Verifies that each route calls the consume_tokens RPC with the correct
  * amount BEFORE the AI call, and refund_tokens with the correct amount
- * if the AI call fails after deduction.
+ * if the AI call fails after deduction, whether it fails by returning an
+ * unusable result or by throwing. A charge that the AI earned is never
+ * refunded, and a request that fails validation is never charged.
  *
  * NOTE: The actual "allowance-before-pack" priority logic lives in the
  * Postgres consume_tokens function (migration 012). That priority is
@@ -55,9 +57,17 @@ const rpcCalls: Array<{ name: string; args: Record<string, unknown> }> = []
 // Default: consume_tokens returns true (sufficient balance)
 let mockConsumeTokensResult = true
 
+// Default: the draft-email player_school lookup finds a row on the list
+let mockPlayerSchoolData: Record<string, unknown> | null = {
+  school_id: 'school-1',
+  player_id: 'player-1',
+}
+
 function chain(resolveWith: unknown = null): Record<string, jest.Mock> {
   const node: Record<string, jest.Mock> = {
     eq: jest.fn(),
+    // Ownership filter: routes scope player lookups to owner OR co-owner.
+    or: jest.fn(),
     order: jest.fn(),
     limit: jest.fn(),
     select: jest.fn(),
@@ -66,6 +76,7 @@ function chain(resolveWith: unknown = null): Record<string, jest.Mock> {
     then: undefined as unknown as jest.Mock,
   }
   node.eq.mockReturnValue(node)
+  node.or.mockReturnValue(node)
   node.order.mockReturnValue(node)
   node.limit.mockReturnValue(node)
   node.select.mockReturnValue(node)
@@ -91,9 +102,7 @@ function makeServiceClient() {
       }
       if (table === 'player_schools') {
         return {
-          select: jest.fn().mockReturnValue(
-            chain({ school_id: 'school-1', player_id: 'player-1' }),
-          ),
+          select: jest.fn().mockReturnValue(chain(mockPlayerSchoolData)),
           insert: jest.fn().mockResolvedValue({ error: null }),
           delete: jest.fn().mockReturnValue(chain(null)),
           upsert: jest.fn().mockReturnValue(chain({ id: 'ps-1' })),
@@ -220,6 +229,7 @@ function buildValidTSV() {
 beforeEach(() => {
   rpcCalls.length = 0
   mockConsumeTokensResult = true
+  mockPlayerSchoolData = { school_id: 'school-1', player_id: 'player-1' }
   mockMessagesCreate.mockReset()
   mockParseTSV.mockReset()
   ;(createServiceClient as jest.Mock).mockImplementation(makeServiceClient)
@@ -316,6 +326,82 @@ describe('match-engine token gate', () => {
     const refundCall = rpcCalls.find((c) => c.name === 'refund_tokens')
     expect(refundCall).toBeUndefined()
   })
+
+  test('refunds tokens when the AI call throws on a rerun', async () => {
+    mockPlayerData = {
+      ...BASE_PLAYER,
+      match_engine_run_at: '2024-01-01T00:00:00Z',
+    }
+    mockMessagesCreate.mockRejectedValueOnce(new Error('upstream timeout'))
+
+    const res = await matchEnginePost(makeRequest(VALID_MATCH_BODY))
+    expect(res.status).toBe(500)
+
+    const refundCalls = rpcCalls.filter((c) => c.name === 'refund_tokens')
+    expect(refundCalls).toHaveLength(1)
+    expect(refundCalls[0].args.p_amount).toBe(TOKEN_COSTS.FULL_MATCH_RERUN)
+    expect(refundCalls[0].args.p_user_id).toBe('user-123')
+  })
+
+  test('refunds tokens when the AI returns an empty response on a rerun', async () => {
+    mockPlayerData = {
+      ...BASE_PLAYER,
+      match_engine_run_at: '2024-01-01T00:00:00Z',
+    }
+    mockMessagesCreate.mockResolvedValueOnce({
+      content: [{ type: 'text', text: '   ' }],
+    })
+
+    const res = await matchEnginePost(makeRequest(VALID_MATCH_BODY))
+    expect(res.status).toBe(500)
+
+    const refundCalls = rpcCalls.filter((c) => c.name === 'refund_tokens')
+    expect(refundCalls).toHaveLength(1)
+    expect(refundCalls[0].args.p_amount).toBe(TOKEN_COSTS.FULL_MATCH_RERUN)
+  })
+
+  test('refunds exactly once when AI returns too few rows on a rerun', async () => {
+    mockPlayerData = {
+      ...BASE_PLAYER,
+      match_engine_run_at: '2024-01-01T00:00:00Z',
+    }
+    mockMessagesCreate.mockResolvedValueOnce({
+      content: [{ type: 'text', text: 'tsv-data' }],
+    })
+    mockParseTSV.mockReturnValueOnce({ rows: Array(5).fill({}), errorRows: [] })
+
+    await matchEnginePost(makeRequest(VALID_MATCH_BODY))
+
+    expect(rpcCalls.filter((c) => c.name === 'refund_tokens')).toHaveLength(1)
+  })
+
+  test('does NOT refund a successful rerun', async () => {
+    mockPlayerData = {
+      ...BASE_PLAYER,
+      match_engine_run_at: '2024-01-01T00:00:00Z',
+    }
+    mockMessagesCreate.mockResolvedValueOnce({
+      content: [{ type: 'text', text: 'tsv-data' }],
+    })
+    mockParseTSV.mockReturnValueOnce(buildValidTSV())
+
+    const res = await matchEnginePost(makeRequest(VALID_MATCH_BODY))
+    expect(res.status).toBe(200)
+    expect(rpcCalls.find((c) => c.name === 'refund_tokens')).toBeUndefined()
+  })
+
+  test('does NOT refund when the AI call throws on a first run', async () => {
+    mockPlayerData = {
+      ...BASE_PLAYER,
+      match_engine_run_at: null,
+    }
+    mockMessagesCreate.mockRejectedValueOnce(new Error('upstream timeout'))
+
+    const res = await matchEnginePost(makeRequest(VALID_MATCH_BODY))
+    expect(res.status).toBe(500)
+    expect(rpcCalls.find((c) => c.name === 'consume_tokens')).toBeUndefined()
+    expect(rpcCalls.find((c) => c.name === 'refund_tokens')).toBeUndefined()
+  })
 })
 
 // ---- draft-email ----
@@ -369,5 +455,49 @@ describe('draft-email token gate', () => {
     const refundCall = rpcCalls.find((c) => c.name === 'refund_tokens')
     expect(refundCall).toBeDefined()
     expect(refundCall!.args.p_amount).toBe(TOKEN_COSTS.EMAIL_DRAFT)
+  })
+  test('refunds when the AI call throws', async () => {
+    mockPlayerData = { ...BASE_PLAYER }
+    mockMessagesCreate.mockRejectedValueOnce(new Error('upstream timeout'))
+
+    const res = await draftEmailPost(makeRequest(VALID_DRAFT_BODY))
+    expect(res.status).toBe(500)
+
+    const refundCalls = rpcCalls.filter((c) => c.name === 'refund_tokens')
+    expect(refundCalls).toHaveLength(1)
+    expect(refundCalls[0].args.p_amount).toBe(TOKEN_COSTS.EMAIL_DRAFT)
+    expect(refundCalls[0].args.p_user_id).toBe('user-123')
+  })
+
+  test('refunds exactly once when AI returns empty body', async () => {
+    mockPlayerData = { ...BASE_PLAYER }
+    mockMessagesCreate.mockResolvedValueOnce({
+      content: [{ type: 'text', text: JSON.stringify({ subject: 'S', body: '' }) }],
+    })
+
+    await draftEmailPost(makeRequest(VALID_DRAFT_BODY))
+
+    expect(rpcCalls.filter((c) => c.name === 'refund_tokens')).toHaveLength(1)
+  })
+
+  test('does NOT charge when the school is not on the player list', async () => {
+    mockPlayerData = { ...BASE_PLAYER }
+    mockPlayerSchoolData = null
+
+    const res = await draftEmailPost(makeRequest(VALID_DRAFT_BODY))
+    expect(res.status).toBe(404)
+    expect(rpcCalls.find((c) => c.name === 'consume_tokens')).toBeUndefined()
+    expect(mockMessagesCreate).not.toHaveBeenCalled()
+  })
+
+  test('does NOT refund a successful draft', async () => {
+    mockPlayerData = { ...BASE_PLAYER }
+    mockMessagesCreate.mockResolvedValueOnce({
+      content: [{ type: 'text', text: JSON.stringify({ subject: 'S', body: 'Hello Coach!' }) }],
+    })
+
+    const res = await draftEmailPost(makeRequest(VALID_DRAFT_BODY))
+    expect(res.status).toBe(200)
+    expect(rpcCalls.find((c) => c.name === 'refund_tokens')).toBeUndefined()
   })
 })

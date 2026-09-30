@@ -14,6 +14,11 @@ type SchoolRow = Database['public']['Tables']['schools']['Row']
 export const maxDuration = 30
 
 export async function POST(request: Request) {
+  // Set once the draft has been charged; cleared once the charge is either
+  // refunded or earned. If anything throws while this is set, the catch
+  // block refunds it.
+  let pendingCharge: { service: ReturnType<typeof createServiceClient>; userId: string } | null = null
+
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -52,23 +57,6 @@ export async function POST(request: Request) {
     > & { sport_id?: string }) | null
     if (!player) return NextResponse.json({ error: 'Player not found' }, { status: 404 })
 
-    // Token gate: every email draft costs EMAIL_DRAFT tokens.
-    // Atomic deduction (allowance first, then pack) BEFORE calling Claude.
-    const { data: ok, error: tokenErr } = await service.rpc('consume_tokens', {
-      p_user_id: user.id,
-      p_amount: TOKEN_COSTS.EMAIL_DRAFT,
-    })
-
-    if (tokenErr || !ok) {
-      return NextResponse.json(
-        {
-          error: 'NO_TOKENS',
-          message: `Each email draft costs ${TOKEN_COSTS.EMAIL_DRAFT} token. You're out — purchase a token pack to continue.`,
-        },
-        { status: 402 },
-      )
-    }
-
     // Fetch player_school + school (verify ownership)
     const { data: psRaw } = await service
       .from('player_schools')
@@ -85,6 +73,26 @@ export async function POST(request: Request) {
       .maybeSingle()
     const school = schoolRaw as Pick<SchoolRow, 'id' | 'name' | 'verified_division' | 'city' | 'state' | 'conference'> | null
     if (!school) return NextResponse.json({ error: 'School record not found' }, { status: 404 })
+
+    // Token gate: every email draft costs EMAIL_DRAFT tokens.
+    // Atomic deduction (allowance first, then pack) BEFORE calling Claude,
+    // but only after the request is known to be valid, so a bad
+    // player_school_id never costs a token.
+    const { data: ok, error: tokenErr } = await service.rpc('consume_tokens', {
+      p_user_id: user.id,
+      p_amount: TOKEN_COSTS.EMAIL_DRAFT,
+    })
+
+    if (tokenErr || !ok) {
+      return NextResponse.json(
+        {
+          error: 'NO_TOKENS',
+          message: `Each email draft costs ${TOKEN_COSTS.EMAIL_DRAFT} token. You're out — purchase a token pack to continue.`,
+        },
+        { status: 402 },
+      )
+    }
+    pendingCharge = { service, userId: user.id }
 
     // Build prompt and call Sonnet
     const sport = getSportOrDefault(player.sport_id)
@@ -128,15 +136,16 @@ export async function POST(request: Request) {
 
     if (!emailBody) {
       // Refund the token — Claude failed, not the user
-      await service.rpc('refund_tokens', {
-        p_user_id: user.id,
-        p_amount: TOKEN_COSTS.EMAIL_DRAFT,
-      })
+      await refundDraft(service, user.id)
+      pendingCharge = null
       return NextResponse.json(
         { error: 'Failed to generate email. Your token has been refunded — please try again.' },
         { status: 500 },
       )
     }
+
+    // The draft was generated, so the charge is earned.
+    pendingCharge = null
 
     // Save draft to ai_drafts
     const { data: draft, error: draftErr } = await service
@@ -163,9 +172,31 @@ export async function POST(request: Request) {
     })
   } catch (err) {
     console.error('[draft-email] unexpected error:', err)
+    if (pendingCharge) {
+      await refundDraft(pendingCharge.service, pendingCharge.userId)
+    }
     return NextResponse.json(
       { error: err instanceof Error ? err.message : 'Internal server error' },
       { status: 500 }
     )
+  }
+}
+
+/**
+ * Return an email-draft charge to the user. Never throws: a failed refund
+ * is logged rather than masking the original error response.
+ */
+async function refundDraft(
+  service: ReturnType<typeof createServiceClient>,
+  userId: string,
+): Promise<void> {
+  try {
+    const { error } = await service.rpc('refund_tokens', {
+      p_user_id: userId,
+      p_amount: TOKEN_COSTS.EMAIL_DRAFT,
+    })
+    if (error) throw error
+  } catch (refundErr) {
+    console.error('[draft-email] refund failed:', refundErr)
   }
 }
